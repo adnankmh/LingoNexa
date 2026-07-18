@@ -1,0 +1,87 @@
+import 'package:flutter/material.dart';
+
+import '../core/app_state.dart';
+import '../core/app_theme.dart';
+import '../core/i18n.dart';
+import '../data/language_catalog.dart';
+import '../widgets/ui.dart';
+import 'admin_screen.dart';
+import 'language_picker_screen.dart';
+
+class ProfileScreen extends StatelessWidget {
+  const ProfileScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final state = AppStateScope.of(context);
+    final target = LanguageCatalog.byCode(state.targetLanguageCode);
+    return ResponsivePage(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(children: [Container(width: 76, height: 76, alignment: Alignment.center, decoration: BoxDecoration(gradient: LinearGradient(colors: [Theme.of(context).colorScheme.primary, Theme.of(context).colorScheme.tertiary]), borderRadius: BorderRadius.circular(25)), child: const Text('AY', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 24))), const SizedBox(width: 15), Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('Language Explorer', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900)), const SizedBox(height: 3), Text('${target.flag} ${target.nativeName} · ${state.currentLevel}', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)), const SizedBox(height: 7), Row(children: [Icon(Icons.local_fire_department_rounded, color: Colors.orange.shade600, size: 18), Text(' ${state.streak} days  ·  ${state.xp} XP', style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 12))])]))]),
+          const SizedBox(height: 22),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final width = (constraints.maxWidth - 20) / 3;
+              return Wrap(spacing: 10, runSpacing: 10, children: [_MiniStat(width: width, value: '${state.completedLessonIds.length}', label: 'Lessons', icon: Icons.check_circle_outline_rounded), _MiniStat(width: width, value: '${state.reviewLessonIds.length}', label: 'Reviews', icon: Icons.autorenew_rounded), _MiniStat(width: width, value: '${state.dailyMinutes}', label: 'Minutes', icon: Icons.timer_outlined)]);
+            },
+          ),
+          const SizedBox(height: 25),
+          SectionHeading(title: context.text.get('themes'), subtitle: '${AppThemes.presets.length} polished color systems'),
+          const SizedBox(height: 12),
+          SizedBox(
+            height: 82,
+            child: ListView(scrollDirection: Axis.horizontal, children: [for (final preset in AppThemes.presets) _ThemeChoice(preset: preset, selected: state.themeId == preset.id, onTap: () => state.setTheme(preset.id))]),
+          ),
+          const SizedBox(height: 22),
+          Card(
+            child: Column(children: [
+              ListTile(leading: const Icon(Icons.translate_rounded), title: const Text('Learning language', style: TextStyle(fontWeight: FontWeight.w800)), subtitle: Text('${target.flag} ${target.nativeName}'), trailing: const Icon(Icons.chevron_right_rounded), onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LanguagePickerScreen()))),
+              const Divider(height: 1),
+              ListTile(leading: const Icon(Icons.language_rounded), title: const Text('Interface language', style: TextStyle(fontWeight: FontWeight.w800)), subtitle: Text(state.locale.languageCode == 'ar' ? 'العربية' : 'English'), trailing: SegmentedButton<String>(segments: const [ButtonSegment(value: 'ar', label: Text('ع')), ButtonSegment(value: 'en', label: Text('EN'))], selected: {state.locale.languageCode}, showSelectedIcon: false, onSelectionChanged: (value) => state.setLocale(value.first))),
+              const Divider(height: 1),
+              SwitchListTile(value: state.offlineMode, onChanged: state.setOfflineMode, secondary: const Icon(Icons.offline_bolt_rounded), title: Text(context.text.get('offline'), style: const TextStyle(fontWeight: FontWeight.w800)), subtitle: const Text('Keep downloaded lessons available without a connection')),
+              const Divider(height: 1),
+              ListTile(leading: const Icon(Icons.notifications_outlined), title: const Text('Learning reminders', style: TextStyle(fontWeight: FontWeight.w800)), subtitle: const Text('Daily at 7:30 PM'), trailing: const Icon(Icons.chevron_right_rounded), onTap: () {}),
+              const Divider(height: 1),
+              ListTile(leading: const Icon(Icons.accessibility_new_rounded), title: const Text('Accessibility', style: TextStyle(fontWeight: FontWeight.w800)), subtitle: const Text('Text scale, reduced motion, contrast'), trailing: const Icon(Icons.chevron_right_rounded), onTap: () {}),
+            ]),
+          ),
+          const SizedBox(height: 12),
+          Card(
+            child: ListTile(leading: Icon(Icons.workspace_premium_rounded, color: Theme.of(context).colorScheme.primary), title: Text(context.text.get('premium'), style: const TextStyle(fontWeight: FontWeight.w900)), subtitle: const Text('Offline packs, unlimited role-play, family learning'), trailing: FilledButton.tonal(onPressed: () {}, child: const Text('View'))),
+          ),
+          const SizedBox(height: 12),
+          Card(
+            child: ListTile(leading: const Icon(Icons.admin_panel_settings_outlined), title: Text(context.text.get('admin'), style: const TextStyle(fontWeight: FontWeight.w900)), subtitle: const Text('Brand, content, modules, and deployment configuration'), trailing: const Icon(Icons.chevron_right_rounded), onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminScreen()))),
+          ),
+          const SizedBox(height: 15),
+          Center(child: Text('LingoNexa 1.0.0 · Original Flutter platform', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 11))),
+        ],
+      ),
+    );
+  }
+}
+
+class _MiniStat extends StatelessWidget {
+  const _MiniStat({required this.width, required this.value, required this.label, required this.icon});
+  final double width;
+  final String value;
+  final String label;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) => Container(width: width, padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8), decoration: BoxDecoration(color: Theme.of(context).cardTheme.color, borderRadius: BorderRadius.circular(19), border: Border.all(color: Theme.of(context).dividerColor)), child: Column(children: [Icon(icon, color: Theme.of(context).colorScheme.primary, size: 21), const SizedBox(height: 5), Text(value, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 18)), Text(label, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 10.5))]));
+}
+
+class _ThemeChoice extends StatelessWidget {
+  const _ThemeChoice({required this.preset, required this.selected, required this.onTap});
+  final ThemePreset preset;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => GestureDetector(onTap: onTap, child: Container(width: 92, margin: const EdgeInsetsDirectional.only(end: 9), padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: preset.background, borderRadius: BorderRadius.circular(18), border: Border.all(color: selected ? preset.seed : Theme.of(context).dividerColor, width: selected ? 3 : 1)), child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [Container(width: 25, height: 25, decoration: BoxDecoration(color: preset.seed, shape: BoxShape.circle), child: selected ? const Icon(Icons.check_rounded, size: 16, color: Colors.white) : null), const SizedBox(height: 5), Text(preset.name, style: TextStyle(color: preset.brightness == Brightness.dark ? Colors.white : Colors.black87, fontWeight: FontWeight.w800, fontSize: 10.5))])));
+}
+

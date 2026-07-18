@@ -1,0 +1,13 @@
+{
+  "name": "LingoNexa",
+  "short_name": "LingoNexa",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#11162A",
+  "theme_color": "#6C63FF",
+  "description": "Learn languages through structured practice and real-world scenarios.",
+  "orientation": "portrait-primary",
+  "prefer_related_applications": false,
+  "icons": []
+}
+
