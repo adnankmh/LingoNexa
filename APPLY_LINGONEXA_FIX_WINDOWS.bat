@@ -6,6 +6,7 @@ echo Cleaning obsolete workflows and conflicting Android Gradle files...
 
 if exist ".github\workflows\dart.yml" del /q ".github\workflows\dart.yml"
 if exist ".github\workflows\dart.yaml" del /q ".github\workflows\dart.yaml"
+if exist ".github\workflows\build.yml" del /q ".github\workflows\build.yml"
 
 if exist "android\settings.gradle.kts" if exist "android\settings.gradle" del /q "android\settings.gradle"
 if exist "android\build.gradle.kts" if exist "android\build.gradle" del /q "android\build.gradle"

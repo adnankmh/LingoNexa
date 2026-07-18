@@ -1,8 +1,15 @@
-# ملاحظات إصدار LingoNexa 1.1.2
+# ملاحظات إصدار LingoNexa 1.1.3
 
 تاريخ الحزمة: 19 يوليو 2026
 
 ## ما الجديد
+
+- تقسيم GitHub Actions إلى خمسة Workflows مستقلة: Flutter CI وAPK وAAB وWeb وDeploy GitHub Pages.
+- جعل APK وAAB وWeb تبدأ تلقائيًا بشكل مستقل بعد نجاح Flutter CI على فرع main.
+- فصل بناء Web عن نشر Pages حتى لا يفشل بناء الويب بسبب إعداد Pages.
+- إضافة فحص لتفعيل GitHub Pages؛ عند عدم تفعيلها يتم تخطي النشر بأمان بدل خطأ 404.
+- ترقية `checkout` إلى v6 و`setup-java` إلى v5 و`upload-artifact` إلى v7 و`upload-pages-artifact` إلى v5 لدعم Node 24.
+- إبقاء `deploy-pages@v4` لأنه الإصدار الرسمي الحالي، مع اعتبار تحذير punycode تحذيرًا من الأداة وليس فشلًا في التطبيق.
 
 - ترقية Android Gradle Plugin من 8.7.3 إلى 8.11.1.
 - ترقية Kotlin Gradle Plugin من 2.1.0 إلى 2.2.20.
@@ -21,7 +28,7 @@
 - 8 مسارات للأهداف الواقعية و12 موضوع قواعد و12 فئة عبارات.
 - خطة أسبوعية شخصية، نظام إنجازات ودوري، تنزيل 67 حزمة دون إنترنت، وسجل شهادات.
 - توسعة الملف الشخصي ولوحة الإدارة وإتاحة إعادة بناء الخطة.
-- Workflow واحد صحيح يثبت Flutter ويستخدم `flutter pub get` ويبني APK وAAB والويب.
+- Workflows مستقلة تثبت Flutter وتستخدم `flutter pub get` وتنتج Artifacts منفصلة.
 - تعليمات عربية دقيقة لمستخدمي GitHub Desktop دون الحاجة إلى Android Studio محليًا.
 
 ## الأساس الموجود

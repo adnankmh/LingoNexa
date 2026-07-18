@@ -26,7 +26,12 @@ REQUIRED = [
     "lib/screens/achievements_screen.dart",
     "lib/screens/downloads_screen.dart",
     "lib/screens/certificates_screen.dart",
-    ".github/workflows/build.yml",
+    ".github/workflows/flutter_ci.yml",
+    ".github/workflows/apk.yml",
+    ".github/workflows/aab.yml",
+    ".github/workflows/web.yml",
+    ".github/workflows/pages.yml",
+    "scripts/ci_prepare.sh",
     "android/app/src/main/AndroidManifest.xml",
     "android/settings.gradle.kts",
     "android/gradle/wrapper/gradle-wrapper.properties",
@@ -71,19 +76,57 @@ for file in (ROOT / "lib").rglob("*.dart"):
 
 workflow_files = sorted((ROOT / ".github/workflows").glob("*.y*ml"))
 workflow_names = [file.name for file in workflow_files]
-if workflow_names not in (["build.yml"], ["build.yml", "dart.yml"]):
-    fail("only build.yml and the optional disabled dart.yml compatibility guard are allowed")
-workflow = (ROOT / ".github/workflows/build.yml").read_text(encoding="utf-8")
-if "dart pub get" in workflow:
-    fail("Flutter workflow must never use dart pub get")
-if workflow.count("flutter pub get") < 2:
-    fail("Flutter dependency setup is missing from one or more jobs")
+required_workflows = {"aab.yml", "apk.yml", "flutter_ci.yml", "pages.yml", "web.yml"}
+optional_guards = {"build.yml", "dart.yml"}
+if not required_workflows.issubset(workflow_names):
+    fail("one or more separated workflows are missing")
+if set(workflow_names) - required_workflows - optional_guards:
+    fail("unexpected workflow file found")
+
+for workflow_path in workflow_files:
+    workflow = workflow_path.read_text(encoding="utf-8")
+    if "dart pub get" in workflow:
+        fail(f"Flutter workflow must never use dart pub get: {workflow_path.name}")
+
+prepare_script = (ROOT / "scripts/ci_prepare.sh").read_text(encoding="utf-8")
+if "flutter pub get" not in prepare_script:
+    fail("shared Flutter dependency setup is missing")
+
+expected_names = {
+    "flutter_ci.yml": "Flutter CI",
+    "apk.yml": "APK",
+    "aab.yml": "AAB",
+    "web.yml": "Web",
+    "pages.yml": "Deploy GitHub Pages",
+}
+for filename, display_name in expected_names.items():
+    workflow = (ROOT / ".github/workflows" / filename).read_text(encoding="utf-8")
+    if f"name: {display_name}" not in workflow:
+        fail(f"incorrect display name in {filename}")
+
+for filename in ("flutter_ci.yml", "apk.yml", "aab.yml", "web.yml", "pages.yml"):
+    workflow = (ROOT / ".github/workflows" / filename).read_text(encoding="utf-8")
+    if "actions/checkout@v6" not in workflow:
+        fail(f"{filename} must use Node 24 compatible checkout@v6")
+
+if "actions/upload-artifact@v7" not in (ROOT / ".github/workflows/apk.yml").read_text(encoding="utf-8"):
+    fail("APK workflow must use Node 24 compatible upload-artifact@v7")
+if "actions/upload-artifact@v7" not in (ROOT / ".github/workflows/aab.yml").read_text(encoding="utf-8"):
+    fail("AAB workflow must use Node 24 compatible upload-artifact@v7")
+if "actions/upload-artifact@v7" not in (ROOT / ".github/workflows/web.yml").read_text(encoding="utf-8"):
+    fail("Web workflow must use Node 24 compatible upload-artifact@v7")
 
 legacy_path = ROOT / ".github/workflows/dart.yml"
 if legacy_path.exists():
     legacy_workflow = legacy_path.read_text(encoding="utf-8")
     if "dart pub get" in legacy_workflow or "push:" in legacy_workflow:
         fail("legacy Dart workflow guard must be manual-only and harmless")
+
+combined_path = ROOT / ".github/workflows/build.yml"
+if combined_path.exists():
+    combined_workflow = combined_path.read_text(encoding="utf-8")
+    if "push:" in combined_workflow or "pull_request:" in combined_workflow:
+        fail("legacy combined workflow guard must be manual-only")
 
 settings = (ROOT / "android/settings.gradle.kts").read_text(encoding="utf-8")
 wrapper = (ROOT / "android/gradle/wrapper/gradle-wrapper.properties").read_text(encoding="utf-8")
@@ -98,4 +141,4 @@ for stale in ("android/settings.gradle", "android/build.gradle", "android/app/bu
     if (ROOT / stale).exists():
         fail(f"stale Groovy Android file conflicts with Kotlin DSL: {stale}")
 
-print(f"PASS: {len(codes)} languages, Flutter/Android toolchain pinned, workflows safe, JSON valid")
+print(f"PASS: {len(codes)} languages, five separated workflows safe, Android toolchain pinned, JSON valid")

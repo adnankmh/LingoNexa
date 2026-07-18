@@ -1,6 +1,6 @@
 # LingoNexa — منصة Flutter عالمية لتعلّم اللغات
 
-الإصدار الحالي: **1.1.2+4**
+الإصدار الحالي: **1.1.3+5**
 
 LingoNexa مشروع أصلي مبني بـ Flutter، يعمل على Android والويب، ويقدّم أساسًا احترافيًا لمنصة تعليم لغات واسعة قابلة للتوسّع. لا يحتوي المشروع على أكواد أو صور أو شخصيات من Duolingo أو Babbel أو غيرهما.
 
@@ -109,10 +109,10 @@ build\app\outputs\bundle\release\app-release.aab
 
 1. أنشئ Repository جديدًا، مثل `LingoNexa`.
 2. ارفع **محتويات** مجلد المشروع إلى الفرع `main`.
-3. داخل `.github/workflows` احذف أي ملف Dart قديم مثل `dart.yml` واترك `build.yml` فقط.
-4. افتح تبويب **Actions** وشغّل Workflow باسم **Flutter CI - APK - AAB - Web**.
-5. بعد النجاح افتح تشغيل الـ Workflow ثم قسم **Artifacts** وحمّل `lingonexa-android`؛ بداخله APK وAAB.
-6. للنشر على GitHub Pages: من **Settings → Pages → Build and deployment** اختر **GitHub Actions**.
+3. شغّل `APPLY_LINGONEXA_FIX_WINDOWS.bat` ثم Commit وPush لإزالة Workflows القديمة.
+4. افتح تبويب **Actions**؛ ستجد خمسة Workflows مستقلة: **Flutter CI** و**APK** و**AAB** و**Web** و**Deploy GitHub Pages**.
+5. بعد نجاح **APK** نزّل `lingonexa-apk`، وبعد نجاح **AAB** نزّل `lingonexa-aab`، وبعد نجاح **Web** نزّل `lingonexa-web`.
+6. للنشر: من **Settings → Pages → Build and deployment** اختر **GitHub Actions** واحفظ، ثم شغّل **Deploy GitHub Pages** يدويًا.
 
 إذا ظهر في السجل `dart pub get` فهذا تشغيل خاطئ لقالب Dart وليس ملف المشروع. اتبع ملف `REPLACE_INSTRUCTIONS_AR.md` خطوة بخطوة.
 
