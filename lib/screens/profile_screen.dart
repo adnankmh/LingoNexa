@@ -5,8 +5,12 @@ import '../core/app_theme.dart';
 import '../core/i18n.dart';
 import '../data/language_catalog.dart';
 import '../widgets/ui.dart';
+import 'achievements_screen.dart';
 import 'admin_screen.dart';
+import 'certificates_screen.dart';
+import 'downloads_screen.dart';
 import 'language_picker_screen.dart';
+import 'learning_plan_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -28,6 +32,20 @@ class ProfileScreen extends StatelessWidget {
             },
           ),
           const SizedBox(height: 25),
+          const SectionHeading(title: 'My learning', subtitle: 'Plan, milestones, offline access, and records'),
+          const SizedBox(height: 10),
+          Card(
+            child: Column(children: [
+              ListTile(leading: const Icon(Icons.calendar_month_rounded), title: const Text('Personal learning plan', style: TextStyle(fontWeight: FontWeight.w800)), subtitle: Text('${state.learningReason} · ${state.dailyGoalMinutes} min/day'), trailing: const Icon(Icons.chevron_right_rounded), onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LearningPlanScreen()))),
+              const Divider(height: 1),
+              ListTile(leading: const Icon(Icons.emoji_events_rounded), title: const Text('Achievements & league', style: TextStyle(fontWeight: FontWeight.w800)), subtitle: Text('${state.xp} XP · ${state.streak}-day streak'), trailing: const Icon(Icons.chevron_right_rounded), onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AchievementsScreen()))),
+              const Divider(height: 1),
+              ListTile(leading: const Icon(Icons.offline_bolt_rounded), title: const Text('Offline course packs', style: TextStyle(fontWeight: FontWeight.w800)), subtitle: Text('${state.downloadedPackCodes.length} languages selected'), trailing: const Icon(Icons.chevron_right_rounded), onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const DownloadsScreen()))),
+              const Divider(height: 1),
+              ListTile(leading: const Icon(Icons.workspace_premium_rounded), title: const Text('Progress & certificates', style: TextStyle(fontWeight: FontWeight.w800)), subtitle: const Text('Completion and assessment readiness'), trailing: const Icon(Icons.chevron_right_rounded), onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CertificatesScreen()))),
+            ]),
+          ),
+          const SizedBox(height: 25),
           SectionHeading(title: context.text.get('themes'), subtitle: '${AppThemes.presets.length} polished color systems'),
           const SizedBox(height: 12),
           SizedBox(
@@ -46,6 +64,8 @@ class ProfileScreen extends StatelessWidget {
               ListTile(leading: const Icon(Icons.notifications_outlined), title: const Text('Learning reminders', style: TextStyle(fontWeight: FontWeight.w800)), subtitle: const Text('Daily at 7:30 PM'), trailing: const Icon(Icons.chevron_right_rounded), onTap: () {}),
               const Divider(height: 1),
               ListTile(leading: const Icon(Icons.accessibility_new_rounded), title: const Text('Accessibility', style: TextStyle(fontWeight: FontWeight.w800)), subtitle: const Text('Text scale, reduced motion, contrast'), trailing: const Icon(Icons.chevron_right_rounded), onTap: () {}),
+              const Divider(height: 1),
+              ListTile(leading: const Icon(Icons.restart_alt_rounded), title: const Text('Rebuild my learning plan', style: TextStyle(fontWeight: FontWeight.w800)), subtitle: const Text('Restart onboarding and placement choices'), trailing: const Icon(Icons.chevron_right_rounded), onTap: () => _confirmReset(context, state)),
             ]),
           ),
           const SizedBox(height: 12),
@@ -57,10 +77,25 @@ class ProfileScreen extends StatelessWidget {
             child: ListTile(leading: const Icon(Icons.admin_panel_settings_outlined), title: Text(context.text.get('admin'), style: const TextStyle(fontWeight: FontWeight.w900)), subtitle: const Text('Brand, content, modules, and deployment configuration'), trailing: const Icon(Icons.chevron_right_rounded), onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminScreen()))),
           ),
           const SizedBox(height: 15),
-          Center(child: Text('LingoNexa 1.0.0 · Original Flutter platform', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 11))),
+          Center(child: Text('LingoNexa 1.1.0 · Original Flutter platform', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 11))),
         ],
       ),
     );
+  }
+
+  static Future<void> _confirmReset(BuildContext context, AppState state) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Rebuild your plan?'),
+        content: const Text('The onboarding questions will open again. Your lesson completions and XP will stay saved.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+          FilledButton(onPressed: () => Navigator.pop(context, true), child: const Text('Restart')),
+        ],
+      ),
+    );
+    if (confirmed == true) await state.resetOnboarding();
   }
 }
 
@@ -84,4 +119,3 @@ class _ThemeChoice extends StatelessWidget {
   @override
   Widget build(BuildContext context) => GestureDetector(onTap: onTap, child: Container(width: 92, margin: const EdgeInsetsDirectional.only(end: 9), padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: preset.background, borderRadius: BorderRadius.circular(18), border: Border.all(color: selected ? preset.seed : Theme.of(context).dividerColor, width: selected ? 3 : 1)), child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [Container(width: 25, height: 25, decoration: BoxDecoration(color: preset.seed, shape: BoxShape.circle), child: selected ? const Icon(Icons.check_rounded, size: 16, color: Colors.white) : null), const SizedBox(height: 5), Text(preset.name, style: TextStyle(color: preset.brightness == Brightness.dark ? Colors.white : Colors.black87, fontWeight: FontWeight.w800, fontSize: 10.5))])));
 }
-

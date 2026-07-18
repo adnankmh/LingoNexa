@@ -7,6 +7,14 @@ import '../data/course_repository.dart';
 import '../data/language_catalog.dart';
 import '../models/models.dart';
 import '../widgets/ui.dart';
+import 'achievements_screen.dart';
+import 'alphabet_screen.dart';
+import 'certificates_screen.dart';
+import 'downloads_screen.dart';
+import 'grammar_screen.dart';
+import 'learning_plan_screen.dart';
+import 'phrasebook_screen.dart';
+import 'specialized_paths_screen.dart';
 import 'tutor_screen.dart';
 
 class ExploreScreen extends StatelessWidget {
@@ -35,6 +43,31 @@ class ExploreScreen extends StatelessWidget {
                 _HeroCard(title: 'Audio brief', subtitle: 'Five-minute news', emoji: '🎙️', colors: const [Color(0xFFE76F51), Color(0xFFF4A261)], onTap: () => _openUrl(context, 'https://learningenglish.voanews.com/')),
               ],
             ),
+          ),
+          const SizedBox(height: 26),
+          const SectionHeading(title: 'LingoNexa Learning Studio', subtitle: 'Eight powerful spaces for a complete learning journey'),
+          const SizedBox(height: 12),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final columns = constraints.maxWidth >= 760 ? 2 : 1;
+              final tools = [
+                _StudioTool(icon: Icons.menu_book_rounded, title: 'Phrasebook & Dictionary', subtitle: 'Search, save, listen, and practice essential phrases', color: const Color(0xFF6C63FF), screen: const PhrasebookScreen()),
+                _StudioTool(icon: Icons.account_tree_rounded, title: 'Grammar Atlas', subtitle: 'A1–C2 explanations, patterns, examples, and practice', color: const Color(0xFF008F79), screen: const GrammarScreen()),
+                _StudioTool(icon: Icons.draw_rounded, title: 'Script & Alphabet Lab', subtitle: 'Character maps, recognition, and a handwriting pad', color: const Color(0xFFE76F51), screen: const AlphabetScreen()),
+                _StudioTool(icon: Icons.route_rounded, title: 'Goal-Based Courses', subtitle: 'Travel, business, health, exams, kids, and more', color: const Color(0xFF4DABF7), screen: const SpecializedPathsScreen()),
+                _StudioTool(icon: Icons.calendar_month_rounded, title: 'Personal Learning Plan', subtitle: 'A balanced seven-day program around your goal', color: const Color(0xFFF59F00), screen: const LearningPlanScreen()),
+                _StudioTool(icon: Icons.emoji_events_rounded, title: 'Achievements & League', subtitle: 'Milestones, XP goals, rankings, and motivation', color: const Color(0xFF845EF7), screen: const AchievementsScreen()),
+                _StudioTool(icon: Icons.offline_bolt_rounded, title: 'Offline Course Packs', subtitle: '${LanguageCatalog.all.length} selectable language packs', color: const Color(0xFF20C997), screen: const DownloadsScreen()),
+                _StudioTool(icon: Icons.workspace_premium_rounded, title: 'Progress & Certificates', subtitle: 'Completion record and assessment readiness', color: const Color(0xFFF06595), screen: const CertificatesScreen()),
+              ];
+              return GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: tools.length,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: columns, childAspectRatio: columns == 1 ? 2.5 : 2.2, mainAxisSpacing: 10, crossAxisSpacing: 10),
+                itemBuilder: (context, index) => tools[index],
+              );
+            },
           ),
           const SizedBox(height: 26),
           SectionHeading(title: context.text.get('articles'), subtitle: 'Original learning notes designed for practical use'),
@@ -105,6 +138,33 @@ class ExploreScreen extends StatelessWidget {
       );
 }
 
+class _StudioTool extends StatelessWidget {
+  const _StudioTool({required this.icon, required this.title, required this.subtitle, required this.color, required this.screen});
+
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final Color color;
+  final Widget screen;
+
+  @override
+  Widget build(BuildContext context) => Card(
+        child: InkWell(
+          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => screen)),
+          borderRadius: BorderRadius.circular(24),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(children: [
+              Container(width: 52, height: 52, decoration: BoxDecoration(color: color.withValues(alpha: .14), borderRadius: BorderRadius.circular(17)), child: Icon(icon, color: color)),
+              const SizedBox(width: 13),
+              Expanded(child: Column(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.start, children: [Text(title, style: const TextStyle(fontWeight: FontWeight.w900)), const SizedBox(height: 5), Text(subtitle, maxLines: 2, overflow: TextOverflow.ellipsis, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 11.5))])),
+              const Icon(Icons.chevron_right_rounded),
+            ]),
+          ),
+        ),
+      );
+}
+
 class _HeroCard extends StatelessWidget {
   const _HeroCard({required this.title, required this.subtitle, required this.emoji, required this.colors, required this.onTap});
 
@@ -152,4 +212,3 @@ class _ArticleCard extends StatelessWidget {
     );
   }
 }
-

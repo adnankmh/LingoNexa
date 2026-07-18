@@ -11,6 +11,7 @@ void main() {
     final state = AppState(StorageService());
     await state.initialize();
     state.locale = const Locale('en');
+    state.onboardingCompleted = true;
 
     await tester.pumpWidget(LingoNexaApp(state: state));
     await tester.pumpAndSettle();
@@ -22,5 +23,16 @@ void main() {
     expect(find.text('Profile'), findsOneWidget);
     expect(find.text('CEFR Journey'), findsOneWidget);
   });
-}
 
+  testWidgets('first launch renders onboarding', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final state = AppState(StorageService());
+    await state.initialize();
+
+    await tester.pumpWidget(LingoNexaApp(state: state));
+    await tester.pumpAndSettle();
+
+    expect(find.text('A world of language, built around you.'), findsOneWidget);
+    expect(find.text('Create my path'), findsOneWidget);
+  });
+}

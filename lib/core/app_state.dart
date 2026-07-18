@@ -11,6 +11,7 @@ class AppState extends ChangeNotifier {
   final StorageService _storage;
 
   bool initialized = false;
+  bool onboardingCompleted = false;
   Locale locale = const Locale('ar');
   String nativeLanguageCode = 'ar';
   String targetLanguageCode = 'en';
@@ -25,10 +26,13 @@ class AppState extends ChangeNotifier {
   bool aiTutorEnabled = true;
   bool communityEnabled = true;
   bool voiceRoomsEnabled = true;
+  String learningReason = 'Travel';
+  final Set<String> downloadedPackCodes = {};
   final Set<String> completedLessonIds = {};
   final Set<String> reviewLessonIds = {};
 
   Future<void> initialize() async {
+    onboardingCompleted = await _storage.readBool('onboarding_complete') ?? false;
     locale = Locale(await _storage.readString('locale') ?? 'ar');
     nativeLanguageCode = await _storage.readString('native_language') ?? 'ar';
     targetLanguageCode = await _storage.readString('target_language') ?? 'en';
@@ -43,6 +47,8 @@ class AppState extends ChangeNotifier {
     aiTutorEnabled = await _storage.readBool('feature_ai') ?? true;
     communityEnabled = await _storage.readBool('feature_community') ?? true;
     voiceRoomsEnabled = await _storage.readBool('feature_voice') ?? true;
+    learningReason = await _storage.readString('learning_reason') ?? 'Travel';
+    downloadedPackCodes.addAll(await _storage.readStrings('downloaded_packs') ?? const []);
     completedLessonIds.addAll(await _storage.readStrings('completed') ?? const []);
     reviewLessonIds.addAll(await _storage.readStrings('review') ?? const []);
     initialized = true;
@@ -60,6 +66,40 @@ class AppState extends ChangeNotifier {
     currentLevel = 'A1';
     await _storage.writeString('target_language', code);
     await _storage.writeString('level', currentLevel);
+    notifyListeners();
+  }
+
+  Future<void> completeOnboarding({
+    required String targetCode,
+    required int goalMinutes,
+    required String reason,
+  }) async {
+    targetLanguageCode = targetCode;
+    dailyGoalMinutes = goalMinutes.clamp(5, 60).toInt();
+    learningReason = reason;
+    onboardingCompleted = true;
+    await _storage.writeString('target_language', targetCode);
+    await _storage.writeInt('daily_goal', dailyGoalMinutes);
+    await _storage.writeString('learning_reason', reason);
+    await _storage.writeBool('onboarding_complete', true);
+    notifyListeners();
+  }
+
+  Future<void> setCurrentLevel(String level) async {
+    currentLevel = level;
+    await _storage.writeString('level', level);
+    notifyListeners();
+  }
+
+  Future<void> resetOnboarding() async {
+    onboardingCompleted = false;
+    await _storage.writeBool('onboarding_complete', false);
+    notifyListeners();
+  }
+
+  Future<void> toggleDownloadedPack(String code) async {
+    if (!downloadedPackCodes.add(code)) downloadedPackCodes.remove(code);
+    await _storage.writeStrings('downloaded_packs', downloadedPackCodes.toList());
     notifyListeners();
   }
 
@@ -115,6 +155,8 @@ class AppState extends ChangeNotifier {
         'theme': themeId,
         'level': currentLevel,
         'dailyGoalMinutes': dailyGoalMinutes,
+        'learningReason': learningReason,
+        'downloadedPacks': downloadedPackCodes.toList(),
         'features': {
           'aiTutor': aiTutorEnabled,
           'community': communityEnabled,

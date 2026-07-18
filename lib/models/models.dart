@@ -136,3 +136,68 @@ class CommunityPost {
   final String? correctedText;
 }
 
+class PhraseEntry {
+  const PhraseEntry({
+    required this.source,
+    required this.target,
+    required this.category,
+    this.pronunciation = '',
+    this.note = '',
+  });
+
+  final String source;
+  final String target;
+  final String category;
+  final String pronunciation;
+  final String note;
+}
+
+class GrammarTopic {
+  const GrammarTopic({
+    required this.title,
+    required this.level,
+    required this.summary,
+    required this.examples,
+    required this.emoji,
+  });
+
+  final String title;
+  final String level;
+  final String summary;
+  final List<String> examples;
+  final String emoji;
+}
+
+class SpecializedPath {
+  const SpecializedPath({
+    required this.id,
+    required this.title,
+    required this.subtitle,
+    required this.emoji,
+    required this.modules,
+    required this.colorValue,
+  });
+
+  final String id;
+  final String title;
+  final String subtitle;
+  final String emoji;
+  final int modules;
+  final int colorValue;
+}
+
+class Achievement {
+  const Achievement({
+    required this.title,
+    required this.description,
+    required this.emoji,
+    required this.goal,
+    required this.progress,
+  });
+
+  final String title;
+  final String description;
+  final String emoji;
+  final int goal;
+  final int progress;
+}

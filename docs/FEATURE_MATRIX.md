@@ -13,7 +13,10 @@ LingoNexa does not reproduce competitor code, artwork, copy, characters, or prop
 | Partner matching, text/voice, rooms | HelloTalk / Speaky | Partner rail, posts, voice-room prototype, moderation actions |
 | Culture integrated with language | Mango | Culture notes inside lessons plus articles |
 | Offline learning and progress | Babbel / Mango | Local persistence and offline feature toggle |
-| Placement and CEFR organization | Mango / Busuu | A1–C2 course framework; placement UI is a production extension |
+| Placement and CEFR organization | Mango / Busuu | Four-step onboarding, starter placement check, and A1–C2 course framework |
+| Goal-specific courses | Babbel / Mango | Eight original travel, business, health, academic, kids, life-abroad, exam, and media pathways |
+| Phrasebook, grammar, and scripts | Broad category pattern | Searchable phrases, A1–C2 grammar atlas, character maps, and handwriting practice |
+| Plans, leagues, and records | Broad category pattern | Weekly study plan, achievement milestones, league table, offline packs, and certificate readiness |
 
 Official feature references used during product planning:
 
@@ -25,4 +28,3 @@ Official feature references used during product planning:
 - https://www.hellotalk.com/en/
 - https://www.speaky.com/
 - https://mangolanguages.com/pricing/
-

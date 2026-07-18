@@ -4,6 +4,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'core/app_state.dart';
 import 'core/app_theme.dart';
 import 'screens/shell_screen.dart';
+import 'screens/onboarding_screen.dart';
 
 class LingoNexaApp extends StatelessWidget {
   const LingoNexaApp({required this.state, super.key});
@@ -28,11 +29,10 @@ class LingoNexaApp extends StatelessWidget {
               GlobalWidgetsLocalizations.delegate,
               GlobalCupertinoLocalizations.delegate,
             ],
-            home: const ShellScreen(),
+            home: state.onboardingCompleted ? const ShellScreen() : const OnboardingScreen(),
           );
         },
       ),
     );
   }
 }
-

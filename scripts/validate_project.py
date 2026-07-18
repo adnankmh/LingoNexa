@@ -17,6 +17,15 @@ REQUIRED = [
     "lib/data/language_catalog.dart",
     "lib/data/course_repository.dart",
     "lib/screens/admin_screen.dart",
+    "lib/screens/onboarding_screen.dart",
+    "lib/screens/phrasebook_screen.dart",
+    "lib/screens/grammar_screen.dart",
+    "lib/screens/alphabet_screen.dart",
+    "lib/screens/specialized_paths_screen.dart",
+    "lib/screens/learning_plan_screen.dart",
+    "lib/screens/achievements_screen.dart",
+    "lib/screens/downloads_screen.dart",
+    "lib/screens/certificates_screen.dart",
     ".github/workflows/build.yml",
     "android/app/src/main/AndroidManifest.xml",
     "README_AR.md",
@@ -57,5 +66,13 @@ for file in (ROOT / "lib").rglob("*.dart"):
         if forbidden in text:
             fail(f"forbidden marker {forbidden!r} in {file.relative_to(ROOT)}")
 
-print(f"PASS: {len(codes)} languages, required files present, JSON valid")
+workflow_files = list((ROOT / ".github/workflows").glob("*.y*ml"))
+if [file.name for file in workflow_files] != ["build.yml"]:
+    fail("build.yml must be the only executable workflow file")
+workflow = workflow_files[0].read_text(encoding="utf-8")
+if "dart pub get" in workflow:
+    fail("Flutter workflow must never use dart pub get")
+if workflow.count("flutter pub get") < 2:
+    fail("Flutter dependency setup is missing from one or more jobs")
 
+print(f"PASS: {len(codes)} languages, expanded studio present, Flutter workflow valid, JSON valid")
