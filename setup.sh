@@ -11,6 +11,7 @@ cp -R web "$backup_dir/web"
 flutter create --platforms=android,web --org com.lingonexa .
 cp -R "$backup_dir/android/." android/
 cp -R "$backup_dir/web/." web/
+rm -f android/settings.gradle android/build.gradle android/app/build.gradle
 flutter pub get
 flutter analyze --no-fatal-infos --no-fatal-warnings
 flutter test

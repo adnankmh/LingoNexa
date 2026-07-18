@@ -1,6 +1,6 @@
 # LingoNexa — منصة Flutter عالمية لتعلّم اللغات
 
-الإصدار الحالي: **1.1.1+3**
+الإصدار الحالي: **1.1.2+4**
 
 LingoNexa مشروع أصلي مبني بـ Flutter، يعمل على Android والويب، ويقدّم أساسًا احترافيًا لمنصة تعليم لغات واسعة قابلة للتوسّع. لا يحتوي المشروع على أكواد أو صور أو شخصيات من Duolingo أو Babbel أو غيرهما.
 
@@ -115,6 +115,12 @@ build\app\outputs\bundle\release\app-release.aab
 6. للنشر على GitHub Pages: من **Settings → Pages → Build and deployment** اختر **GitHub Actions**.
 
 إذا ظهر في السجل `dart pub get` فهذا تشغيل خاطئ لقالب Dart وليس ملف المشروع. اتبع ملف `REPLACE_INSTRUCTIONS_AR.md` خطوة بخطوة.
+
+على Windows يمكنك تنفيذ التنظيف المطلوب تلقائيًا بالنقر مرتين على
+`APPLY_LINGONEXA_FIX_WINDOWS.bat` ثم عمل Commit وPush من GitHub Desktop.
+
+بناء Android مثبت على JDK 17 وAGP 8.11.1 وKotlin 2.2.20 وGradle 8.13 لتوافق
+مكتبات AndroidX الحديثة مع Flutter Stable.
 
 GitHub Pages يستضيف نسخة الويب فقط؛ أما APK وAAB فيتم بناؤهما داخل GitHub Actions.
 

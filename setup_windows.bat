@@ -15,6 +15,9 @@ call flutter create --platforms=android,web --org com.lingonexa . || exit /b 1
 xcopy "%BACKUP_DIR%\android" android\ /E /I /Q /Y >nul
 xcopy "%BACKUP_DIR%\web" web\ /E /I /Q /Y >nul
 rmdir /s /q "%BACKUP_DIR%"
+if exist "android\settings.gradle.kts" del /q "android\settings.gradle" 2>nul
+if exist "android\build.gradle.kts" del /q "android\build.gradle" 2>nul
+if exist "android\app\build.gradle.kts" del /q "android\app\build.gradle" 2>nul
 echo [3/5] Installing packages...
 call flutter pub get || exit /b 1
 echo [4/5] Analyzing source...

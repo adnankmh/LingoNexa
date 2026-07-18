@@ -28,6 +28,9 @@ REQUIRED = [
     "lib/screens/certificates_screen.dart",
     ".github/workflows/build.yml",
     "android/app/src/main/AndroidManifest.xml",
+    "android/settings.gradle.kts",
+    "android/gradle/wrapper/gradle-wrapper.properties",
+    "APPLY_LINGONEXA_FIX_WINDOWS.bat",
     "README_AR.md",
 ]
 
@@ -66,13 +69,33 @@ for file in (ROOT / "lib").rglob("*.dart"):
         if forbidden in text:
             fail(f"forbidden marker {forbidden!r} in {file.relative_to(ROOT)}")
 
-workflow_files = list((ROOT / ".github/workflows").glob("*.y*ml"))
-if [file.name for file in workflow_files] != ["build.yml"]:
-    fail("build.yml must be the only executable workflow file")
-workflow = workflow_files[0].read_text(encoding="utf-8")
+workflow_files = sorted((ROOT / ".github/workflows").glob("*.y*ml"))
+workflow_names = [file.name for file in workflow_files]
+if workflow_names not in (["build.yml"], ["build.yml", "dart.yml"]):
+    fail("only build.yml and the optional disabled dart.yml compatibility guard are allowed")
+workflow = (ROOT / ".github/workflows/build.yml").read_text(encoding="utf-8")
 if "dart pub get" in workflow:
     fail("Flutter workflow must never use dart pub get")
 if workflow.count("flutter pub get") < 2:
     fail("Flutter dependency setup is missing from one or more jobs")
 
-print(f"PASS: {len(codes)} languages, expanded studio present, Flutter workflow valid, JSON valid")
+legacy_path = ROOT / ".github/workflows/dart.yml"
+if legacy_path.exists():
+    legacy_workflow = legacy_path.read_text(encoding="utf-8")
+    if "dart pub get" in legacy_workflow or "push:" in legacy_workflow:
+        fail("legacy Dart workflow guard must be manual-only and harmless")
+
+settings = (ROOT / "android/settings.gradle.kts").read_text(encoding="utf-8")
+wrapper = (ROOT / "android/gradle/wrapper/gradle-wrapper.properties").read_text(encoding="utf-8")
+if 'version "8.11.1"' not in settings:
+    fail("Android Gradle Plugin must be 8.11.1")
+if 'version "2.2.20"' not in settings:
+    fail("Kotlin Gradle Plugin must be 2.2.20")
+if "gradle-8.13-bin.zip" not in wrapper:
+    fail("Gradle wrapper must be 8.13")
+
+for stale in ("android/settings.gradle", "android/build.gradle", "android/app/build.gradle"):
+    if (ROOT / stale).exists():
+        fail(f"stale Groovy Android file conflicts with Kotlin DSL: {stale}")
+
+print(f"PASS: {len(codes)} languages, Flutter/Android toolchain pinned, workflows safe, JSON valid")

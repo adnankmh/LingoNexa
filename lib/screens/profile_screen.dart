@@ -77,7 +77,7 @@ class ProfileScreen extends StatelessWidget {
             child: ListTile(leading: const Icon(Icons.admin_panel_settings_outlined), title: Text(context.text.get('admin'), style: const TextStyle(fontWeight: FontWeight.w900)), subtitle: const Text('Brand, content, modules, and deployment configuration'), trailing: const Icon(Icons.chevron_right_rounded), onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminScreen()))),
           ),
           const SizedBox(height: 15),
-          Center(child: Text('LingoNexa 1.1.1 · Original Flutter platform', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 11))),
+          Center(child: Text('LingoNexa 1.1.2 · Original Flutter platform', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 11))),
         ],
       ),
     );
