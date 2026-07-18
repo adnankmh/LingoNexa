@@ -130,25 +130,30 @@ class _WelcomeStep extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 680),
-        child: Padding(
-          padding: const EdgeInsets.all(28),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(width: 180, height: 180, alignment: Alignment.center, decoration: BoxDecoration(gradient: LinearGradient(colors: [Theme.of(context).colorScheme.primaryContainer, Theme.of(context).colorScheme.tertiaryContainer]), shape: BoxShape.circle), child: const Text('🌍', style: TextStyle(fontSize: 92))),
-              const SizedBox(height: 30),
-              Text('A world of language, built around you.', textAlign: TextAlign.center, style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w900, height: 1.15)),
-              const SizedBox(height: 12),
-              Text('Structured courses, real-world speaking, memory science, culture, and a global community in one original experience.', textAlign: TextAlign.center, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 16, height: 1.55)),
-              const SizedBox(height: 28),
-              FilledButton.icon(onPressed: onStart, icon: const Icon(Icons.arrow_forward_rounded), label: const Text('Create my path')),
-            ],
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final compact = constraints.maxHeight < 540;
+        return SingleChildScrollView(
+          padding: EdgeInsets.symmetric(horizontal: 28, vertical: compact ? 14 : 28),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: (constraints.maxHeight - (compact ? 28 : 56)).clamp(0, double.infinity).toDouble(), maxWidth: 680),
+            child: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(width: compact ? 126 : 180, height: compact ? 126 : 180, alignment: Alignment.center, decoration: BoxDecoration(gradient: LinearGradient(colors: [Theme.of(context).colorScheme.primaryContainer, Theme.of(context).colorScheme.tertiaryContainer]), shape: BoxShape.circle), child: Text('🌍', style: TextStyle(fontSize: compact ? 64 : 92))),
+                  SizedBox(height: compact ? 16 : 30),
+                  Text('A world of language, built around you.', textAlign: TextAlign.center, style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w900, height: 1.15)),
+                  const SizedBox(height: 12),
+                  Text('Structured courses, real-world speaking, memory science, culture, and a global community in one original experience.', textAlign: TextAlign.center, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: compact ? 14 : 16, height: 1.5)),
+                  SizedBox(height: compact ? 16 : 28),
+                  FilledButton.icon(onPressed: onStart, icon: const Icon(Icons.arrow_forward_rounded), label: const Text('Create my path')),
+                ],
+              ),
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

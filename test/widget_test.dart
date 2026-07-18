@@ -25,6 +25,8 @@ void main() {
   });
 
   testWidgets('first launch renders onboarding', (tester) async {
+    await tester.binding.setSurfaceSize(const Size(800, 500));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
     SharedPreferences.setMockInitialValues({});
     final state = AppState(StorageService());
     await state.initialize();
@@ -34,5 +36,6 @@ void main() {
 
     expect(find.text('A world of language, built around you.'), findsOneWidget);
     expect(find.text('Create my path'), findsOneWidget);
+    expect(tester.takeException(), isNull);
   });
 }

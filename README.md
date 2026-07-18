@@ -1,5 +1,7 @@
 # LingoNexa
 
+Current release: **1.1.1+3**
+
 An original Flutter foundation for a multilingual learning platform. Version 1.1 includes a 67-language catalog, CEFR A1–C2 paths, onboarding and placement, interactive exercises, speech practice, spaced review, a phrasebook, grammar atlas, alphabet lab, goal-based courses, weekly planning, achievements and leagues, offline packs, progress records, stories, culture, community concepts, eight themes, Arabic RTL/English UI, an admin studio, and automated Android/Web builds.
 
 Quick start:

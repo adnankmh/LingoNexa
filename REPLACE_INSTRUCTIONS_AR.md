@@ -6,6 +6,9 @@
 Dart يحتوي `dart pub get`. مشروع LingoNexa هو Flutter ويجب أن يستخدم
 `flutter pub get` بعد تثبيت Flutter SDK.
 
+ملاحظة: تشغيلات Dart الحمراء القديمة تبقى ظاهرة في سجل Actions حتى بعد حذف
+الملف. المهم ألّا يبدأ تشغيل جديد باسم Dart بعد آخر Push.
+
 ## الخطوات عبر GitHub Desktop
 
 1. فك ضغط الحزمة الجديدة.
@@ -20,6 +23,20 @@ Dart يحتوي `dart pub get`. مشروع LingoNexa هو Flutter ويجب أن 
 9. في موقع GitHub افتح **Actions**. يجب أن يظهر Workflow باسم:
    `Flutter CI - APK - AAB - Web`.
 10. افتحه ثم **Run workflow → Run workflow**، أو انتظر التشغيل الناتج عن Push.
+
+## حذف Dart Workflow من موقع GitHub مباشرة
+
+إذا استمر تشغيله بعد رفع النسخة الجديدة:
+
+1. افتح المستودع ثم **Code**.
+2. ادخل إلى `.github` ثم `workflows`.
+3. افتح `dart.yml` أو `dart.yaml`.
+4. اضغط قائمة النقاط `…` ثم **Delete file**.
+5. اكتب رسالة مثل `Remove obsolete Dart workflow` ثم نفّذ **Commit changes** إلى `main`.
+6. بديلًا عن الحذف: من **Actions** اختر Workflow باسم Dart، ثم قائمة `…` واختر **Disable workflow**.
+
+بعد ذلك يجب أن يبدأ فقط `Flutter CI - APK - AAB - Web`. لا تحاول إعادة تشغيل
+السجل الأحمر القديم؛ شغّل تشغيلًا جديدًا من Workflow الخاص بـFlutter.
 
 لا تستخدم زر **Configure** لقالب Dart أو Simple workflow من صفحة Actions؛ ملف
 البناء الصحيح موجود مسبقًا داخل المشروع.
