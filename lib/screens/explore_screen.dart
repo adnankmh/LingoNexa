@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../core/app_state.dart';
 import '../core/i18n.dart';
 import '../data/course_repository.dart';
+import '../data/global_content_repository.dart';
 import '../data/language_catalog.dart';
 import '../models/models.dart';
 import '../widgets/ui.dart';
@@ -15,6 +16,7 @@ import 'grammar_screen.dart';
 import 'learning_plan_screen.dart';
 import 'phrasebook_screen.dart';
 import 'specialized_paths_screen.dart';
+import 'sentence_lab_screen.dart';
 import 'tutor_screen.dart';
 
 class ExploreScreen extends StatelessWidget {
@@ -45,12 +47,13 @@ class ExploreScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 26),
-          const SectionHeading(title: 'LingoNexa Learning Studio', subtitle: 'Eight powerful spaces for a complete learning journey'),
+          SectionHeading(title: context.text.get('global_library'), subtitle: '${GlobalContentRepository.localizedPhrasePairs} localized phrase pairs · ${GlobalContentRepository.sentenceDrillCount} active-recall sentence drills'),
           const SizedBox(height: 12),
           LayoutBuilder(
             builder: (context, constraints) {
               final columns = constraints.maxWidth >= 760 ? 2 : 1;
               final tools = [
+                _StudioTool(icon: Icons.hub_rounded, title: context.text.get('sentence_lab'), subtitle: '${GlobalContentRepository.sentenceDrillsFor(language.code).length} speaking, recall, rhythm, and context missions', color: const Color(0xFF0757B8), screen: const SentenceLabScreen()),
                 _StudioTool(icon: Icons.menu_book_rounded, title: 'Phrasebook & Dictionary', subtitle: 'Search, save, listen, and practice essential phrases', color: const Color(0xFF6C63FF), screen: const PhrasebookScreen()),
                 _StudioTool(icon: Icons.account_tree_rounded, title: 'Grammar Atlas', subtitle: 'A1–C2 explanations, patterns, examples, and practice', color: const Color(0xFF008F79), screen: const GrammarScreen()),
                 _StudioTool(icon: Icons.draw_rounded, title: 'Script & Alphabet Lab', subtitle: 'Character maps, recognition, and a handwriting pad', color: const Color(0xFFE76F51), screen: const AlphabetScreen()),

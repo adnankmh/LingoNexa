@@ -1,4 +1,5 @@
 import '../models/models.dart';
+import 'global_content_repository.dart';
 
 abstract final class LearningContentRepository {
   static const categories = [
@@ -129,8 +130,12 @@ abstract final class LearningContentRepository {
     ],
   };
 
-  static List<PhraseEntry> phrasesFor(String languageCode) =>
-      phrasebooks[languageCode] ?? phrasebooks['en']!;
+  static List<PhraseEntry> phrasesFor(String languageCode) {
+    final bundled = phrasebooks[languageCode] ?? const <PhraseEntry>[];
+    final global = GlobalContentRepository.phrasesFor(languageCode);
+    final seen = <String>{};
+    return [...bundled, ...global].where((item) => seen.add(item.target.toLowerCase())).toList(growable: false);
+  }
 
   static const alphabetSamples = {
     'Latin': 'A B C D E F G H I J K L M N O P Q R S T U V W X Y Z',

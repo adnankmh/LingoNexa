@@ -5,6 +5,7 @@ import '../core/i18n.dart';
 import '../data/course_repository.dart';
 import '../widgets/ui.dart';
 import 'lesson_screen.dart';
+import 'sentence_lab_screen.dart';
 import 'tutor_screen.dart';
 
 class PracticeScreen extends StatelessWidget {
@@ -46,6 +47,7 @@ class PracticeScreen extends StatelessWidget {
                 FeatureTile(icon: Icons.auto_stories_rounded, title: context.text.get('stories'), subtitle: 'Read and listen in meaningful context', color: const Color(0xFFFFA94D), onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => LessonScreen(lesson: allLessons[5])))),
                 FeatureTile(icon: Icons.psychology_alt_rounded, title: context.text.get('tutor'), subtitle: 'Practice realistic role-play with feedback', color: const Color(0xFF4DABF7), badge: 'BETA', onTap: state.aiTutorEnabled ? () => Navigator.push(context, MaterialPageRoute(builder: (_) => const TutorScreen())) : null),
                 FeatureTile(icon: Icons.flash_on_rounded, title: 'Speed round', subtitle: '60 seconds of fast active recall', color: const Color(0xFFF06595), onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => LessonScreen(lesson: allLessons[4])))),
+                FeatureTile(icon: Icons.hub_rounded, title: context.text.get('sentence_lab'), subtitle: 'Hundreds of speaking and active-recall missions', color: const Color(0xFF0757B8), badge: 'NEW', onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SentenceLabScreen()))),
               ];
               if (!twoColumns) return Column(children: items);
               return GridView.count(shrinkWrap: true, physics: const NeverScrollableScrollPhysics(), crossAxisCount: 2, childAspectRatio: 2.35, mainAxisSpacing: 10, crossAxisSpacing: 10, children: items);
@@ -86,4 +88,3 @@ class _SkillBar extends StatelessWidget {
     );
   }
 }
-

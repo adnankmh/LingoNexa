@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../core/app_state.dart';
+import '../core/i18n.dart';
 import '../data/language_catalog.dart';
 import '../widgets/ui.dart';
 import 'placement_test_screen.dart';
@@ -48,6 +49,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   const BrandMark(size: 48),
                   const SizedBox(width: 11),
                   const Expanded(child: Text('LingoNexa', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 21))),
+                  PopupMenuButton<String>(
+                    tooltip: context.text.get('interface_language'),
+                    icon: const Icon(Icons.language_rounded),
+                    onSelected: (code) => AppStateScope.of(context).setLocale(code),
+                    itemBuilder: (context) => [
+                      for (final option in AppText.supported)
+                        PopupMenuItem(value: option.code, child: Text('${option.flag} ${option.nativeName}')),
+                    ],
+                  ),
                   Text('${_page + 1}/4', style: TextStyle(color: scheme.onSurfaceVariant, fontWeight: FontWeight.w800)),
                 ],
               ),
@@ -141,7 +151,7 @@ class _WelcomeStep extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Container(width: compact ? 126 : 180, height: compact ? 126 : 180, alignment: Alignment.center, decoration: BoxDecoration(gradient: LinearGradient(colors: [Theme.of(context).colorScheme.primaryContainer, Theme.of(context).colorScheme.tertiaryContainer]), shape: BoxShape.circle), child: Text('🌍', style: TextStyle(fontSize: compact ? 64 : 92))),
+                  LingoNexaLogo(height: compact ? 130 : 190),
                   SizedBox(height: compact ? 16 : 30),
                   Text('A world of language, built around you.', textAlign: TextAlign.center, style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w900, height: 1.15)),
                   const SizedBox(height: 12),

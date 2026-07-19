@@ -39,7 +39,7 @@ class _LearnScreenState extends State<LearnScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(state.brandName, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900)),
-                    Text('Learn boldly. Speak naturally.', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                    Text(context.text.get('tagline'), style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
                   ],
                 ),
               ),

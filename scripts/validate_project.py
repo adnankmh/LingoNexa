@@ -16,6 +16,11 @@ REQUIRED = [
     "lib/app.dart",
     "lib/data/language_catalog.dart",
     "lib/data/course_repository.dart",
+    "lib/data/global_content_repository.dart",
+    "lib/core/i18n.dart",
+    "lib/screens/interface_language_screen.dart",
+    "lib/screens/sentence_lab_screen.dart",
+    "lib/screens/tutor_screen.dart",
     "lib/screens/admin_screen.dart",
     "lib/screens/onboarding_screen.dart",
     "lib/screens/phrasebook_screen.dart",
@@ -33,6 +38,10 @@ REQUIRED = [
     ".github/workflows/pages.yml",
     "scripts/ci_prepare.sh",
     "android/app/src/main/AndroidManifest.xml",
+    "android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png",
+    "assets/branding/lingonexa_logo.png",
+    "assets/branding/lingonexa_icon.png",
+    "web/icons/Icon-512.png",
     "android/settings.gradle.kts",
     "android/gradle/wrapper/gradle-wrapper.properties",
     "APPLY_LINGONEXA_FIX_WINDOWS.bat",
@@ -61,6 +70,16 @@ lexicon_codes = set(re.findall(r"^\s*'([^']+)': \[", repository, flags=re.MULTIL
 missing = sorted(set(codes) - lexicon_codes)
 if missing:
     fail(f"missing starter lexicon for: {', '.join(missing)}")
+
+i18n = (ROOT / "lib/core/i18n.dart").read_text(encoding="utf-8")
+interface_language_count = i18n.split("static const supported = [", 1)[1].split("];", 1)[0].count("InterfaceLocaleOption(")
+if interface_language_count < 10:
+    fail(f"only {interface_language_count} interface languages found")
+
+global_content = (ROOT / "lib/data/global_content_repository.dart").read_text(encoding="utf-8")
+concept_count = global_content.count("GlobalPhraseConcept(source:")
+if concept_count < 35:
+    fail(f"only {concept_count} global phrase concepts found")
 
 for file in (ROOT / "assets").rglob("*.json"):
     try:
@@ -141,4 +160,4 @@ for stale in ("android/settings.gradle", "android/build.gradle", "android/app/bu
     if (ROOT / stale).exists():
         fail(f"stale Groovy Android file conflicts with Kotlin DSL: {stale}")
 
-print(f"PASS: {len(codes)} languages, five separated workflows safe, Android toolchain pinned, JSON valid")
+print(f"PASS: {len(codes)} learning languages, {interface_language_count} interface languages, {concept_count} global phrase concepts, five separated workflows safe, branding present, Android toolchain pinned, JSON valid")

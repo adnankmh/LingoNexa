@@ -29,30 +29,51 @@ class ResponsivePage extends StatelessWidget {
 }
 
 class BrandMark extends StatelessWidget {
-  const BrandMark({this.size = 44, super.key});
+  const BrandMark({this.size = 44, this.showShadow = true, super.key});
 
   final double size;
+  final bool showShadow;
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
     return Container(
       width: size,
       height: size,
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [colors.primary, colors.tertiary],
-        ),
+        color: const Color(0xFFF8FCFF),
         borderRadius: BorderRadius.circular(size * .34),
-        boxShadow: [
-          BoxShadow(color: colors.primary.withValues(alpha: .26), blurRadius: 18, offset: const Offset(0, 8)),
-        ],
+        border: Border.all(color: const Color(0xFF0B68C8).withValues(alpha: .12)),
+        boxShadow: showShadow
+            ? [BoxShadow(color: const Color(0xFF0757B8).withValues(alpha: .22), blurRadius: 18, offset: const Offset(0, 8))]
+            : null,
       ),
-      child: Icon(Icons.forum_rounded, color: colors.onPrimary, size: size * .55),
+      child: Padding(
+        padding: EdgeInsets.all(size * .10),
+        child: Image.asset('assets/branding/lingonexa_icon.png', fit: BoxFit.contain),
+      ),
     );
   }
+}
+
+class LingoNexaLogo extends StatelessWidget {
+  const LingoNexaLogo({this.height = 96, super.key});
+
+  final double height;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+        image: true,
+        label: 'LingoNexa',
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(22),
+          child: Image.asset(
+            'assets/branding/lingonexa_logo.png',
+            height: height,
+            fit: BoxFit.contain,
+            filterQuality: FilterQuality.high,
+          ),
+        ),
+      );
 }
 
 class SectionHeading extends StatelessWidget {

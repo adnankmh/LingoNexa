@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../core/app_state.dart';
+import '../core/i18n.dart';
+import '../data/global_content_repository.dart';
 import '../data/language_catalog.dart';
+import '../widgets/ui.dart';
 
 class AdminScreen extends StatefulWidget {
   const AdminScreen({super.key});
@@ -13,25 +16,30 @@ class AdminScreen extends StatefulWidget {
 
 class _AdminScreenState extends State<AdminScreen> {
   TextEditingController? _brandController;
+  TextEditingController? _endpointController;
   late double _goal;
   late bool _ai;
   late bool _community;
   late bool _voice;
+  String _provider = 'Local practice engine';
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     final state = AppStateScope.of(context);
     _brandController ??= TextEditingController(text: state.brandName);
+    _endpointController ??= TextEditingController(text: state.aiEndpoint);
     _goal = state.dailyGoalMinutes.toDouble();
     _ai = state.aiTutorEnabled;
     _community = state.communityEnabled;
     _voice = state.voiceRoomsEnabled;
+    _provider = state.aiProvider;
   }
 
   @override
   void dispose() {
     _brandController?.dispose();
+    _endpointController?.dispose();
     super.dispose();
   }
 
@@ -48,6 +56,8 @@ class _AdminScreenState extends State<AdminScreen> {
             child: ListView(
               padding: const EdgeInsets.fromLTRB(18, 10, 18, 30),
               children: [
+                const Center(child: LingoNexaLogo(height: 92)),
+                const SizedBox(height: 12),
                 _AdminHero(state: state),
                 const SizedBox(height: 18),
                 const _AdminHeading(title: 'Brand & behavior', subtitle: 'Local settings take effect immediately after saving.'),
@@ -60,6 +70,30 @@ class _AdminScreenState extends State<AdminScreen> {
                       const SizedBox(height: 18),
                       Row(children: [const Expanded(child: Text('Default daily goal', style: TextStyle(fontWeight: FontWeight.w800))), Text('${_goal.round()} min', style: TextStyle(color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.w900))]),
                       Slider(value: _goal, min: 5, max: 60, divisions: 11, label: '${_goal.round()}', onChanged: (value) => setState(() => _goal = value)),
+                    ]),
+                  ),
+                ),
+                const SizedBox(height: 18),
+                const _AdminHeading(title: 'Nexa Live connection', subtitle: 'Use the offline practice engine now, or connect your own secure server later.'),
+                const SizedBox(height: 10),
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(18),
+                    child: Column(children: [
+                      DropdownButtonFormField<String>(
+                        value: _provider,
+                        decoration: const InputDecoration(labelText: 'Conversation provider', prefixIcon: Icon(Icons.auto_awesome_rounded)),
+                        items: const [
+                          DropdownMenuItem(value: 'Local practice engine', child: Text('Local practice engine')),
+                          DropdownMenuItem(value: 'Custom secure endpoint', child: Text('Custom secure endpoint')),
+                          DropdownMenuItem(value: 'Enterprise adapter', child: Text('Enterprise adapter')),
+                        ],
+                        onChanged: (value) => setState(() => _provider = value ?? 'Local practice engine'),
+                      ),
+                      const SizedBox(height: 14),
+                      TextField(controller: _endpointController, keyboardType: TextInputType.url, decoration: const InputDecoration(labelText: 'Secure backend endpoint (optional)', hintText: 'https://api.your-domain.com/v1/conversation', prefixIcon: Icon(Icons.link_rounded))),
+                      const SizedBox(height: 10),
+                      const Row(crossAxisAlignment: CrossAxisAlignment.start, children: [Icon(Icons.security_rounded, size: 18), SizedBox(width: 8), Expanded(child: Text('Never put an AI API key in Flutter or GitHub source. Your server must own the secret, authenticate users, rate-limit requests, and return only the conversation response.', style: TextStyle(fontSize: 11.5, height: 1.4)))]),
                     ]),
                   ),
                 ),
@@ -82,7 +116,8 @@ class _AdminScreenState extends State<AdminScreen> {
                   builder: (context, constraints) {
                     final columns = constraints.maxWidth >= 620 ? 2 : 1;
                     final cards = [
-                      _AdminAction(icon: Icons.translate_rounded, title: '${LanguageCatalog.all.length} languages', subtitle: 'Catalog, scripts, direction, and course availability', onTap: () => _showInfo('Language catalog', 'The bundled catalog includes ${LanguageCatalog.all.length} languages. Add reviewed course packs in assets/data and register them in the repository.')),
+                      _AdminAction(icon: Icons.translate_rounded, title: '${LanguageCatalog.all.length} learning languages', subtitle: '${AppText.supported.length} interface languages, scripts, direction, and availability', onTap: () => _showInfo('Language catalog', 'The bundled catalog includes ${LanguageCatalog.all.length} learning languages and ${AppText.supported.length} interface languages. Add reviewed course packs in assets/data and register them in the repository.')),
+                      _AdminAction(icon: Icons.hub_rounded, title: '${GlobalContentRepository.localizedPhrasePairs} localized pairs', subtitle: '${GlobalContentRepository.sentenceDrillCount} sentence drills in the global core', onTap: () => _showInfo('Global language core', 'The aligned concept bank feeds the phrasebook, Sentence Lab, lessons, and Nexa Live. Expand GlobalContentRepository or import reviewed JSON packs.')),
                       _AdminAction(icon: Icons.school_rounded, title: 'Course editor', subtitle: 'Units, lessons, exercises, hints, and CEFR tags', onTap: () => _showInfo('Course editor', 'A cloud CMS adapter belongs in lib/services. Until connected, edit versioned course JSON and validate it before publishing.')),
                       _AdminAction(icon: Icons.video_library_rounded, title: 'Media library', subtitle: 'Audio, video, images, Lottie, and attribution', onTap: () => _showInfo('Media library', 'Use only owned, licensed, or open media. Keep attribution and license metadata beside each asset.')),
                       _AdminAction(icon: Icons.shield_rounded, title: 'Moderation center', subtitle: 'Reports, blocks, trust levels, and audit logs', onTap: () => _showInfo('Moderation center', 'Production moderation requires authenticated server roles, abuse queues, retention rules, and emergency escalation.')),
@@ -114,7 +149,7 @@ class _AdminScreenState extends State<AdminScreen> {
   }
 
   Future<void> _save() async {
-    await AppStateScope.of(context).updateAdmin(name: _brandController?.text ?? 'LingoNexa', goal: _goal.round(), ai: _ai, community: _community, voiceRooms: _voice);
+    await AppStateScope.of(context).updateAdmin(name: _brandController?.text ?? 'LingoNexa', goal: _goal.round(), ai: _ai, community: _community, voiceRooms: _voice, provider: _provider, endpoint: _endpointController?.text);
     if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Admin settings saved.')));
   }
 

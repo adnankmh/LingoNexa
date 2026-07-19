@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import '../models/models.dart';
+import 'global_content_repository.dart';
 
 abstract final class CourseRepository {
   static const levels = [
@@ -94,7 +95,10 @@ abstract final class CourseRepository {
   };
 
   static List<CourseUnit> unitsFor(String languageCode) {
-    final lexicon = starterLexicon[languageCode] ?? starterLexicon['en']!;
+    final global = GlobalContentRepository.coreLanguageCodes.contains(languageCode)
+        ? GlobalContentRepository.phrasesFor(languageCode).map((item) => item.target)
+        : const <String>[];
+    final lexicon = <String>{...(starterLexicon[languageCode] ?? starterLexicon['en']!), ...global}.toList(growable: false);
     return [
       for (final level in levels)
         for (var topicIndex = 0; topicIndex < _topics.length; topicIndex++)
@@ -140,8 +144,7 @@ abstract final class CourseRepository {
   ) {
     final phraseIndex = (topicIndex + lessonIndex) % lexicon.length;
     final phrase = lexicon[phraseIndex];
-    const meanings = ['Hello', 'Thank you', 'Please', 'Goodbye'];
-    final meaning = meanings[phraseIndex];
+    final meaning = _meaningFor(languageCode, phrase, phraseIndex);
     final distractors = <String>{
       ...lexicon,
       '…',
@@ -203,8 +206,35 @@ abstract final class CourseRepository {
           translation:
               'Notice formality, gesture, and tone. The same words can feel different across regions and situations.',
         ),
+        LessonStep(
+          type: ExerciseType.choice,
+          prompt: 'Choose the phrase that best fits this real-world moment.',
+          answer: phrase,
+          options: shuffled,
+          translation: 'Use “$meaning” naturally and politely.',
+        ),
+        LessonStep(
+          type: ExerciseType.fillBlank,
+          prompt: 'Listen in your mind, then complete: ${phrase.split(' ').take(1).join()} ____',
+          answer: phrase,
+          hint: 'Recall the full expression before checking.',
+        ),
+        LessonStep(
+          type: ExerciseType.speaking,
+          prompt: 'Personalize this phrase with one extra detail.',
+          answer: phrase,
+          translation: meaning,
+        ),
       ],
     );
+  }
+
+  static String _meaningFor(String languageCode, String phrase, int fallbackIndex) {
+    for (final concept in GlobalContentRepository.concepts) {
+      if (concept.translations[languageCode] == phrase) return concept.source;
+    }
+    const meanings = ['Hello', 'Thank you', 'Please', 'Goodbye'];
+    return meanings[fallbackIndex % meanings.length];
   }
 
   static const articles = [
@@ -220,4 +250,3 @@ abstract final class CourseRepository {
     CommunityPost(author: 'Amélie', nativeLanguage: 'French', learningLanguage: 'Arabic', text: 'مرحباً! أريد أن أتدرب على اللهجة الفلسطينية.', avatar: '👩🏻', likes: 57, comments: 19),
   ];
 }
-

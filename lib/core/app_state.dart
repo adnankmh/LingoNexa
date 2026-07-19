@@ -26,6 +26,8 @@ class AppState extends ChangeNotifier {
   bool aiTutorEnabled = true;
   bool communityEnabled = true;
   bool voiceRoomsEnabled = true;
+  String aiProvider = 'Local practice engine';
+  String aiEndpoint = '';
   String learningReason = 'Travel';
   final Set<String> downloadedPackCodes = {};
   final Set<String> completedLessonIds = {};
@@ -47,6 +49,8 @@ class AppState extends ChangeNotifier {
     aiTutorEnabled = await _storage.readBool('feature_ai') ?? true;
     communityEnabled = await _storage.readBool('feature_community') ?? true;
     voiceRoomsEnabled = await _storage.readBool('feature_voice') ?? true;
+    aiProvider = await _storage.readString('ai_provider') ?? 'Local practice engine';
+    aiEndpoint = await _storage.readString('ai_endpoint') ?? '';
     learningReason = await _storage.readString('learning_reason') ?? 'Travel';
     downloadedPackCodes.addAll(await _storage.readStrings('downloaded_packs') ?? const []);
     completedLessonIds.addAll(await _storage.readStrings('completed') ?? const []);
@@ -127,17 +131,23 @@ class AppState extends ChangeNotifier {
     required bool ai,
     required bool community,
     required bool voiceRooms,
+    String? provider,
+    String? endpoint,
   }) async {
     brandName = name.trim().isEmpty ? 'LingoNexa' : name.trim();
     dailyGoalMinutes = goal.clamp(5, 120).toInt();
     aiTutorEnabled = ai;
     communityEnabled = community;
     voiceRoomsEnabled = voiceRooms;
+    aiProvider = provider?.trim().isNotEmpty == true ? provider!.trim() : 'Local practice engine';
+    aiEndpoint = endpoint?.trim() ?? aiEndpoint;
     await _storage.writeString('brand_name', brandName);
     await _storage.writeInt('daily_goal', dailyGoalMinutes);
     await _storage.writeBool('feature_ai', ai);
     await _storage.writeBool('feature_community', community);
     await _storage.writeBool('feature_voice', voiceRooms);
+    await _storage.writeString('ai_provider', aiProvider);
+    await _storage.writeString('ai_endpoint', aiEndpoint);
     notifyListeners();
   }
 
@@ -162,6 +172,11 @@ class AppState extends ChangeNotifier {
           'community': communityEnabled,
           'voiceRooms': voiceRoomsEnabled,
           'offline': offlineMode,
+        },
+        'conversation': {
+          'provider': aiProvider,
+          'endpoint': aiEndpoint,
+          'apiKeyStoredInApp': false,
         },
       });
 }

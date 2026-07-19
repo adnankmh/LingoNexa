@@ -10,6 +10,7 @@ import 'admin_screen.dart';
 import 'certificates_screen.dart';
 import 'downloads_screen.dart';
 import 'language_picker_screen.dart';
+import 'interface_language_screen.dart';
 import 'learning_plan_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -32,17 +33,17 @@ class ProfileScreen extends StatelessWidget {
             },
           ),
           const SizedBox(height: 25),
-          const SectionHeading(title: 'My learning', subtitle: 'Plan, milestones, offline access, and records'),
+          SectionHeading(title: context.text.get('my_learning'), subtitle: 'Plan, milestones, offline access, and records'),
           const SizedBox(height: 10),
           Card(
             child: Column(children: [
-              ListTile(leading: const Icon(Icons.calendar_month_rounded), title: const Text('Personal learning plan', style: TextStyle(fontWeight: FontWeight.w800)), subtitle: Text('${state.learningReason} · ${state.dailyGoalMinutes} min/day'), trailing: const Icon(Icons.chevron_right_rounded), onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LearningPlanScreen()))),
+              ListTile(leading: const Icon(Icons.calendar_month_rounded), title: Text(context.text.get('learning_plan'), style: const TextStyle(fontWeight: FontWeight.w800)), subtitle: Text('${state.learningReason} · ${state.dailyGoalMinutes} min/day'), trailing: const Icon(Icons.chevron_right_rounded), onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LearningPlanScreen()))),
               const Divider(height: 1),
-              ListTile(leading: const Icon(Icons.emoji_events_rounded), title: const Text('Achievements & league', style: TextStyle(fontWeight: FontWeight.w800)), subtitle: Text('${state.xp} XP · ${state.streak}-day streak'), trailing: const Icon(Icons.chevron_right_rounded), onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AchievementsScreen()))),
+              ListTile(leading: const Icon(Icons.emoji_events_rounded), title: Text(context.text.get('achievements'), style: const TextStyle(fontWeight: FontWeight.w800)), subtitle: Text('${state.xp} XP · ${state.streak}-day streak'), trailing: const Icon(Icons.chevron_right_rounded), onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AchievementsScreen()))),
               const Divider(height: 1),
-              ListTile(leading: const Icon(Icons.offline_bolt_rounded), title: const Text('Offline course packs', style: TextStyle(fontWeight: FontWeight.w800)), subtitle: Text('${state.downloadedPackCodes.length} languages selected'), trailing: const Icon(Icons.chevron_right_rounded), onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const DownloadsScreen()))),
+              ListTile(leading: const Icon(Icons.offline_bolt_rounded), title: Text(context.text.get('downloads'), style: const TextStyle(fontWeight: FontWeight.w800)), subtitle: Text('${state.downloadedPackCodes.length} languages selected'), trailing: const Icon(Icons.chevron_right_rounded), onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const DownloadsScreen()))),
               const Divider(height: 1),
-              ListTile(leading: const Icon(Icons.workspace_premium_rounded), title: const Text('Progress & certificates', style: TextStyle(fontWeight: FontWeight.w800)), subtitle: const Text('Completion and assessment readiness'), trailing: const Icon(Icons.chevron_right_rounded), onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CertificatesScreen()))),
+              ListTile(leading: const Icon(Icons.workspace_premium_rounded), title: Text(context.text.get('certificates'), style: const TextStyle(fontWeight: FontWeight.w800)), subtitle: const Text('Completion and assessment readiness'), trailing: const Icon(Icons.chevron_right_rounded), onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const CertificatesScreen()))),
             ]),
           ),
           const SizedBox(height: 25),
@@ -55,9 +56,9 @@ class ProfileScreen extends StatelessWidget {
           const SizedBox(height: 22),
           Card(
             child: Column(children: [
-              ListTile(leading: const Icon(Icons.translate_rounded), title: const Text('Learning language', style: TextStyle(fontWeight: FontWeight.w800)), subtitle: Text('${target.flag} ${target.nativeName}'), trailing: const Icon(Icons.chevron_right_rounded), onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LanguagePickerScreen()))),
+              ListTile(leading: const Icon(Icons.translate_rounded), title: Text(context.text.get('learning_language'), style: const TextStyle(fontWeight: FontWeight.w800)), subtitle: Text('${target.flag} ${target.nativeName}'), trailing: const Icon(Icons.chevron_right_rounded), onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const LanguagePickerScreen()))),
               const Divider(height: 1),
-              ListTile(leading: const Icon(Icons.language_rounded), title: const Text('Interface language', style: TextStyle(fontWeight: FontWeight.w800)), subtitle: Text(state.locale.languageCode == 'ar' ? 'العربية' : 'English'), trailing: SegmentedButton<String>(segments: const [ButtonSegment(value: 'ar', label: Text('ع')), ButtonSegment(value: 'en', label: Text('EN'))], selected: {state.locale.languageCode}, showSelectedIcon: false, onSelectionChanged: (value) => state.setLocale(value.first))),
+              ListTile(leading: const Icon(Icons.language_rounded), title: Text(context.text.get('interface_language'), style: const TextStyle(fontWeight: FontWeight.w800)), subtitle: Text('${AppText.optionFor(state.locale.languageCode).flag} ${AppText.optionFor(state.locale.languageCode).nativeName} · ${AppText.supported.length} languages'), trailing: const Icon(Icons.chevron_right_rounded), onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const InterfaceLanguageScreen()))),
               const Divider(height: 1),
               SwitchListTile(value: state.offlineMode, onChanged: state.setOfflineMode, secondary: const Icon(Icons.offline_bolt_rounded), title: Text(context.text.get('offline'), style: const TextStyle(fontWeight: FontWeight.w800)), subtitle: const Text('Keep downloaded lessons available without a connection')),
               const Divider(height: 1),
@@ -77,7 +78,7 @@ class ProfileScreen extends StatelessWidget {
             child: ListTile(leading: const Icon(Icons.admin_panel_settings_outlined), title: Text(context.text.get('admin'), style: const TextStyle(fontWeight: FontWeight.w900)), subtitle: const Text('Brand, content, modules, and deployment configuration'), trailing: const Icon(Icons.chevron_right_rounded), onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminScreen()))),
           ),
           const SizedBox(height: 15),
-          Center(child: Text('LingoNexa 1.1.3 · Original Flutter platform', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 11))),
+          Center(child: Text('LingoNexa 1.2.0 · Original Flutter platform', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 11))),
         ],
       ),
     );
