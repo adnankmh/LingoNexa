@@ -1,6 +1,6 @@
 # LingoNexa — منصة Flutter عالمية لتعلّم اللغات
 
-الإصدار الحالي: **1.3.0+7**
+الإصدار الحالي: **1.3.1+8**
 
 LingoNexa مشروع أصلي مبني بـ Flutter، يعمل على Android والويب، ويقدّم أساسًا احترافيًا لمنصة تعليم لغات واسعة قابلة للتوسّع. لا يحتوي المشروع على أكواد أو صور أو شخصيات من Duolingo أو Babbel أو غيرهما.
 
@@ -54,12 +54,12 @@ LingoNexa مشروع أصلي مبني بـ Flutter، يعمل على Android و
 
 1. فك ضغط الحزمة، وافتح GitHub Desktop ثم **File → Add local repository** واختر مجلد المشروع نفسه الذي يحتوي `pubspec.yaml`.
 2. إذا ظهر أنه ليس Repository اختر **create a repository**، واجعل الفرع `main`، ثم اضغط **Publish repository**.
-3. من GitHub Desktop تأكد أن الملفات `.github/workflows/` موجودة ضمن التغييرات، اكتب Summary مثل `LingoNexa 1.3.0` واضغط **Commit to main** ثم **Push origin**.
-4. افتح المستودع في المتصفح ثم **Actions**. شغّل **Flutter CI** أولًا من زر **Run workflow**.
-5. بعد نجاحه، يتم تشغيل **APK** و**AAB** تلقائيًا. ويمكن تشغيل كل واحد يدويًا لأنه Workflow منفصل.
+3. من GitHub Desktop تأكد أن الملفات `.github/workflows/` موجودة ضمن التغييرات، اكتب Summary مثل `LingoNexa 1.3.1` واضغط **Commit to main** ثم **Push origin**.
+4. افتح المستودع في المتصفح ثم **Actions**. بعد الـPush تبدأ **Flutter CI** و**APK** و**AAB** و**Web** كأربع عمليات مستقلة؛ فشل واحدة لا يجعل البقية Skipped.
+5. يمكن أيضًا فتح أي Workflow وتشغيله منفردًا من **Run workflow**.
 6. ادخل إلى التشغيل الناجح ثم قسم **Artifacts** ونزّل `lingonexa-apk` أو `lingonexa-aab`.
 7. لبناء الويب نزّل `lingonexa-web` من Workflow **Web**.
-8. لنشر الموقع: **Settings → Pages → Build and deployment → Source: GitHub Actions** ثم شغّل **Deploy GitHub Pages**. رابط Pages يشغّل نسخة Web فقط ولا يحوّل الموقع بذاته إلى APK.
+8. لنشر الموقع: **Settings → Pages → Build and deployment → Source: GitHub Actions** ثم شغّل **Deploy GitHub Pages**. بعد النجاح يكون الرابط: `https://adnankmh.github.io/LingoNexa/`.
 
 إذا لم تظهر Workflows بعد الرفع، تحقق في GitHub Desktop أن المجلد المخفي `.github` موجود داخل جذر المشروع وأنك رفعت **محتويات المشروع** لا ملف ZIP.
 
@@ -161,6 +161,8 @@ build\app\outputs\bundle\release\app-release.aab
 مكتبات AndroidX الحديثة مع Flutter Stable.
 
 GitHub Pages يستضيف نسخة الويب فقط؛ أما APK وAAB فيتم بناؤهما داخل GitHub Actions.
+
+نسخة الويب موجودة فعلًا ومبنية بـFlutter من نفس الكود، لذلك لا توجد حاجة إلى إنشاء واجهة Laravel ثانية. GitHub Pages استضافة ثابتة ولا تشغّل PHP/Laravel على الخادم. يمكن إضافة Laravel لاحقًا كـBackend للمصادقة والمزامنة والإدارة الحقيقية، لكنه يحتاج استضافة PHP وقاعدة بيانات منفصلة. راجع `docs/WEB_DEPLOYMENT_AR.md`.
 
 ### توقيع AAB داخل GitHub Actions
 

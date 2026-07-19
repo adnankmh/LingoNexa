@@ -1,6 +1,6 @@
 # LingoNexa
 
-Current release: **1.3.0+7**
+Current release: **1.3.1+8**
 
 An original Flutter foundation for a multilingual learning platform. Version 1.3 adds local accounts and isolated per-user progress, administrator access, level exams, 36 dialogue-story activities per language path, fast six-step lessons, strict target-language TTS/STT locale selection, semantic pictograms, correct/incorrect Lottie feedback, compressed brand assets, English/light first-launch defaults, and a compact global language/theme control. The catalog contains 67 learning languages and 12 interface languages.
 
@@ -33,6 +33,6 @@ flutter build web --release
 
 See [README_AR.md](README_AR.md) for the full Arabic setup guide and production requirements.
 
-GitHub Actions are separated into `Flutter CI`, `APK`, `AAB`, `Web`, and `Deploy GitHub Pages`. See [REPLACE_INSTRUCTIONS_AR.md](REPLACE_INSTRUCTIONS_AR.md) for the GitHub Desktop replacement and one-time Pages setup steps.
+GitHub Actions are separated into `Flutter CI`, `APK`, `AAB`, `Web`, and `Deploy GitHub Pages`. APK, AAB, and Web now build independently on every push to `main`; a failed quality check no longer marks the other workflows as skipped. See [REPLACE_INSTRUCTIONS_AR.md](REPLACE_INSTRUCTIONS_AR.md) for the GitHub Desktop replacement and one-time Pages setup steps.
 
 This repository contains a production-oriented application foundation and starter curriculum. A commercial language product still requires expert-reviewed course packs, licensed native audio, secure server-side authentication, moderation, privacy/legal work, and store signing.

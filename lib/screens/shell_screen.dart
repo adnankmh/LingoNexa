@@ -30,11 +30,26 @@ class _ShellScreenState extends State<ShellScreen> {
   Widget build(BuildContext context) {
     final wide = MediaQuery.sizeOf(context).width >= 900;
     final destinations = [
-      NavigationDestination(icon: const Icon(Icons.route_outlined), selectedIcon: const Icon(Icons.route_rounded), label: context.text.get('learn')),
-      NavigationDestination(icon: const Icon(Icons.fitness_center_outlined), selectedIcon: const Icon(Icons.fitness_center_rounded), label: context.text.get('practice')),
-      NavigationDestination(icon: const Icon(Icons.explore_outlined), selectedIcon: const Icon(Icons.explore_rounded), label: context.text.get('explore')),
-      NavigationDestination(icon: const Icon(Icons.people_alt_outlined), selectedIcon: const Icon(Icons.people_alt_rounded), label: context.text.get('community')),
-      NavigationDestination(icon: const Icon(Icons.person_outline_rounded), selectedIcon: const Icon(Icons.person_rounded), label: context.text.get('profile')),
+      NavigationDestination(
+          icon: const Icon(Icons.route_outlined),
+          selectedIcon: const Icon(Icons.route_rounded),
+          label: context.text.get('learn')),
+      NavigationDestination(
+          icon: const Icon(Icons.fitness_center_outlined),
+          selectedIcon: const Icon(Icons.fitness_center_rounded),
+          label: context.text.get('practice')),
+      NavigationDestination(
+          icon: const Icon(Icons.explore_outlined),
+          selectedIcon: const Icon(Icons.explore_rounded),
+          label: context.text.get('explore')),
+      NavigationDestination(
+          icon: const Icon(Icons.people_alt_outlined),
+          selectedIcon: const Icon(Icons.people_alt_rounded),
+          label: context.text.get('community')),
+      NavigationDestination(
+          icon: const Icon(Icons.person_outline_rounded),
+          selectedIcon: const Icon(Icons.person_rounded),
+          label: context.text.get('profile')),
     ];
 
     return Scaffold(
@@ -54,17 +69,23 @@ class _ShellScreenState extends State<ShellScreen> {
                   ),
                   child: Column(
                     children: [
-                      const Padding(padding: EdgeInsets.symmetric(vertical: 18), child: BrandMark(size: 48)),
+                      const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 18),
+                          child: BrandMark(size: 48)),
                       Expanded(
                         child: NavigationRail(
                           backgroundColor: Colors.transparent,
                           selectedIndex: _index,
                           labelType: NavigationRailLabelType.all,
                           groupAlignment: 0,
-                          onDestinationSelected: (value) => setState(() => _index = value),
+                          onDestinationSelected: (value) =>
+                              setState(() => _index = value),
                           destinations: [
                             for (final item in destinations)
-                              NavigationRailDestination(icon: item.icon, selectedIcon: item.selectedIcon, label: Text(item.label)),
+                              NavigationRailDestination(
+                                  icon: item.icon,
+                                  selectedIcon: item.selectedIcon,
+                                  label: Text(item.label)),
                           ],
                         ),
                       ),
@@ -86,4 +107,3 @@ class _ShellScreenState extends State<ShellScreen> {
     );
   }
 }
-

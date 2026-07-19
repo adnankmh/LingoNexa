@@ -27,30 +27,47 @@ class LingoNexaApp extends StatelessWidget {
             title: state.brandName,
             theme: AppThemes.build(state.themeId),
             locale: state.locale,
-            supportedLocales: AppText.supported.map((item) => Locale(item.code)).toList(growable: false),
+            supportedLocales: AppText.supported
+                .map((item) => Locale(item.code))
+                .toList(growable: false),
             localizationsDelegates: const [
               GlobalMaterialLocalizations.delegate,
               GlobalWidgetsLocalizations.delegate,
               GlobalCupertinoLocalizations.delegate,
             ],
-            builder: (context, child) => Stack(
-              children: [
-                if (child != null) child,
-                PositionedDirectional(
-                  top: MediaQuery.paddingOf(context).top + 5,
-                  end: 7,
-                  child: _GlobalThemeButton(state: state),
-                ),
-              ],
-            ),
-            home: !state.isAuthenticated
-                ? const LoginScreen()
-                : state.onboardingCompleted
-                    ? const ShellScreen()
-                    : const OnboardingScreen(),
+            home: _AppHome(state: state),
           );
         },
       ),
+    );
+  }
+}
+
+class _AppHome extends StatelessWidget {
+  const _AppHome({required this.state});
+
+  final AppState state;
+
+  @override
+  Widget build(BuildContext context) {
+    final page = !state.isAuthenticated
+        ? const LoginScreen()
+        : state.onboardingCompleted
+            ? const ShellScreen()
+            : const OnboardingScreen();
+
+    // This control must stay inside the home route so PopupMenuButton can find
+    // the Navigator overlay. Placing it in MaterialApp.builder makes it a
+    // sibling of Navigator and breaks tooltips and popup menus.
+    return Stack(
+      children: [
+        Positioned.fill(child: page),
+        PositionedDirectional(
+          top: MediaQuery.paddingOf(context).top + 5,
+          end: 7,
+          child: _GlobalThemeButton(state: state),
+        ),
+      ],
     );
   }
 }
@@ -76,27 +93,57 @@ class _GlobalThemeButton extends StatelessWidget {
           padding: EdgeInsets.zero,
           iconSize: 19,
           icon: state.isAuthenticated
-              ? Stack(clipBehavior: Clip.none, children: [Text(language.flag, style: const TextStyle(fontSize: 19)), PositionedDirectional(end: -5, bottom: -5, child: Icon(current.brightness == Brightness.dark ? Icons.dark_mode_rounded : Icons.light_mode_rounded, size: 12))])
-              : Icon(current.brightness == Brightness.dark ? Icons.dark_mode_rounded : Icons.light_mode_rounded),
+              ? Stack(clipBehavior: Clip.none, children: [
+                  Text(language.flag, style: const TextStyle(fontSize: 19)),
+                  PositionedDirectional(
+                      end: -5,
+                      bottom: -5,
+                      child: Icon(
+                          current.brightness == Brightness.dark
+                              ? Icons.dark_mode_rounded
+                              : Icons.light_mode_rounded,
+                          size: 12))
+                ])
+              : Icon(current.brightness == Brightness.dark
+                  ? Icons.dark_mode_rounded
+                  : Icons.light_mode_rounded),
           onSelected: (value) {
             if (value == '__language__') {
-              Navigator.push(context, MaterialPageRoute(builder: (_) => const LanguagePickerScreen()));
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => const LanguagePickerScreen()));
             } else {
               state.setTheme(value);
             }
           },
           itemBuilder: (context) => [
             if (state.isAuthenticated)
-              PopupMenuItem(value: '__language__', child: Row(children: [Text(language.flag, style: const TextStyle(fontSize: 22)), const SizedBox(width: 10), Expanded(child: Text('Learning: ${language.nativeName}', style: const TextStyle(fontWeight: FontWeight.w800))), const Icon(Icons.swap_horiz_rounded, size: 18)])),
+              PopupMenuItem(
+                  value: '__language__',
+                  child: Row(children: [
+                    Text(language.flag, style: const TextStyle(fontSize: 22)),
+                    const SizedBox(width: 10),
+                    Expanded(
+                        child: Text('Learning: ${language.nativeName}',
+                            style:
+                                const TextStyle(fontWeight: FontWeight.w800))),
+                    const Icon(Icons.swap_horiz_rounded, size: 18)
+                  ])),
             if (state.isAuthenticated) const PopupMenuDivider(),
             for (final preset in AppThemes.presets)
               PopupMenuItem(
                 value: preset.id,
                 child: Row(children: [
-                  Container(width: 18, height: 18, decoration: BoxDecoration(color: preset.seed, shape: BoxShape.circle)),
+                  Container(
+                      width: 18,
+                      height: 18,
+                      decoration: BoxDecoration(
+                          color: preset.seed, shape: BoxShape.circle)),
                   const SizedBox(width: 10),
                   Expanded(child: Text(preset.name)),
-                  if (preset.id == state.themeId) const Icon(Icons.check_rounded, size: 18),
+                  if (preset.id == state.themeId)
+                    const Icon(Icons.check_rounded, size: 18),
                 ]),
               ),
           ],

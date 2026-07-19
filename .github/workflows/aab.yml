@@ -2,9 +2,8 @@ name: AAB
 
 on:
   workflow_dispatch:
-  workflow_run:
-    workflows: [Flutter CI]
-    types: [completed]
+  push:
+    branches: [main]
 
 permissions:
   contents: read
@@ -14,13 +13,10 @@ env:
 
 jobs:
   build-aab:
-    if: >-
-      github.event_name == 'workflow_dispatch' ||
-      (github.event.workflow_run.conclusion == 'success' &&
-      (github.event.workflow_run.event == 'push' ||
-      github.event.workflow_run.event == 'workflow_dispatch') &&
-      github.event.workflow_run.head_branch == 'main')
     runs-on: ubuntu-latest
+    concurrency:
+      group: aab-${{ github.ref }}
+      cancel-in-progress: true
     env:
       ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
       ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
@@ -28,8 +24,6 @@ jobs:
       ANDROID_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
     steps:
       - uses: actions/checkout@v6
-        with:
-          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
       - uses: actions/setup-java@v5
         with:
           distribution: temurin

@@ -4,7 +4,11 @@ import '../models/models.dart';
 import 'global_content_repository.dart';
 
 class _AlignedPhrase {
-  const _AlignedPhrase({required this.target, required this.meaning, required this.visual, required this.category});
+  const _AlignedPhrase(
+      {required this.target,
+      required this.meaning,
+      required this.visual,
+      required this.category});
   final String target;
   final String meaning;
   final String visual;
@@ -13,12 +17,36 @@ class _AlignedPhrase {
 
 abstract final class CourseRepository {
   static const levels = [
-    LearningLevel(code: 'A1', title: 'Foundation', description: 'Words, sounds, and essential exchanges', colorValue: 0xFF6C63FF),
-    LearningLevel(code: 'A2', title: 'Everyday', description: 'Daily routines, travel, and simple stories', colorValue: 0xFF22C7A9),
-    LearningLevel(code: 'B1', title: 'Independent', description: 'Opinions, experiences, and longer conversations', colorValue: 0xFFFFA94D),
-    LearningLevel(code: 'B2', title: 'Confident', description: 'Nuance, work, media, and spontaneous speech', colorValue: 0xFF4DABF7),
-    LearningLevel(code: 'C1', title: 'Advanced', description: 'Persuasion, academic language, and style', colorValue: 0xFFFF6B8A),
-    LearningLevel(code: 'C2', title: 'Mastery', description: 'Precision, idiom, culture, and expert expression', colorValue: 0xFFB197FC),
+    LearningLevel(
+        code: 'A1',
+        title: 'Foundation',
+        description: 'Words, sounds, and essential exchanges',
+        colorValue: 0xFF6C63FF),
+    LearningLevel(
+        code: 'A2',
+        title: 'Everyday',
+        description: 'Daily routines, travel, and simple stories',
+        colorValue: 0xFF22C7A9),
+    LearningLevel(
+        code: 'B1',
+        title: 'Independent',
+        description: 'Opinions, experiences, and longer conversations',
+        colorValue: 0xFFFFA94D),
+    LearningLevel(
+        code: 'B2',
+        title: 'Confident',
+        description: 'Nuance, work, media, and spontaneous speech',
+        colorValue: 0xFF4DABF7),
+    LearningLevel(
+        code: 'C1',
+        title: 'Advanced',
+        description: 'Persuasion, academic language, and style',
+        colorValue: 0xFFFF6B8A),
+    LearningLevel(
+        code: 'C2',
+        title: 'Mastery',
+        description: 'Precision, idiom, culture, and expert expression',
+        colorValue: 0xFFB197FC),
   ];
 
   static const _topics = [
@@ -102,7 +130,8 @@ abstract final class CourseRepository {
     'kn': ['ನಮಸ್ಕಾರ', 'ಧನ್ಯವಾದ', 'ದಯವಿಟ್ಟು', 'ವಿದಾಯ'],
   };
 
-  static List<CourseUnit> unitsFor(String languageCode, {String meaningLanguageCode = 'en'}) {
+  static List<CourseUnit> unitsFor(String languageCode,
+      {String meaningLanguageCode = 'en'}) {
     final lexicon = _alignedPhrasesFor(languageCode, meaningLanguageCode);
     return [
       for (final level in levels)
@@ -147,7 +176,8 @@ abstract final class CourseRepository {
     List<_AlignedPhrase> lexicon,
     int levelIndex,
   ) {
-    final phraseIndex = (levelIndex * 30 + topicIndex * 5 + lessonIndex) % lexicon.length;
+    final phraseIndex =
+        (levelIndex * 30 + topicIndex * 5 + lessonIndex) % lexicon.length;
     final aligned = lexicon[phraseIndex];
     final phrase = aligned.target;
     final meaning = aligned.meaning;
@@ -155,7 +185,8 @@ abstract final class CourseRepository {
       ...lexicon.map((item) => item.target),
       '…',
     }.where((item) => item != phrase).take(3).toList();
-    final shuffled = [...distractors, phrase]..shuffle(Random(lessonIndex + topicIndex));
+    final shuffled = [...distractors, phrase]
+      ..shuffle(Random(lessonIndex + topicIndex));
 
     return Lesson(
       id: '${languageCode}_${level.code}_${topicIndex}_$lessonIndex',
@@ -229,7 +260,8 @@ abstract final class CourseRepository {
         ),
         LessonStep(
           type: ExerciseType.fillBlank,
-          prompt: 'Listen in your mind, then complete: ${phrase.split(' ').take(1).join()} ____',
+          prompt:
+              'Listen in your mind, then complete: ${phrase.split(' ').take(1).join()} ____',
           answer: phrase,
           hint: 'Recall the full expression before checking.',
           visual: aligned.visual,
@@ -245,44 +277,111 @@ abstract final class CourseRepository {
     );
   }
 
-  static List<_AlignedPhrase> _alignedPhrasesFor(String languageCode, String meaningLanguageCode) {
+  static List<_AlignedPhrase> _alignedPhrasesFor(
+      String languageCode, String meaningLanguageCode) {
     const starterMeanings = ['Hello', 'Thank you', 'Please', 'Goodbye'];
     const starterVisuals = ['👋', '🙏', '🤲', '👋'];
     final starters = starterLexicon[languageCode] ?? starterLexicon['en']!;
-    final sourceCode = meaningLanguageCode == languageCode ? 'en' : meaningLanguageCode;
-    final localizedStarterMeanings = starterLexicon[sourceCode] ?? starterMeanings;
+    final sourceCode =
+        meaningLanguageCode == languageCode ? 'en' : meaningLanguageCode;
+    final localizedStarterMeanings =
+        starterLexicon[sourceCode] ?? starterMeanings;
     final result = <_AlignedPhrase>[
       for (var index = 0; index < starters.length; index++)
-        _AlignedPhrase(target: starters[index], meaning: localizedStarterMeanings[index], visual: starterVisuals[index], category: 'Essentials'),
+        _AlignedPhrase(
+            target: starters[index],
+            meaning: localizedStarterMeanings[index],
+            visual: starterVisuals[index],
+            category: 'Essentials'),
     ];
     final seen = result.map((item) => item.target.toLowerCase()).toSet();
     if (GlobalContentRepository.coreLanguageCodes.contains(languageCode)) {
-      for (final phrase in GlobalContentRepository.phrasesFor(languageCode, sourceLanguageCode: meaningLanguageCode)) {
+      for (final phrase in GlobalContentRepository.phrasesFor(languageCode,
+          sourceLanguageCode: meaningLanguageCode)) {
         if (seen.add(phrase.target.toLowerCase())) {
-          result.add(_AlignedPhrase(target: phrase.target, meaning: phrase.source, visual: phrase.visual, category: phrase.category));
+          result.add(_AlignedPhrase(
+              target: phrase.target,
+              meaning: phrase.source,
+              visual: phrase.visual,
+              category: phrase.category));
         }
       }
     }
     return result;
   }
 
-  static List<PhraseEntry> verifiedStarterPhrasesFor(String languageCode, {String sourceLanguageCode = 'en'}) {
+  static List<PhraseEntry> verifiedStarterPhrasesFor(String languageCode,
+      {String sourceLanguageCode = 'en'}) {
     final items = _alignedPhrasesFor(languageCode, sourceLanguageCode);
     return items
-        .map((item) => PhraseEntry(source: item.meaning, target: item.target, category: item.category, visual: item.visual, note: 'Verified aligned course entry'))
+        .map((item) => PhraseEntry(
+            source: item.meaning,
+            target: item.target,
+            category: item.category,
+            visual: item.visual,
+            note: 'Verified aligned course entry'))
         .toList(growable: false);
   }
 
   static const articles = [
-    CultureArticle(title: 'How greetings change with context', summary: 'A practical guide to formal, neutral, and friendly openings across cultures.', readMinutes: 5, emoji: '🤝', category: 'Culture'),
-    CultureArticle(title: 'Train your ear before translating', summary: 'Use rhythm, stress, and sound groups to understand natural speech faster.', readMinutes: 7, emoji: '🎧', category: 'Learning science'),
-    CultureArticle(title: 'A seven-day speaking ritual', summary: 'A pressure-free routine that turns passive vocabulary into active speech.', readMinutes: 4, emoji: '🎙️', category: 'Speaking'),
-    CultureArticle(title: 'Memory that lasts', summary: 'Why active recall and well-timed review beat rereading long vocabulary lists.', readMinutes: 6, emoji: '🧠', category: 'Memory'),
+    CultureArticle(
+        title: 'How greetings change with context',
+        summary:
+            'A practical guide to formal, neutral, and friendly openings across cultures.',
+        readMinutes: 5,
+        emoji: '🤝',
+        category: 'Culture'),
+    CultureArticle(
+        title: 'Train your ear before translating',
+        summary:
+            'Use rhythm, stress, and sound groups to understand natural speech faster.',
+        readMinutes: 7,
+        emoji: '🎧',
+        category: 'Learning science'),
+    CultureArticle(
+        title: 'A seven-day speaking ritual',
+        summary:
+            'A pressure-free routine that turns passive vocabulary into active speech.',
+        readMinutes: 4,
+        emoji: '🎙️',
+        category: 'Speaking'),
+    CultureArticle(
+        title: 'Memory that lasts',
+        summary:
+            'Why active recall and well-timed review beat rereading long vocabulary lists.',
+        readMinutes: 6,
+        emoji: '🧠',
+        category: 'Memory'),
   ];
 
   static const communityPosts = [
-    CommunityPost(author: 'Maya', nativeLanguage: 'Arabic', learningLanguage: 'Spanish', text: 'Hoy practiqué pedir café. ¿Esta frase suena natural?', avatar: '👩🏽', likes: 42, comments: 11, correctedText: 'Hoy practiqué cómo pedir un café.'),
-    CommunityPost(author: 'Kenji', nativeLanguage: 'Japanese', learningLanguage: 'English', text: 'I have been learning for three month and I feel more confidence.', avatar: '👨🏻', likes: 31, comments: 8, correctedText: 'I have been learning for three months, and I feel more confident.'),
-    CommunityPost(author: 'Amélie', nativeLanguage: 'French', learningLanguage: 'Arabic', text: 'مرحباً! أريد أن أتدرب على اللهجة الفلسطينية.', avatar: '👩🏻', likes: 57, comments: 19),
+    CommunityPost(
+        author: 'Maya',
+        nativeLanguage: 'Arabic',
+        learningLanguage: 'Spanish',
+        text: 'Hoy practiqué pedir café. ¿Esta frase suena natural?',
+        avatar: '👩🏽',
+        likes: 42,
+        comments: 11,
+        correctedText: 'Hoy practiqué cómo pedir un café.'),
+    CommunityPost(
+        author: 'Kenji',
+        nativeLanguage: 'Japanese',
+        learningLanguage: 'English',
+        text:
+            'I have been learning for three month and I feel more confidence.',
+        avatar: '👨🏻',
+        likes: 31,
+        comments: 8,
+        correctedText:
+            'I have been learning for three months, and I feel more confident.'),
+    CommunityPost(
+        author: 'Amélie',
+        nativeLanguage: 'French',
+        learningLanguage: 'Arabic',
+        text: 'مرحباً! أريد أن أتدرب على اللهجة الفلسطينية.',
+        avatar: '👩🏻',
+        likes: 57,
+        comments: 19),
   ];
 }

@@ -23,7 +23,9 @@ class _LanguagePickerScreenState extends State<LanguagePickerScreen> {
     final state = AppStateScope.of(context);
     final results = LanguageCatalog.all.where((language) {
       final q = _query.trim().toLowerCase();
-      return q.isEmpty || language.englishName.toLowerCase().contains(q) || language.nativeName.toLowerCase().contains(q);
+      return q.isEmpty ||
+          language.englishName.toLowerCase().contains(q) ||
+          language.nativeName.toLowerCase().contains(q);
     }).toList();
 
     return Scaffold(
@@ -34,7 +36,9 @@ class _LanguagePickerScreenState extends State<LanguagePickerScreen> {
             padding: const EdgeInsets.fromLTRB(18, 8, 18, 12),
             child: TextField(
               onChanged: (value) => setState(() => _query = value),
-              decoration: InputDecoration(prefixIcon: const Icon(Icons.search_rounded), hintText: context.text.get('search')),
+              decoration: InputDecoration(
+                  prefixIcon: const Icon(Icons.search_rounded),
+                  hintText: context.text.get('search')),
             ),
           ),
           Expanded(
@@ -49,8 +53,11 @@ class _LanguagePickerScreenState extends State<LanguagePickerScreen> {
               itemCount: results.length,
               itemBuilder: (context, index) => _LanguageTile(
                 language: results[index],
-                phraseCount: LearningContentRepository.phrasesFor(results[index].code).length,
-                expanded: GlobalContentRepository.coreLanguageCodes.contains(results[index].code),
+                phraseCount:
+                    LearningContentRepository.phrasesFor(results[index].code)
+                        .length,
+                expanded: GlobalContentRepository.coreLanguageCodes
+                    .contains(results[index].code),
                 selected: state.targetLanguageCode == results[index].code,
                 onTap: () async {
                   await state.setTargetLanguage(results[index].code);
@@ -66,7 +73,12 @@ class _LanguagePickerScreenState extends State<LanguagePickerScreen> {
 }
 
 class _LanguageTile extends StatelessWidget {
-  const _LanguageTile({required this.language, required this.selected, required this.onTap, required this.phraseCount, required this.expanded});
+  const _LanguageTile(
+      {required this.language,
+      required this.selected,
+      required this.onTap,
+      required this.phraseCount,
+      required this.expanded});
 
   final LanguageOption language;
   final bool selected;
@@ -78,10 +90,13 @@ class _LanguageTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     return Material(
-      color: selected ? scheme.primaryContainer : Theme.of(context).cardTheme.color,
+      color: selected
+          ? scheme.primaryContainer
+          : Theme.of(context).cardTheme.color,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
-        side: BorderSide(color: selected ? scheme.primary : Theme.of(context).dividerColor),
+        side: BorderSide(
+            color: selected ? scheme.primary : Theme.of(context).dividerColor),
       ),
       child: InkWell(
         onTap: onTap,
@@ -97,14 +112,31 @@ class _LanguageTile extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(language.nativeName, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.w900)),
-                    Text('${language.englishName} · ${language.script}', maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 11)),
+                    Text(language.nativeName,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontWeight: FontWeight.w900)),
+                    Text('${language.englishName} · ${language.script}',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                            color: scheme.onSurfaceVariant, fontSize: 11)),
                     const SizedBox(height: 3),
-                    Text('${expanded ? 'EXPANDED' : 'VERIFIED STARTER'} · $phraseCount phrases · ${SpeechService.voiceLocale(language.code)}', maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: expanded ? scheme.primary : scheme.onSurfaceVariant, fontSize: 9.5, fontWeight: FontWeight.w900)),
+                    Text(
+                        '${expanded ? 'EXPANDED' : 'VERIFIED STARTER'} · $phraseCount phrases · ${SpeechService.voiceLocale(language.code)}',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                            color: expanded
+                                ? scheme.primary
+                                : scheme.onSurfaceVariant,
+                            fontSize: 9.5,
+                            fontWeight: FontWeight.w900)),
                   ],
                 ),
               ),
-              if (selected) Icon(Icons.check_circle_rounded, color: scheme.primary),
+              if (selected)
+                Icon(Icons.check_circle_rounded, color: scheme.primary),
             ],
           ),
         ),

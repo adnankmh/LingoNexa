@@ -4,7 +4,9 @@ import 'package:lingonexa/services/storage_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
-  test('administrator and both demo accounts authenticate with their assigned roles', () async {
+  test(
+      'administrator and both demo accounts authenticate with their assigned roles',
+      () async {
     SharedPreferences.setMockInitialValues({});
     final auth = AuthService(StorageService());
     await auth.initialize();
@@ -19,12 +21,17 @@ void main() {
     expect(demo2.user!.role, UserRole.learner);
   });
 
-  test('wrong password is rejected and registration creates a learner', () async {
+  test('wrong password is rejected and registration creates a learner',
+      () async {
     SharedPreferences.setMockInitialValues({});
     final auth = AuthService(StorageService());
     await auth.initialize();
     expect((await auth.signIn('Adnan', 'wrong')).success, isFalse);
-    final created = await auth.register(displayName: 'Test Learner', username: 'testlearner', email: 'test@example.com', password: 'Test123');
+    final created = await auth.register(
+        displayName: 'Test Learner',
+        username: 'testlearner',
+        email: 'test@example.com',
+        password: 'Test123');
     expect(created.success, isTrue);
     expect(created.user!.role, UserRole.learner);
   });

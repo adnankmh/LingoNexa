@@ -51,7 +51,7 @@ jobs:
       - name: Prepare Flutter project
         run: bash scripts/ci_prepare.sh
       - name: Build Pages site
-        run: flutter build web --release --base-href "/${{ github.event.repository.name }}/"
+        run: flutter build web --release --no-wasm-dry-run --base-href "/${{ github.event.repository.name }}/"
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v5
         with:

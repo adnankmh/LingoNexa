@@ -10,4 +10,3 @@ Future<void> main() async {
   await state.initialize();
   runApp(LingoNexaApp(state: state));
 }
-

@@ -42,14 +42,21 @@ class BrandMark extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFFF8FCFF),
         borderRadius: BorderRadius.circular(size * .34),
-        border: Border.all(color: const Color(0xFF0B68C8).withValues(alpha: .12)),
+        border:
+            Border.all(color: const Color(0xFF0B68C8).withValues(alpha: .12)),
         boxShadow: showShadow
-            ? [BoxShadow(color: const Color(0xFF0757B8).withValues(alpha: .22), blurRadius: 18, offset: const Offset(0, 8))]
+            ? [
+                BoxShadow(
+                    color: const Color(0xFF0757B8).withValues(alpha: .22),
+                    blurRadius: 18,
+                    offset: const Offset(0, 8))
+              ]
             : null,
       ),
       child: Padding(
         padding: EdgeInsets.all(size * .10),
-        child: Image.asset('assets/branding/lingonexa_icon.png', fit: BoxFit.contain),
+        child: Image.asset('assets/branding/lingonexa_icon.png',
+            fit: BoxFit.contain),
       ),
     );
   }
@@ -77,7 +84,8 @@ class LingoNexaLogo extends StatelessWidget {
 }
 
 class SectionHeading extends StatelessWidget {
-  const SectionHeading({required this.title, this.subtitle, this.action, super.key});
+  const SectionHeading(
+      {required this.title, this.subtitle, this.action, super.key});
 
   final String title;
   final String? subtitle;
@@ -92,10 +100,16 @@ class SectionHeading extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(title, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900)),
+              Text(title,
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleLarge
+                      ?.copyWith(fontWeight: FontWeight.w900)),
               if (subtitle != null) ...[
                 const SizedBox(height: 4),
-                Text(subtitle!, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                Text(subtitle!,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant)),
               ],
             ],
           ),
@@ -107,7 +121,12 @@ class SectionHeading extends StatelessWidget {
 }
 
 class StatPill extends StatelessWidget {
-  const StatPill({required this.icon, required this.value, required this.label, this.color, super.key});
+  const StatPill(
+      {required this.icon,
+      required this.value,
+      required this.label,
+      this.color,
+      super.key});
 
   final IconData icon;
   final String value;
@@ -130,7 +149,10 @@ class StatPill extends StatelessWidget {
           const SizedBox(width: 7),
           Text(value, style: const TextStyle(fontWeight: FontWeight.w900)),
           const SizedBox(width: 4),
-          Text(label, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12)),
+          Text(label,
+              style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  fontSize: 12)),
         ],
       ),
     );
@@ -138,7 +160,10 @@ class StatPill extends StatelessWidget {
 }
 
 class GradientPanel extends StatelessWidget {
-  const GradientPanel({required this.child, this.padding = const EdgeInsets.all(22), super.key});
+  const GradientPanel(
+      {required this.child,
+      this.padding = const EdgeInsets.all(22),
+      super.key});
 
   final Widget child;
   final EdgeInsets padding;
@@ -153,10 +178,18 @@ class GradientPanel extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [scheme.primary, Color.lerp(scheme.primary, scheme.tertiary, .72)!],
+          colors: [
+            scheme.primary,
+            Color.lerp(scheme.primary, scheme.tertiary, .72)!
+          ],
         ),
         borderRadius: BorderRadius.circular(28),
-        boxShadow: [BoxShadow(color: scheme.primary.withValues(alpha: .22), blurRadius: 28, offset: const Offset(0, 14))],
+        boxShadow: [
+          BoxShadow(
+              color: scheme.primary.withValues(alpha: .22),
+              blurRadius: 28,
+              offset: const Offset(0, 14))
+        ],
       ),
       child: child,
     );
@@ -164,7 +197,8 @@ class GradientPanel extends StatelessWidget {
 }
 
 class ProgressRing extends StatelessWidget {
-  const ProgressRing({required this.value, required this.label, this.size = 78, super.key});
+  const ProgressRing(
+      {required this.value, required this.label, this.size = 78, super.key});
 
   final double value;
   final String label;
@@ -189,7 +223,11 @@ class ProgressRing extends StatelessWidget {
               backgroundColor: Colors.white.withValues(alpha: .22),
             ),
           ),
-          Text(label, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 14)),
+          Text(label,
+              style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w900,
+                  fontSize: 14)),
         ],
       ),
     );
@@ -227,7 +265,9 @@ class FeatureTile extends StatelessWidget {
               Container(
                 width: 50,
                 height: 50,
-                decoration: BoxDecoration(color: color.withValues(alpha: .12), borderRadius: BorderRadius.circular(17)),
+                decoration: BoxDecoration(
+                    color: color.withValues(alpha: .12),
+                    borderRadius: BorderRadius.circular(17)),
                 child: Icon(icon, color: color),
               ),
               const SizedBox(width: 13),
@@ -237,19 +277,37 @@ class FeatureTile extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        Flexible(child: Text(title, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 15))),
+                        Flexible(
+                            child: Text(title,
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.w900,
+                                    fontSize: 15))),
                         if (badge != null) ...[
                           const SizedBox(width: 6),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-                            decoration: BoxDecoration(color: color.withValues(alpha: .13), borderRadius: BorderRadius.circular(20)),
-                            child: Text(badge!, style: TextStyle(color: color, fontSize: 9, fontWeight: FontWeight.w900)),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 7, vertical: 3),
+                            decoration: BoxDecoration(
+                                color: color.withValues(alpha: .13),
+                                borderRadius: BorderRadius.circular(20)),
+                            child: Text(badge!,
+                                style: TextStyle(
+                                    color: color,
+                                    fontSize: 9,
+                                    fontWeight: FontWeight.w900)),
                           ),
                         ],
                       ],
                     ),
                     const SizedBox(height: 4),
-                    Text(subtitle, maxLines: 2, overflow: TextOverflow.ellipsis, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 12.5, height: 1.35)),
+                    Text(subtitle,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                            color:
+                                Theme.of(context).colorScheme.onSurfaceVariant,
+                            fontSize: 12.5,
+                            height: 1.35)),
                   ],
                 ),
               ),
@@ -271,7 +329,9 @@ class SoftBackground extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        Positioned.fill(child: CustomPaint(painter: _OrbsPainter(Theme.of(context).colorScheme))),
+        Positioned.fill(
+            child: CustomPaint(
+                painter: _OrbsPainter(Theme.of(context).colorScheme))),
         child,
       ],
     );
@@ -285,13 +345,17 @@ class _OrbsPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()..maskFilter = const MaskFilter.blur(BlurStyle.normal, 70);
+    final paint = Paint()
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 70);
     paint.color = scheme.primary.withValues(alpha: .06);
-    canvas.drawCircle(Offset(size.width * .9, 60), math.min(size.width, 220) * .45, paint);
+    canvas.drawCircle(
+        Offset(size.width * .9, 60), math.min(size.width, 220) * .45, paint);
     paint.color = scheme.tertiary.withValues(alpha: .05);
-    canvas.drawCircle(Offset(size.width * .08, size.height * .55), math.min(size.width, 260) * .42, paint);
+    canvas.drawCircle(Offset(size.width * .08, size.height * .55),
+        math.min(size.width, 260) * .42, paint);
   }
 
   @override
-  bool shouldRepaint(covariant _OrbsPainter oldDelegate) => oldDelegate.scheme != scheme;
+  bool shouldRepaint(covariant _OrbsPainter oldDelegate) =>
+      oldDelegate.scheme != scheme;
 }

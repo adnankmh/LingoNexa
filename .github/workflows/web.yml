@@ -2,9 +2,8 @@ name: Web
 
 on:
   workflow_dispatch:
-  workflow_run:
-    workflows: [Flutter CI]
-    types: [completed]
+  push:
+    branches: [main]
 
 permissions:
   contents: read
@@ -14,17 +13,12 @@ env:
 
 jobs:
   build-web:
-    if: >-
-      github.event_name == 'workflow_dispatch' ||
-      (github.event.workflow_run.conclusion == 'success' &&
-      (github.event.workflow_run.event == 'push' ||
-      github.event.workflow_run.event == 'workflow_dispatch') &&
-      github.event.workflow_run.head_branch == 'main')
     runs-on: ubuntu-latest
+    concurrency:
+      group: web-${{ github.ref }}
+      cancel-in-progress: true
     steps:
       - uses: actions/checkout@v6
-        with:
-          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
       - uses: actions/setup-java@v5
         with:
           distribution: temurin
@@ -37,7 +31,7 @@ jobs:
       - name: Prepare Flutter project
         run: bash scripts/ci_prepare.sh
       - name: Build Flutter Web
-        run: flutter build web --release --base-href "/${{ github.event.repository.name }}/"
+        run: flutter build web --release --no-wasm-dry-run --base-href "/${{ github.event.repository.name }}/"
       - name: Upload Web build
         uses: actions/upload-artifact@v7
         with:

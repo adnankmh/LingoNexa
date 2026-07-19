@@ -32,10 +32,10 @@ Dart يحتوي `dart pub get`. مشروع LingoNexa هو Flutter ويجب أن 
 5. شغّل `APPLY_LINGONEXA_FIX_WINDOWS.bat` بنقرة مزدوجة.
 6. تأكد أن ملفات YAML الأساسية داخل `.github\workflows` هي: `flutter_ci.yml` و`apk.yml` و`aab.yml` و`web.yml` و`pages.yml`.
    ملف `README.md` الموجود معها طبيعي ولا يتم تشغيله.
-7. ارجع إلى GitHub Desktop. اكتب Summary مثل `Upgrade LingoNexa 1.3.0 and split workflows`.
+7. ارجع إلى GitHub Desktop. اكتب Summary مثل `Upgrade LingoNexa 1.3.1 and fix CI workflows`.
 8. اضغط **Commit to main** ثم **Push origin**.
 9. في موقع GitHub افتح **Actions**. يجب أن تظهر Workflows منفصلة بأسماء: `Flutter CI` و`APK` و`AAB` و`Web` و`Deploy GitHub Pages`.
-10. يبدأ `Flutter CI` بعد Push، وبعد نجاحه تبدأ APK وAAB وWeb كل واحدة في تشغيل مستقل. ويمكن تشغيل أي واحدة يدويًا من **Run workflow**.
+10. بعد Push تبدأ `Flutter CI` وAPK وAAB وWeb بالتوازي كأربع عمليات مستقلة. فشل الاختبارات لا يجعل عمليات البناء الثلاث الأخرى Skipped، ويمكن تشغيل أي واحدة يدويًا من **Run workflow**.
 
 ## حذف Dart Workflow من موقع GitHub مباشرة
 
@@ -48,8 +48,7 @@ Dart يحتوي `dart pub get`. مشروع LingoNexa هو Flutter ويجب أن 
 5. اكتب رسالة مثل `Remove obsolete Dart workflow` ثم نفّذ **Commit changes** إلى `main`.
 6. بديلًا عن الحذف: من **Actions** اختر Workflow باسم Dart، ثم قائمة `…` واختر **Disable workflow**.
 
-بعد ذلك يجب أن يبدأ `Flutter CI` فقط مباشرة بعد Push، ثم تبدأ Workflows البناء
-المستقلة بعد نجاحه. لا تحاول إعادة تشغيل السجل الأحمر القديم.
+بعد ذلك تبدأ Workflows الحالية مع كل Push جديد. لا تحاول إعادة تشغيل السجل الأحمر القديم؛ تشغيلات Workflows المحذوفة قد تبقى ظاهرة في الشريط الجانبي كسجل تاريخي، لكن لن تنشئ تشغيلات جديدة.
 
 لا تستخدم زر **Configure** لقالب Dart أو Simple workflow من صفحة Actions؛ ملف
 البناء الصحيح موجود مسبقًا داخل المشروع.

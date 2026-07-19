@@ -65,7 +65,7 @@ for relative in REQUIRED:
         fail(f"missing {relative}")
 
 catalog = (ROOT / "lib/data/language_catalog.dart").read_text(encoding="utf-8")
-codes = re.findall(r"LanguageOption\(code: '([^']+)'", catalog)
+codes = re.findall(r"LanguageOption\(\s*code:\s*'([^']+)'", catalog)
 if len(codes) < 50:
     fail(f"only {len(codes)} languages found")
 if len(codes) != len(set(codes)):
@@ -83,12 +83,12 @@ if interface_language_count < 10:
     fail(f"only {interface_language_count} interface languages found")
 
 global_content = (ROOT / "lib/data/global_content_repository.dart").read_text(encoding="utf-8")
-concept_count = global_content.count("GlobalPhraseConcept(source:")
+concept_count = len(re.findall(r"GlobalPhraseConcept\(\s*source:", global_content))
 if concept_count < 35:
     fail(f"only {concept_count} global phrase concepts found")
 
 speech = (ROOT / "lib/services/speech_service.dart").read_text(encoding="utf-8")
-speech_locale_count = len(re.findall(r"'[a-z]+':'[a-z]{2,3}-[A-Z]{2}'", speech))
+speech_locale_count = len(re.findall(r"'[a-z]+':\s*'[a-z]{2,3}-[A-Z]{2}'", speech))
 if speech_locale_count < len(codes):
     fail(f"only {speech_locale_count} explicit speech locales for {len(codes)} languages")
 if "English fallback was intentionally disabled" not in (ROOT / "lib/screens/lesson_screen.dart").read_text(encoding="utf-8"):
@@ -147,6 +147,13 @@ for filename, display_name in expected_names.items():
     workflow = (ROOT / ".github/workflows" / filename).read_text(encoding="utf-8")
     if f"name: {display_name}" not in workflow:
         fail(f"incorrect display name in {filename}")
+
+for filename in ("apk.yml", "aab.yml", "web.yml"):
+    workflow = (ROOT / ".github/workflows" / filename).read_text(encoding="utf-8")
+    if "workflow_run:" in workflow:
+        fail(f"{filename} must run independently and must not be gated by Flutter CI")
+    if "push:" not in workflow or "branches: [main]" not in workflow:
+        fail(f"{filename} must build independently on pushes to main")
 
 for filename in ("flutter_ci.yml", "apk.yml", "aab.yml", "web.yml", "pages.yml"):
     workflow = (ROOT / ".github/workflows" / filename).read_text(encoding="utf-8")

@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
 import '../services/storage_service.dart';
@@ -56,10 +55,12 @@ class AppState extends ChangeNotifier {
     voiceRoomsEnabled = await _storage.readBool('feature_voice') ?? true;
     examsEnabled = await _storage.readBool('feature_exams') ?? true;
     storiesEnabled = await _storage.readBool('feature_stories') ?? true;
-    registrationEnabled = await _storage.readBool('feature_registration') ?? true;
+    registrationEnabled =
+        await _storage.readBool('feature_registration') ?? true;
     speechRate = await _storage.readDouble('speech_rate') ?? .42;
     lessonXp = await _storage.readInt('lesson_xp') ?? 30;
-    aiProvider = await _storage.readString('ai_provider') ?? 'Local practice engine';
+    aiProvider =
+        await _storage.readString('ai_provider') ?? 'Local practice engine';
     aiEndpoint = await _storage.readString('ai_endpoint') ?? '';
     await _auth.initialize();
     currentUser = await _auth.restoreSession();
@@ -75,18 +76,22 @@ class AppState extends ChangeNotifier {
   String _userKey(String key) => 'user_${currentUser?.id ?? 'guest'}_$key';
 
   Future<void> _loadUserProgress() async {
-    onboardingCompleted = await _storage.readBool(_userKey('onboarding_complete')) ?? false;
-    targetLanguageCode = await _storage.readString(_userKey('target_language')) ?? 'en';
+    onboardingCompleted =
+        await _storage.readBool(_userKey('onboarding_complete')) ?? false;
+    targetLanguageCode =
+        await _storage.readString(_userKey('target_language')) ?? 'en';
     currentLevel = await _storage.readString(_userKey('level')) ?? 'A1';
     xp = await _storage.readInt(_userKey('xp')) ?? 0;
     streak = await _storage.readInt(_userKey('streak')) ?? 1;
     dailyMinutes = await _storage.readInt(_userKey('daily_minutes')) ?? 0;
     dailyGoalMinutes = await _storage.readInt(_userKey('daily_goal')) ?? 15;
-    learningReason = await _storage.readString(_userKey('learning_reason')) ?? 'Travel';
+    learningReason =
+        await _storage.readString(_userKey('learning_reason')) ?? 'Travel';
     sprintMode = await _storage.readBool(_userKey('sprint_mode')) ?? true;
     downloadedPackCodes
       ..clear()
-      ..addAll(await _storage.readStrings(_userKey('downloaded_packs')) ?? const []);
+      ..addAll(
+          await _storage.readStrings(_userKey('downloaded_packs')) ?? const []);
     completedLessonIds
       ..clear()
       ..addAll(await _storage.readStrings(_userKey('completed')) ?? const []);
@@ -95,7 +100,8 @@ class AppState extends ChangeNotifier {
       ..addAll(await _storage.readStrings(_userKey('review')) ?? const []);
     completedExamIds
       ..clear()
-      ..addAll(await _storage.readStrings(_userKey('completed_exams')) ?? const []);
+      ..addAll(
+          await _storage.readStrings(_userKey('completed_exams')) ?? const []);
   }
 
   Future<bool> signIn(String identifier, String password) async {
@@ -115,11 +121,19 @@ class AppState extends ChangeNotifier {
     return true;
   }
 
-  Future<bool> register({required String displayName, required String username, required String email, required String password}) async {
+  Future<bool> register(
+      {required String displayName,
+      required String username,
+      required String email,
+      required String password}) async {
     authBusy = true;
     authError = null;
     notifyListeners();
-    final result = await _auth.register(displayName: displayName, username: username, email: email, password: password);
+    final result = await _auth.register(
+        displayName: displayName,
+        username: username,
+        email: email,
+        password: password);
     authBusy = false;
     if (!result.success) {
       authError = result.error;
@@ -193,7 +207,8 @@ class AppState extends ChangeNotifier {
 
   Future<void> toggleDownloadedPack(String code) async {
     if (!downloadedPackCodes.add(code)) downloadedPackCodes.remove(code);
-    await _storage.writeStrings(_userKey('downloaded_packs'), downloadedPackCodes.toList());
+    await _storage.writeStrings(
+        _userKey('downloaded_packs'), downloadedPackCodes.toList());
     notifyListeners();
   }
 
@@ -208,7 +223,8 @@ class AppState extends ChangeNotifier {
     reviewLessonIds.add(lessonId);
     xp += earnedXp ?? lessonXp;
     dailyMinutes += 5;
-    await _storage.writeStrings(_userKey('completed'), completedLessonIds.toList());
+    await _storage.writeStrings(
+        _userKey('completed'), completedLessonIds.toList());
     await _storage.writeStrings(_userKey('review'), reviewLessonIds.toList());
     await _storage.writeInt(_userKey('xp'), xp);
     await _storage.writeInt(_userKey('daily_minutes'), dailyMinutes);
@@ -218,14 +234,21 @@ class AppState extends ChangeNotifier {
   Future<void> completeLevelExam(String level, int score) async {
     final examId = '${targetLanguageCode}_$level';
     if (score >= 70) completedExamIds.add(examId);
-    xp += score >= 90 ? 180 : score >= 70 ? 120 : 35;
+    xp += score >= 90
+        ? 180
+        : score >= 70
+            ? 120
+            : 35;
     dailyMinutes += 10;
     if (score >= 70) {
       const order = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
       final index = order.indexOf(level);
-      if (index >= 0 && index < order.length - 1) currentLevel = order[index + 1];
+      if (index >= 0 && index < order.length - 1) {
+        currentLevel = order[index + 1];
+      }
     }
-    await _storage.writeStrings(_userKey('completed_exams'), completedExamIds.toList());
+    await _storage.writeStrings(
+        _userKey('completed_exams'), completedExamIds.toList());
     await _storage.writeInt(_userKey('xp'), xp);
     await _storage.writeInt(_userKey('daily_minutes'), dailyMinutes);
     await _storage.writeString(_userKey('level'), currentLevel);
@@ -252,7 +275,9 @@ class AppState extends ChangeNotifier {
     aiTutorEnabled = ai;
     communityEnabled = community;
     voiceRoomsEnabled = voiceRooms;
-    aiProvider = provider?.trim().isNotEmpty == true ? provider!.trim() : 'Local practice engine';
+    aiProvider = provider?.trim().isNotEmpty == true
+        ? provider!.trim()
+        : 'Local practice engine';
     aiEndpoint = endpoint?.trim() ?? aiEndpoint;
     examsEnabled = exams ?? examsEnabled;
     storiesEnabled = stories ?? storiesEnabled;

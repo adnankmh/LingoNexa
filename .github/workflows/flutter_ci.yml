@@ -36,7 +36,7 @@ jobs:
       - name: Prepare Flutter project
         run: bash scripts/ci_prepare.sh
       - name: Format sources
-        run: dart format lib test
+        run: dart format --output=none --set-exit-if-changed lib test
       - name: Analyze Flutter project
         run: flutter analyze --no-fatal-infos --no-fatal-warnings
       - name: Run Flutter tests
