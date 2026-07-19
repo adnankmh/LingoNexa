@@ -14,7 +14,7 @@ class PracticeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final state = AppStateScope.of(context);
-    final allLessons = CourseRepository.unitsFor(state.targetLanguageCode).expand((unit) => unit.lessons).toList();
+    final allLessons = CourseRepository.unitsFor(state.targetLanguageCode, meaningLanguageCode: state.locale.languageCode).expand((unit) => unit.lessons).toList();
     final due = allLessons.where((lesson) => state.reviewLessonIds.contains(lesson.id)).toList();
     final sample = due.isNotEmpty ? due.first : allLessons.first;
     final scheme = Theme.of(context).colorScheme;

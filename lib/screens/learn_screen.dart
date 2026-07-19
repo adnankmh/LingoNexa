@@ -8,6 +8,8 @@ import '../models/models.dart';
 import '../widgets/ui.dart';
 import 'language_picker_screen.dart';
 import 'lesson_screen.dart';
+import 'level_exam_screen.dart';
+import 'story_library_screen.dart';
 
 class LearnScreen extends StatefulWidget {
   const LearnScreen({super.key});
@@ -23,7 +25,7 @@ class _LearnScreenState extends State<LearnScreen> {
   Widget build(BuildContext context) {
     final state = AppStateScope.of(context);
     final target = LanguageCatalog.byCode(state.targetLanguageCode);
-    final units = CourseRepository.unitsFor(target.code).where((unit) => unit.level == _selectedLevel).toList();
+    final units = CourseRepository.unitsFor(target.code, meaningLanguageCode: state.locale.languageCode).where((unit) => unit.level == _selectedLevel).toList();
     final progress = (state.dailyMinutes / state.dailyGoalMinutes).clamp(0.0, 1.0).toDouble();
 
     return ResponsivePage(
@@ -93,6 +95,11 @@ class _LearnScreenState extends State<LearnScreen> {
           ),
           const SizedBox(height: 28),
           SectionHeading(title: 'CEFR Journey', subtitle: '${CourseRepository.levels.length} levels · 36 units · 180 lessons per language'),
+          const SizedBox(height: 11),
+          Wrap(spacing: 9, runSpacing: 9, children: [
+            if (state.examsEnabled) FilledButton.tonalIcon(onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => LevelExamScreen(level: _selectedLevel))), icon: const Icon(Icons.fact_check_rounded), label: Text('$_selectedLevel level exam')),
+            if (state.storiesEnabled) OutlinedButton.icon(onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const StoryLibraryScreen())), icon: const Icon(Icons.auto_stories_rounded), label: const Text('Dialogue stories')),
+          ]),
           const SizedBox(height: 12),
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,

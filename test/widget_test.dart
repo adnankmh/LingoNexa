@@ -10,6 +10,7 @@ void main() {
     SharedPreferences.setMockInitialValues({});
     final state = AppState(StorageService());
     await state.initialize();
+    await state.signInAsGuest();
     state.locale = const Locale('en');
     state.onboardingCompleted = true;
 
@@ -30,6 +31,7 @@ void main() {
     SharedPreferences.setMockInitialValues({});
     final state = AppState(StorageService());
     await state.initialize();
+    await state.signInAsGuest();
 
     await tester.pumpWidget(LingoNexaApp(state: state));
     await tester.pumpAndSettle();
@@ -37,5 +39,16 @@ void main() {
     expect(find.text('A world of language, built around you.'), findsOneWidget);
     expect(find.text('Create my path'), findsOneWidget);
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('signed-out launch renders account access', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final state = AppState(StorageService());
+    await state.initialize();
+    await tester.pumpWidget(LingoNexaApp(state: state));
+    await tester.pumpAndSettle();
+    expect(find.text('Welcome back'), findsOneWidget);
+    expect(find.text('Create account'), findsWidgets);
+    expect(find.textContaining('demo1'), findsOneWidget);
   });
 }

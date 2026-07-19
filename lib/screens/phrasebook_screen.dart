@@ -29,7 +29,7 @@ class _PhrasebookScreenState extends State<PhrasebookScreen> {
   Widget build(BuildContext context) {
     final state = AppStateScope.of(context);
     final language = LanguageCatalog.byCode(state.targetLanguageCode);
-    final phrases = LearningContentRepository.phrasesFor(language.code).where((phrase) {
+    final phrases = LearningContentRepository.phrasesFor(language.code, sourceLanguageCode: state.locale.languageCode).where((phrase) {
       final categoryMatch = _category == 'All' || phrase.category == _category;
       final q = _query.toLowerCase().trim();
       final queryMatch = q.isEmpty || phrase.source.toLowerCase().contains(q) || phrase.target.toLowerCase().contains(q);
@@ -75,7 +75,10 @@ class _PhrasebookScreenState extends State<PhrasebookScreen> {
                             onFavorite: () => setState(() {
                               if (!_favorites.add(phrases[index].target)) _favorites.remove(phrases[index].target);
                             }),
-                            onSpeak: () => _speech.speak(phrases[index].target, language.code),
+                            onSpeak: () async {
+                              final spoken = await _speech.speak(phrases[index].target, language.code, rate: state.speechRate);
+                              if (!spoken && context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${language.englishName} voice is not installed. No English fallback was used.')));
+                            },
                           ),
                         ),
                 ),
@@ -103,7 +106,7 @@ class _PhraseCard extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         child: Row(
           children: [
-            IconButton.filledTonal(onPressed: onSpeak, icon: const Icon(Icons.volume_up_rounded)),
+            Column(children: [Text(phrase.visual, style: const TextStyle(fontSize: 31)), const SizedBox(height: 5), IconButton.filledTonal(onPressed: onSpeak, icon: const Icon(Icons.volume_up_rounded))]),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -128,4 +131,3 @@ class _PhraseCard extends StatelessWidget {
     );
   }
 }
-

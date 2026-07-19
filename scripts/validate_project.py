@@ -21,6 +21,11 @@ REQUIRED = [
     "lib/screens/interface_language_screen.dart",
     "lib/screens/sentence_lab_screen.dart",
     "lib/screens/tutor_screen.dart",
+    "lib/screens/login_screen.dart",
+    "lib/screens/level_exam_screen.dart",
+    "lib/screens/story_library_screen.dart",
+    "lib/services/auth_service.dart",
+    "lib/services/speech_service.dart",
     "lib/screens/admin_screen.dart",
     "lib/screens/onboarding_screen.dart",
     "lib/screens/phrasebook_screen.dart",
@@ -41,6 +46,7 @@ REQUIRED = [
     "android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png",
     "assets/branding/lingonexa_logo.png",
     "assets/branding/lingonexa_icon.png",
+    "assets/lottie/error.json",
     "web/icons/Icon-512.png",
     "android/settings.gradle.kts",
     "android/gradle/wrapper/gradle-wrapper.properties",
@@ -80,6 +86,25 @@ global_content = (ROOT / "lib/data/global_content_repository.dart").read_text(en
 concept_count = global_content.count("GlobalPhraseConcept(source:")
 if concept_count < 35:
     fail(f"only {concept_count} global phrase concepts found")
+
+speech = (ROOT / "lib/services/speech_service.dart").read_text(encoding="utf-8")
+speech_locale_count = len(re.findall(r"'[a-z]+':'[a-z]{2,3}-[A-Z]{2}'", speech))
+if speech_locale_count < len(codes):
+    fail(f"only {speech_locale_count} explicit speech locales for {len(codes)} languages")
+if "English fallback was intentionally disabled" not in (ROOT / "lib/screens/lesson_screen.dart").read_text(encoding="utf-8"):
+    fail("missing strict no-English-fallback behavior")
+
+state_source = (ROOT / "lib/core/app_state.dart").read_text(encoding="utf-8")
+if "Locale locale = const Locale('en')" not in state_source or "String themeId = 'snow'" not in state_source:
+    fail("English and light Snow theme must be the first-launch defaults")
+
+auth_source = (ROOT / "lib/services/auth_service.dart").read_text(encoding="utf-8")
+if "Adnan123" in auth_source:
+    fail("administrator password must not be stored as plaintext source")
+
+for relative in ("assets/branding/lingonexa_logo.png", "assets/branding/lingonexa_icon.png", "web/icons/Icon-512.png"):
+    if (ROOT / relative).stat().st_size > 100_000:
+        fail(f"image is not sufficiently optimized: {relative}")
 
 for file in (ROOT / "assets").rglob("*.json"):
     try:
@@ -160,4 +185,4 @@ for stale in ("android/settings.gradle", "android/build.gradle", "android/app/bu
     if (ROOT / stale).exists():
         fail(f"stale Groovy Android file conflicts with Kotlin DSL: {stale}")
 
-print(f"PASS: {len(codes)} learning languages, {interface_language_count} interface languages, {concept_count} global phrase concepts, five separated workflows safe, branding present, Android toolchain pinned, JSON valid")
+print(f"PASS: {len(codes)} learning languages and speech locales, {interface_language_count} interface languages, {concept_count} aligned global concepts, optimized branding, auth/exams/stories present, five separated workflows safe, Android toolchain pinned, JSON valid")

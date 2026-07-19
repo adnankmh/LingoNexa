@@ -9,12 +9,13 @@ class GlobalPhraseConcept {
 }
 
 class SentenceDrill {
-  const SentenceDrill({required this.source, required this.target, required this.category, required this.mission});
+  const SentenceDrill({required this.source, required this.target, required this.category, required this.mission, this.visual = '💬'});
 
   final String source;
   final String target;
   final String category;
   final String mission;
+  final String visual;
 }
 
 /// Original, bundled content shared by the phrasebook, Sentence Lab, lessons,
@@ -63,28 +64,57 @@ abstract final class GlobalContentRepository {
     GlobalPhraseConcept(source: 'Could you take a photo for me?', category: 'Travel', translations: {'en':'Could you take a photo for me?','ar':'هل يمكنك التقاط صورة لي؟','es':'¿Podría hacerme una foto?','fr':'Pourriez-vous me prendre en photo ?','de':'Könnten Sie ein Foto von mir machen?','tr':'Fotoğrafımı çekebilir misiniz?','pt':'Pode tirar-me uma fotografia?','it':'Può farmi una foto?','ru':'Не могли бы вы меня сфотографировать?','zh':'你能帮我拍张照片吗？','ja':'写真を撮っていただけますか？','ko':'사진을 찍어 주실 수 있나요?'}),
   ];
 
-  static List<PhraseEntry> phrasesFor(String languageCode) {
-    final code = coreLanguageCodes.contains(languageCode) ? languageCode : 'en';
+  static List<PhraseEntry> phrasesFor(String languageCode, {String sourceLanguageCode = 'en'}) {
+    if (!coreLanguageCodes.contains(languageCode)) return const [];
+    final code = languageCode;
+    final sourceCode = coreLanguageCodes.contains(sourceLanguageCode) && sourceLanguageCode != languageCode ? sourceLanguageCode : 'en';
     return concepts
         .map((item) => PhraseEntry(
-              source: item.source,
+              source: item.translations[sourceCode] ?? item.source,
               target: item.translations[code] ?? item.source,
               category: item.category,
               note: 'LingoNexa global core',
+              visual: visualFor(item.category, item.source),
             ))
         .toList(growable: false);
   }
 
-  static List<SentenceDrill> sentenceDrillsFor(String languageCode) {
-    final phrases = phrasesFor(languageCode);
+  static List<SentenceDrill> sentenceDrillsFor(String languageCode, {String sourceLanguageCode = 'en'}) {
+    final phrases = phrasesFor(languageCode, sourceLanguageCode: sourceLanguageCode);
     const missions = ['Recognize the meaning', 'Recall without looking', 'Say it with natural rhythm', 'Use it in a real situation'];
     return [
       for (final phrase in phrases)
         for (final mission in missions)
-          SentenceDrill(source: phrase.source, target: phrase.target, category: phrase.category, mission: mission),
+          SentenceDrill(source: phrase.source, target: phrase.target, category: phrase.category, mission: mission, visual: phrase.visual),
     ];
   }
 
   static int get localizedPhrasePairs => concepts.length * coreLanguageCodes.length;
   static int get sentenceDrillCount => localizedPhrasePairs * 4;
+
+  static String visualFor(String category, String source) {
+    final lower = source.toLowerCase();
+    if (lower.contains('train') || lower.contains('ticket') || lower.contains('platform')) return '🚆';
+    if (lower.contains('water')) return '💧';
+    if (lower.contains('food') || lower.contains('menu') || lower.contains('vegetarian')) return '🍽️';
+    if (lower.contains('bill') || lower.contains('pay') || lower.contains('card')) return '💳';
+    if (lower.contains('hotel') || lower.contains('room') || lower.contains('reservation')) return '🏨';
+    if (lower.contains('pharmacy') || lower.contains('pain') || lower.contains('ambulance')) return '🩺';
+    if (lower.contains('email') || lower.contains('meeting') || lower.contains('deadline')) return '💼';
+    if (lower.contains('phone') || lower.contains('wi-fi')) return '📱';
+    if (lower.contains('photo')) return '📷';
+    return switch (category) {
+      'Introductions' => '👋',
+      'Travel' => '🧭',
+      'Food' => '🍽️',
+      'Hotel' => '🏨',
+      'Shopping' => '🛍️',
+      'Health' => '🩺',
+      'Emergencies' => '🆘',
+      'Work' => '💼',
+      'Relationships' => '🤝',
+      'Technology' => '📱',
+      _ => '💬',
+    };
+  }
 }

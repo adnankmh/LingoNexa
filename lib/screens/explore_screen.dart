@@ -6,6 +6,7 @@ import '../core/i18n.dart';
 import '../data/course_repository.dart';
 import '../data/global_content_repository.dart';
 import '../data/language_catalog.dart';
+import '../data/learning_content_repository.dart';
 import '../models/models.dart';
 import '../widgets/ui.dart';
 import 'achievements_screen.dart';
@@ -18,6 +19,7 @@ import 'phrasebook_screen.dart';
 import 'specialized_paths_screen.dart';
 import 'sentence_lab_screen.dart';
 import 'tutor_screen.dart';
+import 'story_library_screen.dart';
 
 class ExploreScreen extends StatelessWidget {
   const ExploreScreen({super.key});
@@ -40,7 +42,7 @@ class ExploreScreen extends StatelessWidget {
             child: ListView(
               scrollDirection: Axis.horizontal,
               children: [
-                _HeroCard(title: 'Interactive story', subtitle: 'The last train', emoji: '🚆', colors: const [Color(0xFF6C63FF), Color(0xFF9B70FF)], onTap: () => _storyDialog(context)),
+                if (state.storiesEnabled) _HeroCard(title: 'Verified stories', subtitle: '36 dialogue journeys', emoji: '📚', colors: const [Color(0xFF6C63FF), Color(0xFF9B70FF)], onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const StoryLibraryScreen()))),
                 _HeroCard(title: 'Role-play', subtitle: 'Order like a local', emoji: '🥐', colors: const [Color(0xFF008F79), Color(0xFF35C5A6)], onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const TutorScreen()))),
                 _HeroCard(title: 'Audio brief', subtitle: 'Five-minute news', emoji: '🎙️', colors: const [Color(0xFFE76F51), Color(0xFFF4A261)], onTap: () => _openUrl(context, 'https://learningenglish.voanews.com/')),
               ],
@@ -53,7 +55,8 @@ class ExploreScreen extends StatelessWidget {
             builder: (context, constraints) {
               final columns = constraints.maxWidth >= 760 ? 2 : 1;
               final tools = [
-                _StudioTool(icon: Icons.hub_rounded, title: context.text.get('sentence_lab'), subtitle: '${GlobalContentRepository.sentenceDrillsFor(language.code).length} speaking, recall, rhythm, and context missions', color: const Color(0xFF0757B8), screen: const SentenceLabScreen()),
+                _StudioTool(icon: Icons.hub_rounded, title: context.text.get('sentence_lab'), subtitle: '${LearningContentRepository.sentenceDrillsFor(language.code, sourceLanguageCode: state.locale.languageCode).length} speaking, recall, rhythm, and context missions', color: const Color(0xFF0757B8), screen: const SentenceLabScreen()),
+                if (state.storiesEnabled) _StudioTool(icon: Icons.auto_stories_rounded, title: 'Verified Story Library', subtitle: 'Six dialogue stories for every CEFR level with exact meanings and audio', color: const Color(0xFF845EF7), screen: const StoryLibraryScreen()),
                 _StudioTool(icon: Icons.menu_book_rounded, title: 'Phrasebook & Dictionary', subtitle: 'Search, save, listen, and practice essential phrases', color: const Color(0xFF6C63FF), screen: const PhrasebookScreen()),
                 _StudioTool(icon: Icons.account_tree_rounded, title: 'Grammar Atlas', subtitle: 'A1–C2 explanations, patterns, examples, and practice', color: const Color(0xFF008F79), screen: const GrammarScreen()),
                 _StudioTool(icon: Icons.draw_rounded, title: 'Script & Alphabet Lab', subtitle: 'Character maps, recognition, and a handwriting pad', color: const Color(0xFFE76F51), screen: const AlphabetScreen()),
@@ -131,14 +134,6 @@ class ExploreScreen extends StatelessWidget {
     );
   }
 
-  static Future<void> _storyDialog(BuildContext context) => showDialog<void>(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('🚆 The last train'),
-          content: const Text('You arrive at the station with two minutes left. Read the signs, ask a traveler which platform you need, and choose the clearest response.\n\nThis story template is ready for localized audio and branching content from the Admin Studio.', style: TextStyle(height: 1.55)),
-          actions: [FilledButton(onPressed: () => Navigator.pop(context), child: const Text('Start story'))],
-        ),
-      );
 }
 
 class _StudioTool extends StatelessWidget {

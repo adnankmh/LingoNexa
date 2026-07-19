@@ -67,9 +67,10 @@ class _TutorScreenState extends State<TutorScreen> with SingleTickerProviderStat
     final persona = _personas[_persona]!;
 
     if (_messages.isEmpty) {
+      final opening = _openingFor(language.code, state.locale.languageCode);
       _messages.add(_LiveMessage(
-        text: _openingFor(language.code),
-        translation: 'Welcome! I am your private speaking partner. Answer naturally; mistakes are welcome here.',
+        text: opening.$1,
+        translation: opening.$2,
         fromTutor: true,
         score: 100,
       ));
@@ -156,7 +157,7 @@ class _TutorScreenState extends State<TutorScreen> with SingleTickerProviderStat
                     controller: _scroll,
                     padding: const EdgeInsets.fromLTRB(14, 12, 14, 4),
                     itemCount: _messages.length,
-                    itemBuilder: (context, index) => _MessageBubble(message: _messages[index], languageCode: language.code, speech: _speech),
+                    itemBuilder: (context, index) => _MessageBubble(message: _messages[index], languageCode: language.code, speech: _speech, speechRate: state.speechRate),
                   ),
                 ),
                 Padding(
@@ -226,7 +227,7 @@ class _TutorScreenState extends State<TutorScreen> with SingleTickerProviderStat
     final state = AppStateScope.of(context);
     final language = LanguageCatalog.byCode(state.targetLanguageCode);
     final score = _scoreFor(input);
-    final reply = _replyFor(language.code, _messages.length);
+    final reply = _replyFor(language.code, state.locale.languageCode, _messages.length);
     setState(() {
       _listening = false;
       _messages.add(_LiveMessage(text: input, fromTutor: false, score: score));
@@ -239,7 +240,8 @@ class _TutorScreenState extends State<TutorScreen> with SingleTickerProviderStat
       ));
       _controller.clear();
     });
-    await _speech.speak(reply.$1, language.code);
+    final spoken = await _speech.speak(reply.$1, language.code, rate: state.speechRate);
+    if (!spoken && mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${language.englishName} voice is not installed. English fallback is disabled.')));
     _scrollToEnd();
   }
 
@@ -257,23 +259,25 @@ class _TutorScreenState extends State<TutorScreen> with SingleTickerProviderStat
     return 'Good communication. Repeat once more, linking the words smoothly instead of pausing after each word.';
   }
 
-  (String, String) _replyFor(String languageCode, int turn) {
+  (String, String) _replyFor(String languageCode, String sourceLanguageCode, int turn) {
     final category = switch (_scenario) {
       'travel' => 'Travel', 'career' => 'Work', 'cafe' => 'Food', 'hotel' => 'Hotel', 'health' => 'Health', _ => 'Introductions',
     };
-    final pool = GlobalContentRepository.phrasesFor(languageCode).where((item) => item.category == category).toList();
+    final pool = GlobalContentRepository.phrasesFor(languageCode, sourceLanguageCode: sourceLanguageCode).where((item) => item.category == category).toList();
     if (pool.isNotEmpty) {
       final phrase = pool[(turn ~/ 2) % pool.length];
       return (phrase.target, phrase.source);
     }
-    final lexicon = CourseRepository.starterLexicon[languageCode] ?? CourseRepository.starterLexicon['en']!;
-    return ('${lexicon[turn % lexicon.length]}! Tell me one more detail.', 'Keep the conversation moving with one detail and one question.');
+    final verified = CourseRepository.verifiedStarterPhrasesFor(languageCode, sourceLanguageCode: sourceLanguageCode);
+    final phrase = verified[turn % verified.length];
+    return (phrase.target, phrase.source);
   }
 
-  String _openingFor(String languageCode) {
-    final phrases = GlobalContentRepository.phrasesFor(languageCode);
-    if (phrases.isNotEmpty) return '${phrases.first.target} ${phrases[2].target}';
-    return CourseRepository.starterLexicon[languageCode]?.first ?? 'Hello!';
+  (String, String) _openingFor(String languageCode, String sourceLanguageCode) {
+    final phrases = GlobalContentRepository.phrasesFor(languageCode, sourceLanguageCode: sourceLanguageCode);
+    if (phrases.length >= 3) return ('${phrases.first.target} ${phrases[2].target}', '${phrases.first.source} · ${phrases[2].source}');
+    final verified = CourseRepository.verifiedStarterPhrasesFor(languageCode, sourceLanguageCode: sourceLanguageCode);
+    return (verified.first.target, verified.first.source);
   }
 
   int _sessionScore() {
@@ -331,10 +335,11 @@ class _LiveMessage {
 }
 
 class _MessageBubble extends StatelessWidget {
-  const _MessageBubble({required this.message, required this.languageCode, required this.speech});
+  const _MessageBubble({required this.message, required this.languageCode, required this.speech, required this.speechRate});
   final _LiveMessage message;
   final String languageCode;
   final SpeechService speech;
+  final double speechRate;
 
   @override
   Widget build(BuildContext context) {
@@ -353,7 +358,7 @@ class _MessageBubble extends StatelessWidget {
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Expanded(child: Text(message.text, style: TextStyle(color: message.fromTutor ? scheme.onSurface : scheme.onPrimary, height: 1.5, fontWeight: FontWeight.w700, fontSize: 15.5))),
-            if (message.fromTutor) IconButton(onPressed: () => speech.speak(message.text, languageCode), icon: const Icon(Icons.volume_up_rounded), visualDensity: VisualDensity.compact),
+            if (message.fromTutor) IconButton(onPressed: () => speech.speak(message.text, languageCode, rate: speechRate), icon: const Icon(Icons.volume_up_rounded), visualDensity: VisualDensity.compact),
           ]),
           if (message.translation != null) ...[
             const SizedBox(height: 6),

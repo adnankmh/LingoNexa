@@ -50,6 +50,7 @@ class LessonStep {
     this.options = const [],
     this.hint = '',
     this.translation = '',
+    this.visual = '🗣️',
   });
 
   final ExerciseType type;
@@ -58,6 +59,7 @@ class LessonStep {
   final List<String> options;
   final String hint;
   final String translation;
+  final String visual;
 }
 
 class Lesson {
@@ -143,6 +145,7 @@ class PhraseEntry {
     required this.category,
     this.pronunciation = '',
     this.note = '',
+    this.visual = '🗣️',
   });
 
   final String source;
@@ -150,6 +153,7 @@ class PhraseEntry {
   final String category;
   final String pronunciation;
   final String note;
+  final String visual;
 }
 
 class GrammarTopic {

@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:lottie/lottie.dart';
 
 import '../core/app_state.dart';
@@ -29,13 +30,24 @@ class _LessonScreenState extends State<LessonScreen> {
   bool _correct = false;
   bool _listening = false;
   String _recognizedSpeech = '';
+  List<LessonStep> _steps = const [];
 
-  LessonStep get _step => widget.lesson.steps[_stepIndex];
+  LessonStep get _step => _steps[_stepIndex];
 
   @override
   void initState() {
     super.initState();
     _answerController.addListener(_refreshAnswerState);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_steps.isNotEmpty) return;
+    final all = widget.lesson.steps;
+    _steps = AppStateScope.of(context).sprintMode && all.length >= 10
+        ? [all[0], all[1], all[2], all[4], all[5], all[9]]
+        : all;
   }
 
   void _refreshAnswerState() {
@@ -54,13 +66,13 @@ class _LessonScreenState extends State<LessonScreen> {
   Widget build(BuildContext context) {
     final state = AppStateScope.of(context);
     final target = LanguageCatalog.byCode(state.targetLanguageCode);
-    final progress = (_stepIndex + 1) / widget.lesson.steps.length;
+    final progress = (_stepIndex + 1) / _steps.length;
 
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(icon: const Icon(Icons.close_rounded), onPressed: () => Navigator.pop(context)),
         title: ClipRRect(borderRadius: BorderRadius.circular(20), child: LinearProgressIndicator(value: progress, minHeight: 10)),
-        actions: [Padding(padding: const EdgeInsetsDirectional.only(end: 16), child: Center(child: Text('${_stepIndex + 1}/${widget.lesson.steps.length}', style: const TextStyle(fontWeight: FontWeight.w900))))],
+        actions: [Padding(padding: const EdgeInsetsDirectional.only(end: 54), child: Center(child: Text('${target.flag} ${_stepIndex + 1}/${_steps.length}', style: const TextStyle(fontWeight: FontWeight.w900))))],
       ),
       body: SafeArea(
         top: false,
@@ -90,7 +102,10 @@ class _LessonScreenState extends State<LessonScreen> {
                           onArrange: (value) => setState(() => _arranged.add(value)),
                           onRemoveArranged: (value) => setState(() => _arranged.remove(value)),
                           onReveal: () => setState(() => _revealed = true),
-                          onSpeak: () => _speech.speak(_step.answer, target.code),
+                          onSpeak: () => _speakOrWarn(
+                            _step.type == ExerciseType.flashcard ? _step.prompt : _step.answer,
+                            target.code,
+                          ),
                           onListen: _toggleListening,
                         ),
                       ),
@@ -107,7 +122,7 @@ class _LessonScreenState extends State<LessonScreen> {
                       ),
                       child: Row(
                         children: [
-                          Icon(_correct ? Icons.check_circle_rounded : Icons.lightbulb_rounded, color: _correct ? Colors.green : Colors.orange),
+                          SizedBox(width: 54, height: 54, child: Lottie.asset(_correct ? 'assets/lottie/celebration.json' : 'assets/lottie/error.json', repeat: true)),
                           const SizedBox(width: 9),
                           Expanded(child: Text(_correct ? context.text.get('correct') : '${context.text.get('try_again')} · ${_step.answer}', style: const TextStyle(fontWeight: FontWeight.w800))),
                         ],
@@ -156,10 +171,11 @@ class _LessonScreenState extends State<LessonScreen> {
       _checked = true;
       _correct = submitted == expected || (_step.type == ExerciseType.speaking && _similarity(submitted, expected) >= .55);
     });
+    SystemSound.play(_correct ? SystemSoundType.click : SystemSoundType.alert);
   }
 
   Future<void> _next() async {
-    if (_stepIndex == widget.lesson.steps.length - 1) {
+    if (_stepIndex == _steps.length - 1) {
       await AppStateScope.of(context).completeLesson(widget.lesson.id);
       if (mounted) await _showCompletion();
       return;
@@ -205,6 +221,13 @@ class _LessonScreenState extends State<LessonScreen> {
     }
   }
 
+  Future<void> _speakOrWarn(String text, String languageCode) async {
+    final spoken = await _speech.speak(text, languageCode, rate: AppStateScope.of(context).speechRate);
+    if (!spoken && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('The ${LanguageCatalog.byCode(languageCode).englishName} voice is not installed on this device. Install that language in Android Text-to-Speech settings. English fallback was intentionally disabled.')));
+    }
+  }
+
   String _normalize(String value) => value
       .toLowerCase()
       .replaceAll(RegExp(r'''[.,!?،؛:;"'“”‘’…()\[\]{}_-]+'''), ' ')
@@ -230,7 +253,7 @@ class _LessonScreenState extends State<LessonScreen> {
             SizedBox(height: 180, child: Lottie.asset('assets/lottie/celebration.json', repeat: true)),
             Text(context.text.get('completed'), textAlign: TextAlign.center, style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900)),
             const SizedBox(height: 8),
-            const Text('+25 XP · Review scheduled', textAlign: TextAlign.center),
+            Text('+${AppStateScope.of(context).lessonXp} XP · Review scheduled', textAlign: TextAlign.center),
             const SizedBox(height: 18),
             FilledButton(onPressed: () { Navigator.pop(dialogContext); Navigator.pop(context); }, child: Text(context.text.get('continue'))),
           ],
@@ -286,6 +309,8 @@ class _StepBody extends StatelessWidget {
           child: Text(_label(step.type), style: TextStyle(color: Theme.of(context).colorScheme.onPrimaryContainer, fontWeight: FontWeight.w900, fontSize: 11)),
         ),
         const SizedBox(height: 14),
+        Center(child: Text(step.visual, style: const TextStyle(fontSize: 58), semanticsLabel: 'Meaning illustration')),
+        const SizedBox(height: 10),
         Text(step.prompt, style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900, height: 1.25)),
         if (step.hint.isNotEmpty) ...[
           const SizedBox(height: 8),
@@ -331,9 +356,9 @@ class _StepBody extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(revealed ? step.answer : step.prompt, textAlign: TextAlign.center, style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w900)),
+                  Text(step.prompt, textAlign: TextAlign.center, style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w900)),
                   const SizedBox(height: 16),
-                  Text(revealed ? step.translation : 'Tap to reveal', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                  Text(revealed ? step.translation : 'Tap to reveal the exact meaning', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
                   const SizedBox(height: 12),
                   IconButton.filledTonal(onPressed: onSpeak, icon: const Icon(Icons.volume_up_rounded)),
                 ],

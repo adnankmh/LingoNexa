@@ -1,4 +1,5 @@
 import '../models/models.dart';
+import 'course_repository.dart';
 import 'global_content_repository.dart';
 
 abstract final class LearningContentRepository {
@@ -130,11 +131,31 @@ abstract final class LearningContentRepository {
     ],
   };
 
-  static List<PhraseEntry> phrasesFor(String languageCode) {
-    final bundled = phrasebooks[languageCode] ?? const <PhraseEntry>[];
-    final global = GlobalContentRepository.phrasesFor(languageCode);
+  static List<PhraseEntry> phrasesFor(String languageCode, {String sourceLanguageCode = 'en'}) {
+    final effectiveSourceCode = sourceLanguageCode == languageCode ? 'en' : sourceLanguageCode;
+    // The legacy bundled phrasebooks have English meanings only. They are
+    // included only when English is the requested meaning language; otherwise
+    // the aligned global/starter records are used so no English meaning is
+    // mislabeled as Arabic, Spanish, or another interface language.
+    final bundled = effectiveSourceCode == 'en' ? phrasebooks[languageCode] ?? const <PhraseEntry>[] : const <PhraseEntry>[];
+    final global = GlobalContentRepository.phrasesFor(languageCode, sourceLanguageCode: sourceLanguageCode);
+    final verified = CourseRepository.verifiedStarterPhrasesFor(languageCode, sourceLanguageCode: sourceLanguageCode);
     final seen = <String>{};
-    return [...bundled, ...global].where((item) => seen.add(item.target.toLowerCase())).toList(growable: false);
+    return [...global, ...bundled, ...verified]
+        .where((item) => seen.add(item.target.toLowerCase()))
+        .map((item) => item.visual == '🗣️'
+            ? PhraseEntry(source: item.source, target: item.target, category: item.category, pronunciation: item.pronunciation, note: item.note, visual: GlobalContentRepository.visualFor(item.category, item.source))
+            : item)
+        .toList(growable: false);
+  }
+
+  static List<SentenceDrill> sentenceDrillsFor(String languageCode, {String sourceLanguageCode = 'en'}) {
+    const missions = ['Recognize the exact meaning', 'Recall without looking', 'Say it with the target-language voice', 'Use it in a real situation'];
+    return [
+      for (final phrase in phrasesFor(languageCode, sourceLanguageCode: sourceLanguageCode))
+        for (final mission in missions)
+          SentenceDrill(source: phrase.source, target: phrase.target, category: phrase.category, mission: mission, visual: phrase.visual),
+    ];
   }
 
   static const alphabetSamples = {

@@ -3,6 +3,14 @@ import 'dart:math';
 import '../models/models.dart';
 import 'global_content_repository.dart';
 
+class _AlignedPhrase {
+  const _AlignedPhrase({required this.target, required this.meaning, required this.visual, required this.category});
+  final String target;
+  final String meaning;
+  final String visual;
+  final String category;
+}
+
 abstract final class CourseRepository {
   static const levels = [
     LearningLevel(code: 'A1', title: 'Foundation', description: 'Words, sounds, and essential exchanges', colorValue: 0xFF6C63FF),
@@ -94,11 +102,8 @@ abstract final class CourseRepository {
     'kn': ['ನಮಸ್ಕಾರ', 'ಧನ್ಯವಾದ', 'ದಯವಿಟ್ಟು', 'ವಿದಾಯ'],
   };
 
-  static List<CourseUnit> unitsFor(String languageCode) {
-    final global = GlobalContentRepository.coreLanguageCodes.contains(languageCode)
-        ? GlobalContentRepository.phrasesFor(languageCode).map((item) => item.target)
-        : const <String>[];
-    final lexicon = <String>{...(starterLexicon[languageCode] ?? starterLexicon['en']!), ...global}.toList(growable: false);
+  static List<CourseUnit> unitsFor(String languageCode, {String meaningLanguageCode = 'en'}) {
+    final lexicon = _alignedPhrasesFor(languageCode, meaningLanguageCode);
     return [
       for (final level in levels)
         for (var topicIndex = 0; topicIndex < _topics.length; topicIndex++)
@@ -109,7 +114,7 @@ abstract final class CourseRepository {
   static CourseUnit _unitFor(
     LearningLevel level,
     int topicIndex,
-    List<String> lexicon,
+    List<_AlignedPhrase> lexicon,
     String languageCode,
   ) {
     final topic = _topics[topicIndex];
@@ -139,14 +144,15 @@ abstract final class CourseRepository {
     LearningLevel level,
     int topicIndex,
     int lessonIndex,
-    List<String> lexicon,
+    List<_AlignedPhrase> lexicon,
     int levelIndex,
   ) {
-    final phraseIndex = (topicIndex + lessonIndex) % lexicon.length;
-    final phrase = lexicon[phraseIndex];
-    final meaning = _meaningFor(languageCode, phrase, phraseIndex);
+    final phraseIndex = (levelIndex * 30 + topicIndex * 5 + lessonIndex) % lexicon.length;
+    final aligned = lexicon[phraseIndex];
+    final phrase = aligned.target;
+    final meaning = aligned.meaning;
     final distractors = <String>{
-      ...lexicon,
+      ...lexicon.map((item) => item.target),
       '…',
     }.where((item) => item != phrase).take(3).toList();
     final shuffled = [...distractors, phrase]..shuffle(Random(lessonIndex + topicIndex));
@@ -165,6 +171,7 @@ abstract final class CourseRepository {
           answer: meaning,
           translation: meaning,
           hint: 'Tap the card when you can recall the meaning.',
+          visual: aligned.visual,
         ),
         LessonStep(
           type: ExerciseType.choice,
@@ -172,6 +179,7 @@ abstract final class CourseRepository {
           answer: phrase,
           options: shuffled,
           hint: 'Listen for the rhythm, not only individual sounds.',
+          visual: aligned.visual,
         ),
         LessonStep(
           type: ExerciseType.listening,
@@ -179,6 +187,7 @@ abstract final class CourseRepository {
           answer: phrase,
           options: shuffled,
           translation: meaning,
+          visual: aligned.visual,
         ),
         LessonStep(
           type: ExerciseType.arrange,
@@ -186,18 +195,21 @@ abstract final class CourseRepository {
           answer: phrase,
           options: phrase.split(' '),
           hint: 'Start with the word you recognize.',
+          visual: aligned.visual,
         ),
         LessonStep(
           type: ExerciseType.speaking,
           prompt: 'Say this expression with a steady rhythm.',
           answer: phrase,
           translation: meaning,
+          visual: aligned.visual,
         ),
         LessonStep(
           type: ExerciseType.fillBlank,
           prompt: '$meaning → ____',
           answer: phrase,
           hint: phrase.isEmpty ? '' : 'It starts with “${phrase[0]}”.',
+          visual: aligned.visual,
         ),
         LessonStep(
           type: ExerciseType.culture,
@@ -205,6 +217,7 @@ abstract final class CourseRepository {
           answer: 'Continue',
           translation:
               'Notice formality, gesture, and tone. The same words can feel different across regions and situations.',
+          visual: _topics[topicIndex].$3,
         ),
         LessonStep(
           type: ExerciseType.choice,
@@ -212,29 +225,52 @@ abstract final class CourseRepository {
           answer: phrase,
           options: shuffled,
           translation: 'Use “$meaning” naturally and politely.',
+          visual: aligned.visual,
         ),
         LessonStep(
           type: ExerciseType.fillBlank,
           prompt: 'Listen in your mind, then complete: ${phrase.split(' ').take(1).join()} ____',
           answer: phrase,
           hint: 'Recall the full expression before checking.',
+          visual: aligned.visual,
         ),
         LessonStep(
           type: ExerciseType.speaking,
           prompt: 'Personalize this phrase with one extra detail.',
           answer: phrase,
           translation: meaning,
+          visual: aligned.visual,
         ),
       ],
     );
   }
 
-  static String _meaningFor(String languageCode, String phrase, int fallbackIndex) {
-    for (final concept in GlobalContentRepository.concepts) {
-      if (concept.translations[languageCode] == phrase) return concept.source;
+  static List<_AlignedPhrase> _alignedPhrasesFor(String languageCode, String meaningLanguageCode) {
+    const starterMeanings = ['Hello', 'Thank you', 'Please', 'Goodbye'];
+    const starterVisuals = ['👋', '🙏', '🤲', '👋'];
+    final starters = starterLexicon[languageCode] ?? starterLexicon['en']!;
+    final sourceCode = meaningLanguageCode == languageCode ? 'en' : meaningLanguageCode;
+    final localizedStarterMeanings = starterLexicon[sourceCode] ?? starterMeanings;
+    final result = <_AlignedPhrase>[
+      for (var index = 0; index < starters.length; index++)
+        _AlignedPhrase(target: starters[index], meaning: localizedStarterMeanings[index], visual: starterVisuals[index], category: 'Essentials'),
+    ];
+    final seen = result.map((item) => item.target.toLowerCase()).toSet();
+    if (GlobalContentRepository.coreLanguageCodes.contains(languageCode)) {
+      for (final phrase in GlobalContentRepository.phrasesFor(languageCode, sourceLanguageCode: meaningLanguageCode)) {
+        if (seen.add(phrase.target.toLowerCase())) {
+          result.add(_AlignedPhrase(target: phrase.target, meaning: phrase.source, visual: phrase.visual, category: phrase.category));
+        }
+      }
     }
-    const meanings = ['Hello', 'Thank you', 'Please', 'Goodbye'];
-    return meanings[fallbackIndex % meanings.length];
+    return result;
+  }
+
+  static List<PhraseEntry> verifiedStarterPhrasesFor(String languageCode, {String sourceLanguageCode = 'en'}) {
+    final items = _alignedPhrasesFor(languageCode, sourceLanguageCode);
+    return items
+        .map((item) => PhraseEntry(source: item.meaning, target: item.target, category: item.category, visual: item.visual, note: 'Verified aligned course entry'))
+        .toList(growable: false);
   }
 
   static const articles = [

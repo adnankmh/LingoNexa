@@ -20,11 +20,17 @@ class ProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final state = AppStateScope.of(context);
     final target = LanguageCatalog.byCode(state.targetLanguageCode);
+    final user = state.currentUser!;
+    final nextXp = ((state.xp ~/ 500) + 1) * 500;
+    final xpFloor = nextXp - 500;
+    final xpProgress = ((state.xp - xpFloor) / 500).clamp(0.0, 1.0).toDouble();
     return ResponsivePage(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(children: [Container(width: 76, height: 76, alignment: Alignment.center, decoration: BoxDecoration(gradient: LinearGradient(colors: [Theme.of(context).colorScheme.primary, Theme.of(context).colorScheme.tertiary]), borderRadius: BorderRadius.circular(25)), child: const Text('AY', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 24))), const SizedBox(width: 15), Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('Language Explorer', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900)), const SizedBox(height: 3), Text('${target.flag} ${target.nativeName} · ${state.currentLevel}', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)), const SizedBox(height: 7), Row(children: [Icon(Icons.local_fire_department_rounded, color: Colors.orange.shade600, size: 18), Text(' ${state.streak} days  ·  ${state.xp} XP', style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 12))])]))]),
+          Row(children: [Container(width: 76, height: 76, alignment: Alignment.center, decoration: BoxDecoration(gradient: LinearGradient(colors: [Theme.of(context).colorScheme.primary, Theme.of(context).colorScheme.tertiary]), borderRadius: BorderRadius.circular(25)), child: Text(user.displayName.substring(0, user.displayName.length.clamp(1, 2).toInt()).toUpperCase(), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 24))), const SizedBox(width: 15), Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Row(children: [Flexible(child: Text(user.displayName, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900))), if (state.isAdmin) ...[const SizedBox(width: 7), const Chip(label: Text('ADMIN'), avatar: Icon(Icons.verified_rounded, size: 16))]]), const SizedBox(height: 3), Text('@${user.username} · ${target.flag} ${target.nativeName} · ${state.currentLevel}', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)), const SizedBox(height: 7), Row(children: [Icon(Icons.local_fire_department_rounded, color: Colors.orange.shade600, size: 18), Text(' ${state.streak} days  ·  ${state.xp} XP', style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 12))])]))]),
+          const SizedBox(height: 14),
+          Container(width: double.infinity, padding: const EdgeInsets.all(15), decoration: BoxDecoration(color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: .48), borderRadius: BorderRadius.circular(19)), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Row(children: [const Icon(Icons.stars_rounded), const SizedBox(width: 8), Expanded(child: Text('XP level ${state.xp ~/ 500 + 1}', style: const TextStyle(fontWeight: FontWeight.w900))), Text('${state.xp}/$nextXp XP', style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 11.5))]), const SizedBox(height: 9), ClipRRect(borderRadius: BorderRadius.circular(20), child: LinearProgressIndicator(value: xpProgress, minHeight: 10))])),
           const SizedBox(height: 22),
           LayoutBuilder(
             builder: (context, constraints) {
@@ -62,6 +68,8 @@ class ProfileScreen extends StatelessWidget {
               const Divider(height: 1),
               SwitchListTile(value: state.offlineMode, onChanged: state.setOfflineMode, secondary: const Icon(Icons.offline_bolt_rounded), title: Text(context.text.get('offline'), style: const TextStyle(fontWeight: FontWeight.w800)), subtitle: const Text('Keep downloaded lessons available without a connection')),
               const Divider(height: 1),
+              SwitchListTile(value: state.sprintMode, onChanged: state.setSprintMode, secondary: const Icon(Icons.speed_rounded), title: const Text('Fast learning mode', style: TextStyle(fontWeight: FontWeight.w800)), subtitle: const Text('Six essential steps per micro-lesson; full mode keeps all ten')),
+              const Divider(height: 1),
               ListTile(leading: const Icon(Icons.notifications_outlined), title: const Text('Learning reminders', style: TextStyle(fontWeight: FontWeight.w800)), subtitle: const Text('Daily at 7:30 PM'), trailing: const Icon(Icons.chevron_right_rounded), onTap: () {}),
               const Divider(height: 1),
               ListTile(leading: const Icon(Icons.accessibility_new_rounded), title: const Text('Accessibility', style: TextStyle(fontWeight: FontWeight.w800)), subtitle: const Text('Text scale, reduced motion, contrast'), trailing: const Icon(Icons.chevron_right_rounded), onTap: () {}),
@@ -74,11 +82,14 @@ class ProfileScreen extends StatelessWidget {
             child: ListTile(leading: Icon(Icons.workspace_premium_rounded, color: Theme.of(context).colorScheme.primary), title: Text(context.text.get('premium'), style: const TextStyle(fontWeight: FontWeight.w900)), subtitle: const Text('Offline packs, unlimited role-play, family learning'), trailing: FilledButton.tonal(onPressed: () {}, child: const Text('View'))),
           ),
           const SizedBox(height: 12),
-          Card(
-            child: ListTile(leading: const Icon(Icons.admin_panel_settings_outlined), title: Text(context.text.get('admin'), style: const TextStyle(fontWeight: FontWeight.w900)), subtitle: const Text('Brand, content, modules, and deployment configuration'), trailing: const Icon(Icons.chevron_right_rounded), onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminScreen()))),
-          ),
+          if (state.isAdmin)
+            Card(
+              child: ListTile(leading: const Icon(Icons.admin_panel_settings_outlined), title: Text(context.text.get('admin'), style: const TextStyle(fontWeight: FontWeight.w900)), subtitle: const Text('Full administrator access: brand, content, users, modules, audio, exams, and deployment'), trailing: const Icon(Icons.chevron_right_rounded), onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AdminScreen()))),
+            ),
+          const SizedBox(height: 12),
+          Card(child: ListTile(leading: const Icon(Icons.logout_rounded), title: Text(context.text.get('sign_out'), style: const TextStyle(fontWeight: FontWeight.w900)), subtitle: Text(user.role.name == 'guest' ? 'Leave guest session' : 'Your local progress remains attached to this account'), onTap: () => _confirmSignOut(context, state))),
           const SizedBox(height: 15),
-          Center(child: Text('LingoNexa 1.2.0 · Original Flutter platform', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 11))),
+          Center(child: Text('LingoNexa 1.3.0 · Original Flutter platform', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontSize: 11))),
         ],
       ),
     );
@@ -97,6 +108,11 @@ class ProfileScreen extends StatelessWidget {
       ),
     );
     if (confirmed == true) await state.resetOnboarding();
+  }
+
+  static Future<void> _confirmSignOut(BuildContext context, AppState state) async {
+    final confirmed = await showDialog<bool>(context: context, builder: (context) => AlertDialog(title: const Text('Sign out?'), content: const Text('Your account progress stays saved on this device.'), actions: [TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')), FilledButton(onPressed: () => Navigator.pop(context, true), child: const Text('Sign out'))]));
+    if (confirmed == true) await state.signOut();
   }
 }
 

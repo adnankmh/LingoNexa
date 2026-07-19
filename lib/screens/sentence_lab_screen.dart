@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../core/app_state.dart';
 import '../core/i18n.dart';
-import '../data/global_content_repository.dart';
+import '../data/learning_content_repository.dart';
 import '../data/language_catalog.dart';
 import '../services/speech_service.dart';
 import '../widgets/ui.dart';
@@ -30,7 +30,7 @@ class _SentenceLabScreenState extends State<SentenceLabScreen> {
   Widget build(BuildContext context) {
     final state = AppStateScope.of(context);
     final language = LanguageCatalog.byCode(state.targetLanguageCode);
-    final all = GlobalContentRepository.sentenceDrillsFor(language.code);
+    final all = LearningContentRepository.sentenceDrillsFor(language.code, sourceLanguageCode: state.locale.languageCode);
     final categories = <String>{for (final item in all) item.category}.toList()..sort();
     final items = all.where((item) {
       final q = _query.trim().toLowerCase();
@@ -98,7 +98,7 @@ class _SentenceLabScreenState extends State<SentenceLabScreen> {
                         child: Padding(
                           padding: const EdgeInsets.all(16),
                           child: Row(children: [
-                            IconButton.filledTonal(onPressed: () => _speech.speak(item.target, language.code), icon: const Icon(Icons.volume_up_rounded)),
+                            Column(children: [Text(item.visual, style: const TextStyle(fontSize: 30)), IconButton.filledTonal(onPressed: () async { final spoken = await _speech.speak(item.target, language.code, rate: state.speechRate); if (!spoken && context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${language.englishName} voice is not installed.'))); }, icon: const Icon(Icons.volume_up_rounded))]),
                             const SizedBox(width: 12),
                             Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                               Text(item.target, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 17)),

@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import '../core/app_state.dart';
 import '../core/i18n.dart';
 import '../data/language_catalog.dart';
+import '../data/global_content_repository.dart';
+import '../data/learning_content_repository.dart';
+import '../services/speech_service.dart';
 import '../models/models.dart';
 
 class LanguagePickerScreen extends StatefulWidget {
@@ -39,13 +42,15 @@ class _LanguagePickerScreenState extends State<LanguagePickerScreen> {
               padding: const EdgeInsets.fromLTRB(18, 4, 18, 30),
               gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
                 maxCrossAxisExtent: 360,
-                mainAxisExtent: 82,
+                mainAxisExtent: 100,
                 crossAxisSpacing: 10,
                 mainAxisSpacing: 10,
               ),
               itemCount: results.length,
               itemBuilder: (context, index) => _LanguageTile(
                 language: results[index],
+                phraseCount: LearningContentRepository.phrasesFor(results[index].code).length,
+                expanded: GlobalContentRepository.coreLanguageCodes.contains(results[index].code),
                 selected: state.targetLanguageCode == results[index].code,
                 onTap: () async {
                   await state.setTargetLanguage(results[index].code);
@@ -61,11 +66,13 @@ class _LanguagePickerScreenState extends State<LanguagePickerScreen> {
 }
 
 class _LanguageTile extends StatelessWidget {
-  const _LanguageTile({required this.language, required this.selected, required this.onTap});
+  const _LanguageTile({required this.language, required this.selected, required this.onTap, required this.phraseCount, required this.expanded});
 
   final LanguageOption language;
   final bool selected;
   final VoidCallback onTap;
+  final int phraseCount;
+  final bool expanded;
 
   @override
   Widget build(BuildContext context) {
@@ -92,6 +99,8 @@ class _LanguageTile extends StatelessWidget {
                   children: [
                     Text(language.nativeName, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.w900)),
                     Text('${language.englishName} · ${language.script}', maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: scheme.onSurfaceVariant, fontSize: 11)),
+                    const SizedBox(height: 3),
+                    Text('${expanded ? 'EXPANDED' : 'VERIFIED STARTER'} · $phraseCount phrases · ${SpeechService.voiceLocale(language.code)}', maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: expanded ? scheme.primary : scheme.onSurfaceVariant, fontSize: 9.5, fontWeight: FontWeight.w900)),
                   ],
                 ),
               ),
@@ -103,4 +112,3 @@ class _LanguageTile extends StatelessWidget {
     );
   }
 }
-

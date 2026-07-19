@@ -21,11 +21,18 @@ class _AdminScreenState extends State<AdminScreen> {
   late bool _ai;
   late bool _community;
   late bool _voice;
+  late bool _exams;
+  late bool _stories;
+  late bool _registration;
+  late double _speechRate;
+  late double _lessonXp;
+  bool _initialized = false;
   String _provider = 'Local practice engine';
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    if (_initialized) return;
     final state = AppStateScope.of(context);
     _brandController ??= TextEditingController(text: state.brandName);
     _endpointController ??= TextEditingController(text: state.aiEndpoint);
@@ -33,7 +40,13 @@ class _AdminScreenState extends State<AdminScreen> {
     _ai = state.aiTutorEnabled;
     _community = state.communityEnabled;
     _voice = state.voiceRoomsEnabled;
+    _exams = state.examsEnabled;
+    _stories = state.storiesEnabled;
+    _registration = state.registrationEnabled;
+    _speechRate = state.speechRate;
+    _lessonXp = state.lessonXp.toDouble();
     _provider = state.aiProvider;
+    _initialized = true;
   }
 
   @override
@@ -46,6 +59,9 @@ class _AdminScreenState extends State<AdminScreen> {
   @override
   Widget build(BuildContext context) {
     final state = AppStateScope.of(context);
+    if (!state.isAdmin) {
+      return Scaffold(appBar: AppBar(title: const Text('Administrator access')), body: const Center(child: Padding(padding: EdgeInsets.all(24), child: Column(mainAxisSize: MainAxisSize.min, children: [Icon(Icons.lock_rounded, size: 70), SizedBox(height: 16), Text('This page requires the administrator role.', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18))]))));
+    }
     return Scaffold(
       appBar: AppBar(title: const Text('Admin Studio'), actions: [TextButton.icon(onPressed: _save, icon: const Icon(Icons.save_rounded), label: const Text('Save'))]),
       body: SafeArea(
@@ -107,8 +123,25 @@ class _AdminScreenState extends State<AdminScreen> {
                     SwitchListTile(value: _community, onChanged: (value) => setState(() => _community = value), secondary: const Icon(Icons.people_alt_rounded), title: const Text('Community'), subtitle: const Text('Posts, corrections, partner matching, safety tools')),
                     const Divider(height: 1),
                     SwitchListTile(value: _voice, onChanged: (value) => setState(() => _voice = value), secondary: const Icon(Icons.graphic_eq_rounded), title: const Text('Voice rooms'), subtitle: const Text('Live group speaking module')),
+                    const Divider(height: 1),
+                    SwitchListTile(value: _exams, onChanged: (value) => setState(() => _exams = value), secondary: const Icon(Icons.fact_check_rounded), title: const Text('Level exams'), subtitle: const Text('A1–C2 assessments, pass scores, and XP rewards')),
+                    const Divider(height: 1),
+                    SwitchListTile(value: _stories, onChanged: (value) => setState(() => _stories = value), secondary: const Icon(Icons.auto_stories_rounded), title: const Text('Verified stories'), subtitle: const Text('Dialogue stories using aligned phrases and voices')),
+                    const Divider(height: 1),
+                    SwitchListTile(value: _registration, onChanged: (value) => setState(() => _registration = value), secondary: const Icon(Icons.person_add_alt_1_rounded), title: const Text('New account registration'), subtitle: const Text('Password accounts; social sign-in still needs provider configuration')),
                   ]),
                 ),
+                const SizedBox(height: 18),
+                const _AdminHeading(title: 'Learning, XP & voice', subtitle: 'Control lesson speed, rewards, and target-language audio.'),
+                const SizedBox(height: 10),
+                Card(child: Padding(padding: const EdgeInsets.all(18), child: Column(children: [
+                  Row(children: [const Expanded(child: Text('Target-language voice speed', style: TextStyle(fontWeight: FontWeight.w800))), Text(_speechRate.toStringAsFixed(2), style: const TextStyle(fontWeight: FontWeight.w900))]),
+                  Slider(value: _speechRate, min: .25, max: .60, divisions: 14, label: _speechRate.toStringAsFixed(2), onChanged: (value) => setState(() => _speechRate = value)),
+                  const Divider(),
+                  Row(children: [const Expanded(child: Text('XP per completed lesson', style: TextStyle(fontWeight: FontWeight.w800))), Text('${_lessonXp.round()} XP', style: const TextStyle(fontWeight: FontWeight.w900))]),
+                  Slider(value: _lessonXp, min: 5, max: 100, divisions: 19, label: '${_lessonXp.round()}', onChanged: (value) => setState(() => _lessonXp = value)),
+                  const Row(crossAxisAlignment: CrossAxisAlignment.start, children: [Icon(Icons.record_voice_over_rounded, size: 18), SizedBox(width: 8), Expanded(child: Text('Speech never falls back to English. If the selected voice is missing, the learner receives an installation message.', style: TextStyle(fontSize: 11.5, height: 1.4)))]),
+                ]))),
                 const SizedBox(height: 18),
                 const _AdminHeading(title: 'Content operations', subtitle: 'The production workflow uses versioned JSON course packs.'),
                 const SizedBox(height: 10),
@@ -121,6 +154,8 @@ class _AdminScreenState extends State<AdminScreen> {
                       _AdminAction(icon: Icons.school_rounded, title: 'Course editor', subtitle: 'Units, lessons, exercises, hints, and CEFR tags', onTap: () => _showInfo('Course editor', 'A cloud CMS adapter belongs in lib/services. Until connected, edit versioned course JSON and validate it before publishing.')),
                       _AdminAction(icon: Icons.video_library_rounded, title: 'Media library', subtitle: 'Audio, video, images, Lottie, and attribution', onTap: () => _showInfo('Media library', 'Use only owned, licensed, or open media. Keep attribution and license metadata beside each asset.')),
                       _AdminAction(icon: Icons.shield_rounded, title: 'Moderation center', subtitle: 'Reports, blocks, trust levels, and audit logs', onTap: () => _showInfo('Moderation center', 'Production moderation requires authenticated server roles, abuse queues, retention rules, and emergency escalation.')),
+                      _AdminAction(icon: Icons.manage_accounts_rounded, title: '${state.registeredAccountCount} local accounts', subtitle: 'Administrator, demo users, registrations, roles, and progress isolation', onTap: () => _showInfo('User & role management', 'Local accounts are isolated by user ID. Production role changes, password resets, Google, and Facebook accounts require a server-verified authentication provider.')),
+                      _AdminAction(icon: Icons.login_rounded, title: 'Social providers', subtitle: 'Google and Facebook adapters are visible but not configured', onTap: () => _showInfo('Social authentication', 'Create Firebase Android/Web apps, enable Google and Facebook providers, then add platform configuration files and OAuth callback domains. Do not paste client secrets into this application.')),
                     ];
                     return GridView.count(shrinkWrap: true, physics: const NeverScrollableScrollPhysics(), crossAxisCount: columns, childAspectRatio: columns == 1 ? 2.65 : 2.25, mainAxisSpacing: 10, crossAxisSpacing: 10, children: cards);
                   },
@@ -149,7 +184,7 @@ class _AdminScreenState extends State<AdminScreen> {
   }
 
   Future<void> _save() async {
-    await AppStateScope.of(context).updateAdmin(name: _brandController?.text ?? 'LingoNexa', goal: _goal.round(), ai: _ai, community: _community, voiceRooms: _voice, provider: _provider, endpoint: _endpointController?.text);
+    await AppStateScope.of(context).updateAdmin(name: _brandController?.text ?? 'LingoNexa', goal: _goal.round(), ai: _ai, community: _community, voiceRooms: _voice, provider: _provider, endpoint: _endpointController?.text, exams: _exams, stories: _stories, registration: _registration, voiceRate: _speechRate, xpPerLesson: _lessonXp.round());
     if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Admin settings saved.')));
   }
 

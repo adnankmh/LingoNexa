@@ -29,7 +29,7 @@ abstract final class AppThemes {
   ];
 
   static ThemePreset preset(String id) =>
-      presets.firstWhere((item) => item.id == id, orElse: () => presets.first);
+      presets.firstWhere((item) => item.id == id, orElse: () => presets.firstWhere((item) => item.id == 'snow'));
 
   static ThemeData build(String id) {
     final preset = AppThemes.preset(id);
@@ -106,4 +106,3 @@ abstract final class AppThemes {
     );
   }
 }
-

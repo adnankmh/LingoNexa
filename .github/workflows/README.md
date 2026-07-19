@@ -8,9 +8,8 @@ The production automation is separated into five visible workflows:
 - `web.yml` — Flutter Web artifact without deployment.
 - `pages.yml` — manual GitHub Pages deployment after Pages is enabled.
 
-`build.yml` and `dart.yml` are harmless manual-only replacement guards. They
-overwrite obsolete combined/Dart workflows when this release is copied over an
-older repository. `APPLY_LINGONEXA_FIX_WINDOWS.bat` then removes both guards.
-
 The project is Flutter, not a standalone Dart package. Do not create GitHub's
 starter Dart workflow. Dependency resolution must use `flutter pub get`.
+
+If an older repository already contains `build.yml` or `dart.yml`, delete them
+before copying this release, or run `APPLY_LINGONEXA_FIX_WINDOWS.bat` once.
