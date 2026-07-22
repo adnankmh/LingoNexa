@@ -71,18 +71,23 @@ class _LessonScreenState extends State<LessonScreen> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-            icon: const Icon(Icons.close_rounded),
-            onPressed: () => Navigator.pop(context)),
+          icon: const Icon(Icons.close_rounded),
+          onPressed: () => Navigator.pop(context),
+        ),
         title: ClipRRect(
-            borderRadius: BorderRadius.circular(20),
-            child: LinearProgressIndicator(value: progress, minHeight: 10)),
+          borderRadius: BorderRadius.circular(20),
+          child: LinearProgressIndicator(value: progress, minHeight: 10),
+        ),
         actions: [
           Padding(
-              padding: const EdgeInsetsDirectional.only(end: 54),
-              child: Center(
-                  child: Text(
-                      '${target.flag} ${_stepIndex + 1}/${_steps.length}',
-                      style: const TextStyle(fontWeight: FontWeight.w900))))
+            padding: const EdgeInsetsDirectional.only(end: 54),
+            child: Center(
+              child: Text(
+                '${target.flag} ${_stepIndex + 1}/${_steps.length}',
+                style: const TextStyle(fontWeight: FontWeight.w900),
+              ),
+            ),
+          ),
         ],
       ),
       body: SafeArea(
@@ -99,13 +104,15 @@ class _LessonScreenState extends State<LessonScreen> {
                       child: AnimatedSwitcher(
                         duration: const Duration(milliseconds: 260),
                         transitionBuilder: (child, animation) => FadeTransition(
-                            opacity: animation,
-                            child: SlideTransition(
-                                position: Tween(
-                                        begin: const Offset(.06, 0),
-                                        end: Offset.zero)
-                                    .animate(animation),
-                                child: child)),
+                          opacity: animation,
+                          child: SlideTransition(
+                            position: Tween(
+                              begin: const Offset(.06, 0),
+                              end: Offset.zero,
+                            ).animate(animation),
+                            child: child,
+                          ),
+                        ),
                         child: _StepBody(
                           key: ValueKey(_stepIndex),
                           step: _step,
@@ -147,21 +154,26 @@ class _LessonScreenState extends State<LessonScreen> {
                       child: Row(
                         children: [
                           SizedBox(
-                              width: 54,
-                              height: 54,
-                              child: Lottie.asset(
-                                  _correct
-                                      ? 'assets/lottie/celebration.json'
-                                      : 'assets/lottie/error.json',
-                                  repeat: true)),
+                            width: 54,
+                            height: 54,
+                            child: Lottie.asset(
+                              _correct
+                                  ? 'assets/lottie/celebration.json'
+                                  : 'assets/lottie/error.json',
+                              repeat: true,
+                            ),
+                          ),
                           const SizedBox(width: 9),
                           Expanded(
-                              child: Text(
-                                  _correct
-                                      ? context.text.get('correct')
-                                      : '${context.text.get('try_again')} · ${_step.answer}',
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.w800))),
+                            child: Text(
+                              _correct
+                                  ? context.text.get('correct')
+                                  : '${context.text.get('try_again')} · ${_step.answer}',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -171,13 +183,17 @@ class _LessonScreenState extends State<LessonScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(_checked
-                            ? context.text.get('next')
-                            : context.text.get('check')),
+                        Text(
+                          _checked
+                              ? context.text.get('next')
+                              : context.text.get('check'),
+                        ),
                         const SizedBox(width: 7),
-                        Icon(_checked
-                            ? Icons.arrow_forward_rounded
-                            : Icons.check_rounded),
+                        Icon(
+                          _checked
+                              ? Icons.arrow_forward_rounded
+                              : Icons.check_rounded,
+                        ),
                       ],
                     ),
                   ),
@@ -212,12 +228,12 @@ class _LessonScreenState extends State<LessonScreen> {
         _recognizedSpeech.isEmpty ? expected : _normalize(_recognizedSpeech),
       ExerciseType.fillBlank => _normalize(_answerController.text),
       ExerciseType.choice ||
-      ExerciseType.listening =>
-        _normalize(_selectedAnswer ?? ''),
+      ExerciseType.listening => _normalize(_selectedAnswer ?? ''),
     };
     setState(() {
       _checked = true;
-      _correct = submitted == expected ||
+      _correct =
+          submitted == expected ||
           (_step.type == ExerciseType.speaking &&
               _similarity(submitted, expected) >= .55);
     });
@@ -267,19 +283,30 @@ class _LessonScreenState extends State<LessonScreen> {
         _revealed = true;
         _recognizedSpeech = _step.answer;
       });
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
           content: Text(
-              'Speech recognition is unavailable on this device. Practice mode enabled.')));
+            'Speech recognition is unavailable on this device. Practice mode enabled.',
+          ),
+        ),
+      );
     }
   }
 
   Future<void> _speakOrWarn(String text, String languageCode) async {
-    final spoken = await _speech.speak(text, languageCode,
-        rate: AppStateScope.of(context).speechRate);
+    final spoken = await _speech.speak(
+      text,
+      languageCode,
+      rate: AppStateScope.of(context).speechRate,
+    );
     if (!spoken && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
           content: Text(
-              'The ${LanguageCatalog.byCode(languageCode).englishName} voice is not installed on this device. Install that language in Android Text-to-Speech settings. English fallback was intentionally disabled.')));
+            'The ${LanguageCatalog.byCode(languageCode).englishName} voice is not installed on this device. Install that language in Android Text-to-Speech settings. English fallback was intentionally disabled.',
+          ),
+        ),
+      );
     }
   }
 
@@ -307,25 +334,32 @@ class _LessonScreenState extends State<LessonScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             SizedBox(
-                height: 180,
-                child: Lottie.asset('assets/lottie/celebration.json',
-                    repeat: true)),
-            Text(context.text.get('completed'),
-                textAlign: TextAlign.center,
-                style: Theme.of(context)
-                    .textTheme
-                    .headlineSmall
-                    ?.copyWith(fontWeight: FontWeight.w900)),
+              height: 180,
+              child: Lottie.asset(
+                'assets/lottie/celebration.json',
+                repeat: true,
+              ),
+            ),
+            Text(
+              context.text.get('completed'),
+              textAlign: TextAlign.center,
+              style: Theme.of(
+                context,
+              ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900),
+            ),
             const SizedBox(height: 8),
-            Text('+${AppStateScope.of(context).lessonXp} XP · Review scheduled',
-                textAlign: TextAlign.center),
+            Text(
+              '+${AppStateScope.of(context).lessonXp} XP · Review scheduled',
+              textAlign: TextAlign.center,
+            ),
             const SizedBox(height: 18),
             FilledButton(
-                onPressed: () {
-                  Navigator.pop(dialogContext);
-                  Navigator.pop(context);
-                },
-                child: Text(context.text.get('continue'))),
+              onPressed: () {
+                Navigator.pop(dialogContext);
+                Navigator.pop(context);
+              },
+              child: Text(context.text.get('continue')),
+            ),
           ],
         ),
       ),
@@ -376,31 +410,43 @@ class _StepBody extends StatelessWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 6),
           decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primaryContainer,
-              borderRadius: BorderRadius.circular(20)),
-          child: Text(_label(step.type),
-              style: TextStyle(
-                  color: Theme.of(context).colorScheme.onPrimaryContainer,
-                  fontWeight: FontWeight.w900,
-                  fontSize: 11)),
+            color: Theme.of(context).colorScheme.primaryContainer,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Text(
+            _label(step.type),
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onPrimaryContainer,
+              fontWeight: FontWeight.w900,
+              fontSize: 11,
+            ),
+          ),
         ),
         const SizedBox(height: 14),
         Center(
-            child: Text(step.visual,
-                style: const TextStyle(fontSize: 58),
-                semanticsLabel: 'Meaning illustration')),
+          child: Text(
+            step.visual,
+            style: const TextStyle(fontSize: 58),
+            semanticsLabel: 'Meaning illustration',
+          ),
+        ),
         const SizedBox(height: 10),
-        Text(step.prompt,
-            style: Theme.of(context)
-                .textTheme
-                .headlineSmall
-                ?.copyWith(fontWeight: FontWeight.w900, height: 1.25)),
+        Text(
+          step.prompt,
+          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+            fontWeight: FontWeight.w900,
+            height: 1.25,
+          ),
+        ),
         if (step.hint.isNotEmpty) ...[
           const SizedBox(height: 8),
-          Text(step.hint,
-              style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  height: 1.45)),
+          Text(
+            step.hint,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+              height: 1.45,
+            ),
+          ),
         ],
         const SizedBox(height: 30),
         _content(context),
@@ -422,9 +468,10 @@ class _StepBody extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(bottom: 10),
                 child: _AnswerOption(
-                    text: option,
-                    selected: selectedAnswer == option,
-                    onTap: () => onSelect(option)),
+                  text: option,
+                  selected: selectedAnswer == option,
+                  onTap: () => onSelect(option),
+                ),
               ),
           ],
         );
@@ -439,31 +486,39 @@ class _StepBody extends StatelessWidget {
               constraints: const BoxConstraints(minHeight: 250),
               padding: const EdgeInsets.all(30),
               decoration: BoxDecoration(
-                gradient: LinearGradient(colors: [
-                  Theme.of(context).colorScheme.primaryContainer,
-                  Theme.of(context).colorScheme.tertiaryContainer
-                ]),
+                gradient: LinearGradient(
+                  colors: [
+                    Theme.of(context).colorScheme.primaryContainer,
+                    Theme.of(context).colorScheme.tertiaryContainer,
+                  ],
+                ),
                 borderRadius: BorderRadius.circular(28),
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(step.prompt,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                          fontSize: 32, fontWeight: FontWeight.w900)),
+                  Text(
+                    step.prompt,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
                   const SizedBox(height: 16),
                   Text(
-                      revealed
-                          ? step.translation
-                          : 'Tap to reveal the exact meaning',
-                      style: TextStyle(
-                          color:
-                              Theme.of(context).colorScheme.onSurfaceVariant)),
+                    revealed
+                        ? step.translation
+                        : 'Tap to reveal the exact meaning',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                  ),
                   const SizedBox(height: 12),
                   IconButton.filledTonal(
-                      onPressed: onSpeak,
-                      icon: const Icon(Icons.volume_up_rounded)),
+                    onPressed: onSpeak,
+                    icon: const Icon(Icons.volume_up_rounded),
+                  ),
                 ],
               ),
             ),
@@ -477,36 +532,55 @@ class _StepBody extends StatelessWidget {
               constraints: const BoxConstraints(minHeight: 90),
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                  border: Border.all(color: Theme.of(context).dividerColor),
-                  borderRadius: BorderRadius.circular(20)),
-              child: Wrap(spacing: 8, runSpacing: 8, children: [
-                for (final word in arranged)
-                  InputChip(
+                border: Border.all(color: Theme.of(context).dividerColor),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  for (final word in arranged)
+                    InputChip(
                       label: Text(word),
-                      onDeleted: () => onRemoveArranged(word))
-              ]),
+                      onDeleted: () => onRemoveArranged(word),
+                    ),
+                ],
+              ),
             ),
             const SizedBox(height: 18),
-            Wrap(spacing: 9, runSpacing: 9, children: [
-              for (final word in step.options)
-                if (!arranged.contains(word))
-                  ActionChip(
-                      label: Text(word), onPressed: () => onArrange(word))
-            ]),
+            Wrap(
+              spacing: 9,
+              runSpacing: 9,
+              children: [
+                for (final word in step.options)
+                  if (!arranged.contains(word))
+                    ActionChip(
+                      label: Text(word),
+                      onPressed: () => onArrange(word),
+                    ),
+              ],
+            ),
           ],
         );
       case ExerciseType.speaking:
         return Center(
           child: Column(
             children: [
-              Text(step.answer,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                      fontWeight: FontWeight.w900, fontSize: 28)),
+              Text(
+                step.answer,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w900,
+                  fontSize: 28,
+                ),
+              ),
               if (step.translation.isNotEmpty)
-                Text(step.translation,
-                    style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                Text(
+                  step.translation,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
               const SizedBox(height: 22),
               GestureDetector(
                 onTap: onListen,
@@ -515,33 +589,38 @@ class _StepBody extends StatelessWidget {
                   width: listening ? 106 : 92,
                   height: listening ? 106 : 92,
                   decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primary,
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .primary
-                                .withValues(alpha: .35),
-                            blurRadius: listening ? 32 : 18,
-                            spreadRadius: listening ? 8 : 2)
-                      ]),
+                    color: Theme.of(context).colorScheme.primary,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.primary.withValues(alpha: .35),
+                        blurRadius: listening ? 32 : 18,
+                        spreadRadius: listening ? 8 : 2,
+                      ),
+                    ],
+                  ),
                   child: Icon(
-                      listening ? Icons.stop_rounded : Icons.mic_rounded,
-                      color: Theme.of(context).colorScheme.onPrimary,
-                      size: 40),
+                    listening ? Icons.stop_rounded : Icons.mic_rounded,
+                    color: Theme.of(context).colorScheme.onPrimary,
+                    size: 40,
+                  ),
                 ),
               ),
               const SizedBox(height: 18),
               Text(
-                  recognizedSpeech.isEmpty ? 'Tap and speak' : recognizedSpeech,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(fontWeight: FontWeight.w700)),
+                recognizedSpeech.isEmpty ? 'Tap and speak' : recognizedSpeech,
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontWeight: FontWeight.w700),
+              ),
               const SizedBox(height: 10),
               TextButton(
-                  onPressed: onReveal,
-                  child: const Text(
-                      'Microphone unavailable? Continue in practice mode')),
+                onPressed: onReveal,
+                child: const Text(
+                  'Microphone unavailable? Continue in practice mode',
+                ),
+              ),
             ],
           ),
         );
@@ -551,42 +630,54 @@ class _StepBody extends StatelessWidget {
           autofocus: true,
           textInputAction: TextInputAction.done,
           decoration: const InputDecoration(
-              prefixIcon: Icon(Icons.edit_rounded),
-              hintText: 'Type your answer'),
+            prefixIcon: Icon(Icons.edit_rounded),
+            hintText: 'Type your answer',
+          ),
         );
       case ExerciseType.culture:
         return Container(
           width: double.infinity,
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.tertiaryContainer,
-              borderRadius: BorderRadius.circular(26)),
-          child: Column(children: [
-            const Text('🌍', style: TextStyle(fontSize: 54)),
-            const SizedBox(height: 12),
-            Text(step.translation,
+            color: Theme.of(context).colorScheme.tertiaryContainer,
+            borderRadius: BorderRadius.circular(26),
+          ),
+          child: Column(
+            children: [
+              const Text('🌍', style: TextStyle(fontSize: 54)),
+              const SizedBox(height: 12),
+              Text(
+                step.translation,
                 textAlign: TextAlign.center,
                 style: const TextStyle(
-                    fontWeight: FontWeight.w700, height: 1.55, fontSize: 16))
-          ]),
+                  fontWeight: FontWeight.w700,
+                  height: 1.55,
+                  fontSize: 16,
+                ),
+              ),
+            ],
+          ),
         );
     }
   }
 
   String _label(ExerciseType type) => switch (type) {
-        ExerciseType.choice => 'MEANING',
-        ExerciseType.arrange => 'BUILD',
-        ExerciseType.listening => 'LISTEN',
-        ExerciseType.speaking => 'SPEAK',
-        ExerciseType.flashcard => 'DISCOVER',
-        ExerciseType.fillBlank => 'RECALL',
-        ExerciseType.culture => 'CULTURE NOTE',
-      };
+    ExerciseType.choice => 'MEANING',
+    ExerciseType.arrange => 'BUILD',
+    ExerciseType.listening => 'LISTEN',
+    ExerciseType.speaking => 'SPEAK',
+    ExerciseType.flashcard => 'DISCOVER',
+    ExerciseType.fillBlank => 'RECALL',
+    ExerciseType.culture => 'CULTURE NOTE',
+  };
 }
 
 class _AnswerOption extends StatelessWidget {
-  const _AnswerOption(
-      {required this.text, required this.selected, required this.onTap});
+  const _AnswerOption({
+    required this.text,
+    required this.selected,
+    required this.onTap,
+  });
 
   final String text;
   final bool selected;
@@ -600,23 +691,32 @@ class _AnswerOption extends StatelessWidget {
           ? scheme.primaryContainer
           : Theme.of(context).cardTheme.color,
       shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(19),
-          side: BorderSide(
-              color: selected ? scheme.primary : Theme.of(context).dividerColor,
-              width: selected ? 2 : 1)),
+        borderRadius: BorderRadius.circular(19),
+        side: BorderSide(
+          color: selected ? scheme.primary : Theme.of(context).dividerColor,
+          width: selected ? 2 : 1,
+        ),
+      ),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(19),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 17, vertical: 16),
-          child: Row(children: [
-            Expanded(
-                child: Text(text,
-                    style: const TextStyle(
-                        fontWeight: FontWeight.w800, fontSize: 16))),
-            if (selected)
-              Icon(Icons.check_circle_rounded, color: scheme.primary)
-          ]),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  text,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w800,
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+              if (selected)
+                Icon(Icons.check_circle_rounded, color: scheme.primary),
+            ],
+          ),
         ),
       ),
     );
@@ -637,10 +737,14 @@ class _AudioButton extends StatelessWidget {
         width: 94,
         height: 94,
         decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.primaryContainer,
-            shape: BoxShape.circle),
-        child: Icon(Icons.volume_up_rounded,
-            color: Theme.of(context).colorScheme.primary, size: 43),
+          color: Theme.of(context).colorScheme.primaryContainer,
+          shape: BoxShape.circle,
+        ),
+        child: Icon(
+          Icons.volume_up_rounded,
+          color: Theme.of(context).colorScheme.primary,
+          size: 43,
+        ),
       ),
     );
   }

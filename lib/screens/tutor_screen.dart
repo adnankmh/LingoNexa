@@ -49,8 +49,9 @@ class _TutorScreenState extends State<TutorScreen>
   void initState() {
     super.initState();
     _pulse = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 1600))
-      ..repeat(reverse: true);
+      vsync: this,
+      duration: const Duration(milliseconds: 1600),
+    )..repeat(reverse: true);
   }
 
   @override
@@ -71,35 +72,48 @@ class _TutorScreenState extends State<TutorScreen>
 
     if (_messages.isEmpty) {
       final opening = _openingFor(language.code, state.locale.languageCode);
-      _messages.add(_LiveMessage(
-        text: opening.$1,
-        translation: opening.$2,
-        fromTutor: true,
-        score: 100,
-      ));
+      _messages.add(
+        _LiveMessage(
+          text: opening.$1,
+          translation: opening.$2,
+          fromTutor: true,
+          score: 100,
+        ),
+      );
     }
 
     return Scaffold(
       appBar: AppBar(
-        title: Row(children: [
-          const _LiveDot(),
-          const SizedBox(width: 9),
-          Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(context.text.get('nexa_live')),
-            Text(
-                '${language.flag} ${language.nativeName} · ${context.text.get(_scenario)}',
-                style: Theme.of(context).textTheme.labelSmall),
-          ]),
-        ]),
+        title: Row(
+          children: [
+            const _LiveDot(),
+            const SizedBox(width: 9),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(context.text.get('nexa_live')),
+                Text(
+                  '${language.flag} ${language.nativeName} · ${context.text.get(_scenario)}',
+                  style: Theme.of(context).textTheme.labelSmall,
+                ),
+              ],
+            ),
+          ],
+        ),
         actions: [
           IconButton(
-              tooltip: 'Focus view',
-              onPressed: () => setState(() => _focusMode = !_focusMode),
-              icon: Icon(_focusMode
+            tooltip: 'Focus view',
+            onPressed: () => setState(() => _focusMode = !_focusMode),
+            icon: Icon(
+              _focusMode
                   ? Icons.fullscreen_exit_rounded
-                  : Icons.fullscreen_rounded)),
+                  : Icons.fullscreen_rounded,
+            ),
+          ),
           IconButton(
-              onPressed: _showSetup, icon: const Icon(Icons.tune_rounded)),
+            onPressed: _showSetup,
+            icon: const Icon(Icons.tune_rounded),
+          ),
         ],
       ),
       body: SafeArea(
@@ -115,36 +129,42 @@ class _TutorScreenState extends State<TutorScreen>
                   margin: const EdgeInsets.fromLTRB(14, 4, 14, 8),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          const Color(0xFF063B94),
-                          scheme.primary,
-                          const Color(0xFF13BFC4)
-                        ]),
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        const Color(0xFF063B94),
+                        scheme.primary,
+                        const Color(0xFF13BFC4),
+                      ],
+                    ),
                     borderRadius: BorderRadius.circular(28),
                     boxShadow: [
                       BoxShadow(
-                          color: scheme.primary.withValues(alpha: .25),
-                          blurRadius: 28,
-                          offset: const Offset(0, 14))
+                        color: scheme.primary.withValues(alpha: .25),
+                        blurRadius: 28,
+                        offset: const Offset(0, 14),
+                      ),
                     ],
                   ),
                   child: Stack(
                     children: [
                       const PositionedDirectional(
-                          top: 15,
-                          end: 17,
-                          child: _StatusChip(
-                              text: '24/7 · PRIVATE',
-                              icon: Icons.lock_rounded)),
+                        top: 15,
+                        end: 17,
+                        child: _StatusChip(
+                          text: '24/7 · PRIVATE',
+                          icon: Icons.lock_rounded,
+                        ),
+                      ),
                       PositionedDirectional(
-                          bottom: 14,
-                          start: 16,
-                          child: _StatusChip(
-                              text:
-                                  '${context.text.get('fluency_score')} ${_sessionScore()}%',
-                              icon: Icons.graphic_eq_rounded)),
+                        bottom: 14,
+                        start: 16,
+                        child: _StatusChip(
+                          text:
+                              '${context.text.get('fluency_score')} ${_sessionScore()}%',
+                          icon: Icons.graphic_eq_rounded,
+                        ),
+                      ),
                       Center(
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -159,16 +179,20 @@ class _TutorScreenState extends State<TutorScreen>
                                     ? 112 + (_listening ? _pulse.value * 8 : 0)
                                     : 72,
                                 decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: Colors.white.withValues(alpha: .16),
-                                    border: Border.all(
-                                        color:
-                                            Colors.white.withValues(alpha: .65),
-                                        width: 3)),
+                                  shape: BoxShape.circle,
+                                  color: Colors.white.withValues(alpha: .16),
+                                  border: Border.all(
+                                    color: Colors.white.withValues(alpha: .65),
+                                    width: 3,
+                                  ),
+                                ),
                                 alignment: Alignment.center,
-                                child: Text(persona.$2,
-                                    style: TextStyle(
-                                        fontSize: _focusMode ? 55 : 34)),
+                                child: Text(
+                                  persona.$2,
+                                  style: TextStyle(
+                                    fontSize: _focusMode ? 55 : 34,
+                                  ),
+                                ),
                               ),
                             ),
                             const SizedBox(width: 18),
@@ -176,20 +200,28 @@ class _TutorScreenState extends State<TutorScreen>
                               mainAxisSize: MainAxisSize.min,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(persona.$1,
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.w900,
-                                        fontSize: _focusMode ? 24 : 18)),
+                                Text(
+                                  persona.$1,
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w900,
+                                    fontSize: _focusMode ? 24 : 18,
+                                  ),
+                                ),
                                 const SizedBox(height: 4),
-                                Text(context.text.get(_persona),
-                                    style: const TextStyle(
-                                        color: Colors.white70,
-                                        fontWeight: FontWeight.w700)),
+                                Text(
+                                  context.text.get(_persona),
+                                  style: const TextStyle(
+                                    color: Colors.white70,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
                                 if (_focusMode) ...[
                                   const SizedBox(height: 12),
                                   _Waveform(
-                                      active: _listening, animation: _pulse),
+                                    active: _listening,
+                                    animation: _pulse,
+                                  ),
                                 ],
                               ],
                             ),
@@ -202,19 +234,29 @@ class _TutorScreenState extends State<TutorScreen>
                 Container(
                   width: double.infinity,
                   margin: const EdgeInsets.symmetric(horizontal: 14),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 9,
+                  ),
                   decoration: BoxDecoration(
-                      color: scheme.primaryContainer.withValues(alpha: .65),
-                      borderRadius: BorderRadius.circular(16)),
-                  child: Row(children: [
-                    const Icon(Icons.verified_user_outlined, size: 18),
-                    const SizedBox(width: 8),
-                    Expanded(
-                        child: Text(context.text.get('private_mode'),
-                            style: const TextStyle(
-                                fontSize: 11.5, fontWeight: FontWeight.w700)))
-                  ]),
+                    color: scheme.primaryContainer.withValues(alpha: .65),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.verified_user_outlined, size: 18),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          context.text.get('private_mode'),
+                          style: const TextStyle(
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
                 Expanded(
                   child: ListView.builder(
@@ -222,10 +264,11 @@ class _TutorScreenState extends State<TutorScreen>
                     padding: const EdgeInsets.fromLTRB(14, 12, 14, 4),
                     itemCount: _messages.length,
                     itemBuilder: (context, index) => _MessageBubble(
-                        message: _messages[index],
-                        languageCode: language.code,
-                        speech: _speech,
-                        speechRate: state.speechRate),
+                      message: _messages[index],
+                      languageCode: language.code,
+                      speech: _speech,
+                      speechRate: state.speechRate,
+                    ),
                   ),
                 ),
                 Padding(
@@ -239,12 +282,14 @@ class _TutorScreenState extends State<TutorScreen>
                             : context.text.get('speak_now'),
                         child: IconButton.filled(
                           style: IconButton.styleFrom(
-                              backgroundColor:
-                                  _listening ? Colors.red : scheme.tertiary),
+                            backgroundColor: _listening
+                                ? Colors.red
+                                : scheme.tertiary,
+                          ),
                           onPressed: () => _toggleListening(language.code),
-                          icon: Icon(_listening
-                              ? Icons.stop_rounded
-                              : Icons.mic_rounded),
+                          icon: Icon(
+                            _listening ? Icons.stop_rounded : Icons.mic_rounded,
+                          ),
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -256,17 +301,21 @@ class _TutorScreenState extends State<TutorScreen>
                           textInputAction: TextInputAction.send,
                           onSubmitted: (_) => _send(),
                           decoration: InputDecoration(
-                              hintText: _listening
-                                  ? context.text.get('speak_now')
-                                  : context.text.get('write_reply'),
-                              contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 13)),
+                            hintText: _listening
+                                ? context.text.get('speak_now')
+                                : context.text.get('write_reply'),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 13,
+                            ),
+                          ),
                         ),
                       ),
                       const SizedBox(width: 8),
                       IconButton.filled(
-                          onPressed: _send,
-                          icon: const Icon(Icons.arrow_upward_rounded)),
+                        onPressed: _send,
+                        icon: const Icon(Icons.arrow_upward_rounded),
+                      ),
                     ],
                   ),
                 ),
@@ -298,9 +347,13 @@ class _TutorScreenState extends State<TutorScreen>
     if (!mounted) return;
     setState(() => _listening = started);
     if (!started) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
           content: Text(
-              'Microphone or speech recognition is not available on this device.')));
+            'Microphone or speech recognition is not available on this device.',
+          ),
+        ),
+      );
     }
   }
 
@@ -312,33 +365,47 @@ class _TutorScreenState extends State<TutorScreen>
     final state = AppStateScope.of(context);
     final language = LanguageCatalog.byCode(state.targetLanguageCode);
     final score = _scoreFor(input);
-    final reply =
-        _replyFor(language.code, state.locale.languageCode, _messages.length);
+    final reply = _replyFor(
+      language.code,
+      state.locale.languageCode,
+      _messages.length,
+    );
     setState(() {
       _listening = false;
       _messages.add(_LiveMessage(text: input, fromTutor: false, score: score));
-      _messages.add(_LiveMessage(
-        text: reply.$1,
-        translation: reply.$2,
-        fromTutor: true,
-        score: score,
-        correction: _feedbackFor(input, score),
-      ));
+      _messages.add(
+        _LiveMessage(
+          text: reply.$1,
+          translation: reply.$2,
+          fromTutor: true,
+          score: score,
+          correction: _feedbackFor(input, score),
+        ),
+      );
       _controller.clear();
     });
-    final spoken =
-        await _speech.speak(reply.$1, language.code, rate: state.speechRate);
+    final spoken = await _speech.speak(
+      reply.$1,
+      language.code,
+      rate: state.speechRate,
+    );
     if (!spoken && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
           content: Text(
-              '${language.englishName} voice is not installed. English fallback is disabled.')));
+            '${language.englishName} voice is not installed. English fallback is disabled.',
+          ),
+        ),
+      );
     }
     _scrollToEnd();
   }
 
   int _scoreFor(String input) {
-    final words =
-        input.split(RegExp(r'\s+')).where((item) => item.isNotEmpty).length;
+    final words = input
+        .split(RegExp(r'\s+'))
+        .where((item) => item.isNotEmpty)
+        .length;
     final lengthScore = (48 + math.min(words, 12) * 4).clamp(48, 92);
     final speechBonus = (_speechConfidence * 8).round();
     return (lengthScore + speechBonus).clamp(52, 99).toInt();
@@ -358,7 +425,10 @@ class _TutorScreenState extends State<TutorScreen>
   }
 
   (String, String) _replyFor(
-      String languageCode, String sourceLanguageCode, int turn) {
+    String languageCode,
+    String sourceLanguageCode,
+    int turn,
+  ) {
     final category = switch (_scenario) {
       'travel' => 'Travel',
       'career' => 'Work',
@@ -367,31 +437,37 @@ class _TutorScreenState extends State<TutorScreen>
       'health' => 'Health',
       _ => 'Introductions',
     };
-    final pool = GlobalContentRepository.phrasesFor(languageCode,
-            sourceLanguageCode: sourceLanguageCode)
-        .where((item) => item.category == category)
-        .toList();
+    final pool = GlobalContentRepository.phrasesFor(
+      languageCode,
+      sourceLanguageCode: sourceLanguageCode,
+    ).where((item) => item.category == category).toList();
     if (pool.isNotEmpty) {
       final phrase = pool[(turn ~/ 2) % pool.length];
       return (phrase.target, phrase.source);
     }
-    final verified = CourseRepository.verifiedStarterPhrasesFor(languageCode,
-        sourceLanguageCode: sourceLanguageCode);
+    final verified = CourseRepository.verifiedStarterPhrasesFor(
+      languageCode,
+      sourceLanguageCode: sourceLanguageCode,
+    );
     final phrase = verified[turn % verified.length];
     return (phrase.target, phrase.source);
   }
 
   (String, String) _openingFor(String languageCode, String sourceLanguageCode) {
-    final phrases = GlobalContentRepository.phrasesFor(languageCode,
-        sourceLanguageCode: sourceLanguageCode);
+    final phrases = GlobalContentRepository.phrasesFor(
+      languageCode,
+      sourceLanguageCode: sourceLanguageCode,
+    );
     if (phrases.length >= 3) {
       return (
         '${phrases.first.target} ${phrases[2].target}',
-        '${phrases.first.source} · ${phrases[2].source}'
+        '${phrases.first.source} · ${phrases[2].source}',
       );
     }
-    final verified = CourseRepository.verifiedStarterPhrasesFor(languageCode,
-        sourceLanguageCode: sourceLanguageCode);
+    final verified = CourseRepository.verifiedStarterPhrasesFor(
+      languageCode,
+      sourceLanguageCode: sourceLanguageCode,
+    );
     return (verified.first.target, verified.first.source);
   }
 
@@ -403,12 +479,14 @@ class _TutorScreenState extends State<TutorScreen>
   }
 
   void _scrollToEnd() => WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (_scroll.hasClients) {
-          _scroll.animateTo(_scroll.position.maxScrollExtent,
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeOut);
-        }
-      });
+    if (_scroll.hasClients) {
+      _scroll.animateTo(
+        _scroll.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    }
+  });
 
   Future<void> _showSetup() async {
     await showModalBottomSheet<void>(
@@ -423,29 +501,36 @@ class _TutorScreenState extends State<TutorScreen>
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(context.text.get('choose_scenario'),
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleLarge
-                        ?.copyWith(fontWeight: FontWeight.w900)),
+                Text(
+                  context.text.get('choose_scenario'),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900),
+                ),
                 const SizedBox(height: 10),
-                Wrap(spacing: 8, runSpacing: 8, children: [
-                  for (final item in _scenarios.entries)
-                    ChoiceChip(
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    for (final item in _scenarios.entries)
+                      ChoiceChip(
                         avatar: Icon(item.value, size: 17),
                         label: Text(context.text.get(item.key)),
                         selected: _scenario == item.key,
                         onSelected: (_) {
                           setState(() => _scenario = item.key);
                           setSheetState(() {});
-                        }),
-                ]),
+                        },
+                      ),
+                  ],
+                ),
                 const SizedBox(height: 22),
-                Text('Conversation personality',
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleMedium
-                        ?.copyWith(fontWeight: FontWeight.w900)),
+                Text(
+                  'Conversation personality',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
                 const SizedBox(height: 9),
                 RadioGroup<String>(
                   groupValue: _persona,
@@ -459,20 +544,24 @@ class _TutorScreenState extends State<TutorScreen>
                     children: [
                       for (final item in _personas.entries)
                         RadioListTile<String>(
-                            value: item.key,
-                            title: Text('${item.value.$2} ${item.value.$1}',
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.w800)),
-                            subtitle: Text(context.text.get(item.key))),
+                          value: item.key,
+                          title: Text(
+                            '${item.value.$2} ${item.value.$1}',
+                            style: const TextStyle(fontWeight: FontWeight.w800),
+                          ),
+                          subtitle: Text(context.text.get(item.key)),
+                        ),
                     ],
                   ),
                 ),
                 const SizedBox(height: 8),
                 SizedBox(
-                    width: double.infinity,
-                    child: FilledButton(
-                        onPressed: () => Navigator.pop(sheetContext),
-                        child: Text(context.text.get('start')))),
+                  width: double.infinity,
+                  child: FilledButton(
+                    onPressed: () => Navigator.pop(sheetContext),
+                    child: Text(context.text.get('start')),
+                  ),
+                ),
               ],
             ),
           ),
@@ -483,12 +572,13 @@ class _TutorScreenState extends State<TutorScreen>
 }
 
 class _LiveMessage {
-  const _LiveMessage(
-      {required this.text,
-      required this.fromTutor,
-      required this.score,
-      this.translation,
-      this.correction});
+  const _LiveMessage({
+    required this.text,
+    required this.fromTutor,
+    required this.score,
+    this.translation,
+    this.correction,
+  });
   final String text;
   final bool fromTutor;
   final int score;
@@ -497,11 +587,12 @@ class _LiveMessage {
 }
 
 class _MessageBubble extends StatelessWidget {
-  const _MessageBubble(
-      {required this.message,
-      required this.languageCode,
-      required this.speech,
-      required this.speechRate});
+  const _MessageBubble({
+    required this.message,
+    required this.languageCode,
+    required this.speech,
+    required this.speechRate,
+  });
   final _LiveMessage message;
   final String languageCode;
   final SpeechService speech;
@@ -523,68 +614,99 @@ class _MessageBubble extends StatelessWidget {
               ? Theme.of(context).cardTheme.color
               : scheme.primary,
           borderRadius: BorderRadiusDirectional.only(
-              topStart: const Radius.circular(21),
-              topEnd: const Radius.circular(21),
-              bottomStart: Radius.circular(message.fromTutor ? 6 : 21),
-              bottomEnd: Radius.circular(message.fromTutor ? 21 : 6)),
+            topStart: const Radius.circular(21),
+            topEnd: const Radius.circular(21),
+            bottomStart: Radius.circular(message.fromTutor ? 6 : 21),
+            bottomEnd: Radius.circular(message.fromTutor ? 21 : 6),
+          ),
           border: message.fromTutor
               ? Border.all(color: Theme.of(context).dividerColor)
               : null,
         ),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Expanded(
-                child: Text(message.text,
-                    style: TextStyle(
-                        color: message.fromTutor
-                            ? scheme.onSurface
-                            : scheme.onPrimary,
-                        height: 1.5,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 15.5))),
-            if (message.fromTutor)
-              IconButton(
-                  onPressed: () => speech.speak(message.text, languageCode,
-                      rate: speechRate),
-                  icon: const Icon(Icons.volume_up_rounded),
-                  visualDensity: VisualDensity.compact),
-          ]),
-          if (message.translation != null) ...[
-            const SizedBox(height: 6),
-            Text(message.translation!,
-                style: TextStyle(
-                    color: scheme.onSurfaceVariant,
-                    fontSize: 11.5,
-                    height: 1.4)),
-          ],
-          if (message.correction != null) ...[
-            const SizedBox(height: 10),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(11),
-              decoration: BoxDecoration(
-                  color: scheme.tertiaryContainer.withValues(alpha: .55),
-                  borderRadius: BorderRadius.circular(14)),
-              child:
-                  Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Icon(Icons.auto_fix_high_rounded,
-                    color: scheme.tertiary, size: 18),
-                const SizedBox(width: 8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
                 Expanded(
-                    child: Text(
+                  child: Text(
+                    message.text,
+                    style: TextStyle(
+                      color: message.fromTutor
+                          ? scheme.onSurface
+                          : scheme.onPrimary,
+                      height: 1.5,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 15.5,
+                    ),
+                  ),
+                ),
+                if (message.fromTutor)
+                  IconButton(
+                    onPressed: () => speech.speak(
+                      message.text,
+                      languageCode,
+                      rate: speechRate,
+                    ),
+                    icon: const Icon(Icons.volume_up_rounded),
+                    visualDensity: VisualDensity.compact,
+                  ),
+              ],
+            ),
+            if (message.translation != null) ...[
+              const SizedBox(height: 6),
+              Text(
+                message.translation!,
+                style: TextStyle(
+                  color: scheme.onSurfaceVariant,
+                  fontSize: 11.5,
+                  height: 1.4,
+                ),
+              ),
+            ],
+            if (message.correction != null) ...[
+              const SizedBox(height: 10),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(11),
+                decoration: BoxDecoration(
+                  color: scheme.tertiaryContainer.withValues(alpha: .55),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(
+                      Icons.auto_fix_high_rounded,
+                      color: scheme.tertiary,
+                      size: 18,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
                         '${context.text.get('correction')} · ${message.correction!}',
                         style: const TextStyle(
-                            fontSize: 11.5,
-                            fontWeight: FontWeight.w700,
-                            height: 1.4))),
-                const SizedBox(width: 6),
-                Text('${message.score}%',
-                    style: TextStyle(
-                        color: scheme.tertiary, fontWeight: FontWeight.w900)),
-              ]),
-            ),
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w700,
+                          height: 1.4,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      '${message.score}%',
+                      style: TextStyle(
+                        color: scheme.tertiary,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ],
-        ]),
+        ),
       ),
     );
   }
@@ -594,14 +716,16 @@ class _LiveDot extends StatelessWidget {
   const _LiveDot();
   @override
   Widget build(BuildContext context) => Container(
-      width: 10,
-      height: 10,
-      decoration: BoxDecoration(
-          color: Colors.greenAccent.shade700,
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(color: Colors.green.withValues(alpha: .45), blurRadius: 8)
-          ]));
+    width: 10,
+    height: 10,
+    decoration: BoxDecoration(
+      color: Colors.greenAccent.shade700,
+      shape: BoxShape.circle,
+      boxShadow: [
+        BoxShadow(color: Colors.green.withValues(alpha: .45), blurRadius: 8),
+      ],
+    ),
+  );
 }
 
 class _StatusChip extends StatelessWidget {
@@ -610,17 +734,26 @@ class _StatusChip extends StatelessWidget {
   final IconData icon;
   @override
   Widget build(BuildContext context) => Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-          color: Colors.black.withValues(alpha: .18),
-          borderRadius: BorderRadius.circular(20)),
-      child: Row(children: [
+    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+    decoration: BoxDecoration(
+      color: Colors.black.withValues(alpha: .18),
+      borderRadius: BorderRadius.circular(20),
+    ),
+    child: Row(
+      children: [
         Icon(icon, color: Colors.white, size: 14),
         const SizedBox(width: 5),
-        Text(text,
-            style: const TextStyle(
-                color: Colors.white, fontSize: 10, fontWeight: FontWeight.w900))
-      ]));
+        Text(
+          text,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 10,
+            fontWeight: FontWeight.w900,
+          ),
+        ),
+      ],
+    ),
+  );
 }
 
 class _Waveform extends StatelessWidget {
@@ -629,22 +762,25 @@ class _Waveform extends StatelessWidget {
   final Animation<double> animation;
   @override
   Widget build(BuildContext context) => AnimatedBuilder(
-        animation: animation,
-        builder: (context, _) => Row(children: [
-          for (var i = 0; i < 8; i++)
-            Container(
-              width: 4,
-              height: active
-                  ? 8 +
+    animation: animation,
+    builder: (context, _) => Row(
+      children: [
+        for (var i = 0; i < 8; i++)
+          Container(
+            width: 4,
+            height: active
+                ? 8 +
                       18 *
                           ((math.sin(animation.value * math.pi * 2 + i) + 1) /
                               2)
-                  : 7 + (i % 3) * 3,
-              margin: const EdgeInsetsDirectional.only(end: 4),
-              decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: active ? .95 : .48),
-                  borderRadius: BorderRadius.circular(5)),
+                : 7 + (i % 3) * 3,
+            margin: const EdgeInsetsDirectional.only(end: 4),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: active ? .95 : .48),
+              borderRadius: BorderRadius.circular(5),
             ),
-        ]),
-      );
+          ),
+      ],
+    ),
+  );
 }

@@ -25,10 +25,10 @@ class _LearnScreenState extends State<LearnScreen> {
   Widget build(BuildContext context) {
     final state = AppStateScope.of(context);
     final target = LanguageCatalog.byCode(state.targetLanguageCode);
-    final units = CourseRepository.unitsFor(target.code,
-            meaningLanguageCode: state.locale.languageCode)
-        .where((unit) => unit.level == _selectedLevel)
-        .toList();
+    final units = CourseRepository.unitsFor(
+      target.code,
+      meaningLanguageCode: state.locale.languageCode,
+    ).where((unit) => unit.level == _selectedLevel).toList();
     final progress = (state.dailyMinutes / state.dailyGoalMinutes)
         .clamp(0.0, 1.0)
         .toDouble();
@@ -45,41 +45,51 @@ class _LearnScreenState extends State<LearnScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(state.brandName,
-                        style: Theme.of(context)
-                            .textTheme
-                            .titleLarge
-                            ?.copyWith(fontWeight: FontWeight.w900)),
-                    Text(context.text.get('tagline'),
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .onSurfaceVariant)),
+                    Text(
+                      state.brandName,
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                    Text(
+                      context.text.get('tagline'),
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                    ),
                   ],
                 ),
               ),
               InkWell(
                 onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (_) => const LanguagePickerScreen())),
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const LanguagePickerScreen(),
+                  ),
+                ),
                 borderRadius: BorderRadius.circular(18),
                 child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 10,
+                  ),
                   decoration: BoxDecoration(
-                      color: Theme.of(context).cardTheme.color,
-                      borderRadius: BorderRadius.circular(18),
-                      border:
-                          Border.all(color: Theme.of(context).dividerColor)),
-                  child: Row(children: [
-                    Text(target.flag, style: const TextStyle(fontSize: 23)),
-                    const SizedBox(width: 7),
-                    Text(target.nativeName,
-                        style: const TextStyle(fontWeight: FontWeight.w800)),
-                    const SizedBox(width: 2),
-                    const Icon(Icons.keyboard_arrow_down_rounded)
-                  ]),
+                    color: Theme.of(context).cardTheme.color,
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(color: Theme.of(context).dividerColor),
+                  ),
+                  child: Row(
+                    children: [
+                      Text(target.flag, style: const TextStyle(fontSize: 23)),
+                      const SizedBox(width: 7),
+                      Text(
+                        target.nativeName,
+                        style: const TextStyle(fontWeight: FontWeight.w800),
+                      ),
+                      const SizedBox(width: 2),
+                      const Icon(Icons.keyboard_arrow_down_rounded),
+                    ],
+                  ),
                 ),
               ),
             ],
@@ -90,19 +100,22 @@ class _LearnScreenState extends State<LearnScreen> {
             runSpacing: 8,
             children: [
               StatPill(
-                  icon: Icons.local_fire_department_rounded,
-                  value: '${state.streak}',
-                  label: context.text.get('streak'),
-                  color: const Color(0xFFFF7A45)),
+                icon: Icons.local_fire_department_rounded,
+                value: '${state.streak}',
+                label: context.text.get('streak'),
+                color: const Color(0xFFFF7A45),
+              ),
               StatPill(
-                  icon: Icons.bolt_rounded,
-                  value: '${state.xp}',
-                  label: context.text.get('xp'),
-                  color: const Color(0xFFFFB020)),
+                icon: Icons.bolt_rounded,
+                value: '${state.xp}',
+                label: context.text.get('xp'),
+                color: const Color(0xFFFFB020),
+              ),
               StatPill(
-                  icon: Icons.workspace_premium_rounded,
-                  value: _selectedLevel,
-                  label: context.text.get('level')),
+                icon: Icons.workspace_premium_rounded,
+                value: _selectedLevel,
+                label: context.text.get('level'),
+              ),
             ],
           ),
           const SizedBox(height: 18),
@@ -110,33 +123,41 @@ class _LearnScreenState extends State<LearnScreen> {
             child: Row(
               children: [
                 ProgressRing(
-                    value: progress,
-                    label: '${state.dailyMinutes}/${state.dailyGoalMinutes}'),
+                  value: progress,
+                  label: '${state.dailyMinutes}/${state.dailyGoalMinutes}',
+                ),
                 const SizedBox(width: 18),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(context.text.get('continue'),
-                          style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 22,
-                              fontWeight: FontWeight.w900)),
+                      Text(
+                        context.text.get('continue'),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 22,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
                       const SizedBox(height: 5),
                       Text(
-                          '${context.text.get('daily_goal')} · ${state.dailyGoalMinutes} ${context.text.get('minutes')}',
-                          style: TextStyle(
-                              color: Colors.white.withValues(alpha: .78),
-                              fontWeight: FontWeight.w600)),
+                        '${context.text.get('daily_goal')} · ${state.dailyGoalMinutes} ${context.text.get('minutes')}',
+                        style: TextStyle(
+                          color: Colors.white.withValues(alpha: .78),
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                       const SizedBox(height: 13),
                       FilledButton.icon(
                         onPressed: () =>
                             _openLesson(context, units.first.lessons.first),
                         style: FilledButton.styleFrom(
-                            backgroundColor: Colors.white,
-                            foregroundColor:
-                                Theme.of(context).colorScheme.primary,
-                            minimumSize: const Size(150, 45)),
+                          backgroundColor: Colors.white,
+                          foregroundColor: Theme.of(
+                            context,
+                          ).colorScheme.primary,
+                          minimumSize: const Size(150, 45),
+                        ),
                         icon: const Icon(Icons.play_arrow_rounded),
                         label: Text(context.text.get('start')),
                       ),
@@ -150,29 +171,39 @@ class _LearnScreenState extends State<LearnScreen> {
           ),
           const SizedBox(height: 28),
           SectionHeading(
-              title: 'CEFR Journey',
-              subtitle:
-                  '${CourseRepository.levels.length} levels · 36 units · 180 lessons per language'),
+            title: 'CEFR Journey',
+            subtitle:
+                '${CourseRepository.levels.length} levels · 90 units · 450 lessons per language',
+          ),
           const SizedBox(height: 11),
-          Wrap(spacing: 9, runSpacing: 9, children: [
-            if (state.examsEnabled)
-              FilledButton.tonalIcon(
+          Wrap(
+            spacing: 9,
+            runSpacing: 9,
+            children: [
+              if (state.examsEnabled)
+                FilledButton.tonalIcon(
                   onPressed: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (_) =>
-                              LevelExamScreen(level: _selectedLevel))),
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => LevelExamScreen(level: _selectedLevel),
+                    ),
+                  ),
                   icon: const Icon(Icons.fact_check_rounded),
-                  label: Text('$_selectedLevel level exam')),
-            if (state.storiesEnabled)
-              OutlinedButton.icon(
+                  label: Text('$_selectedLevel level exam'),
+                ),
+              if (state.storiesEnabled)
+                OutlinedButton.icon(
                   onPressed: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (_) => const StoryLibraryScreen())),
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const StoryLibraryScreen(),
+                    ),
+                  ),
                   icon: const Icon(Icons.auto_stories_rounded),
-                  label: const Text('Dialogue stories')),
-          ]),
+                  label: const Text('Dialogue stories'),
+                ),
+            ],
+          ),
           const SizedBox(height: 12),
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
@@ -186,11 +217,14 @@ class _LearnScreenState extends State<LearnScreen> {
                       onSelected: (_) =>
                           setState(() => _selectedLevel = level.code),
                       avatar: CircleAvatar(
-                          backgroundColor: Color(level.colorValue), radius: 6),
+                        backgroundColor: Color(level.colorValue),
+                        radius: 6,
+                      ),
                       label: Text('${level.code} · ${level.title}'),
                       labelStyle: const TextStyle(fontWeight: FontWeight.w800),
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16)),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
                     ),
                   ),
               ],
@@ -224,16 +258,19 @@ class _LearnScreenState extends State<LearnScreen> {
   }
 
   void _openLesson(BuildContext context, Lesson lesson) {
-    Navigator.push(context,
-        MaterialPageRoute(builder: (_) => LessonScreen(lesson: lesson)));
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => LessonScreen(lesson: lesson)),
+    );
   }
 }
 
 class _UnitCard extends StatelessWidget {
-  const _UnitCard(
-      {required this.unit,
-      required this.completedIds,
-      required this.onLessonTap});
+  const _UnitCard({
+    required this.unit,
+    required this.completedIds,
+    required this.onLessonTap,
+  });
 
   final CourseUnit unit;
   final Set<String> completedIds;
@@ -241,8 +278,9 @@ class _UnitCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final completed =
-        unit.lessons.where((lesson) => completedIds.contains(lesson.id)).length;
+    final completed = unit.lessons
+        .where((lesson) => completedIds.contains(lesson.id))
+        .length;
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(18),
@@ -252,36 +290,47 @@ class _UnitCard extends StatelessWidget {
             Row(
               children: [
                 Container(
-                    width: 48,
-                    height: 48,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.primaryContainer,
-                        borderRadius: BorderRadius.circular(17)),
-                    child:
-                        Text(unit.emoji, style: const TextStyle(fontSize: 25))),
+                  width: 48,
+                  height: 48,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primaryContainer,
+                    borderRadius: BorderRadius.circular(17),
+                  ),
+                  child: Text(unit.emoji, style: const TextStyle(fontSize: 25)),
+                ),
                 const SizedBox(width: 12),
                 Expanded(
-                    child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                      Text(unit.title,
-                          style: const TextStyle(
-                              fontWeight: FontWeight.w900, fontSize: 17)),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        unit.title,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w900,
+                          fontSize: 17,
+                        ),
+                      ),
                       const SizedBox(height: 3),
-                      Text(unit.description,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onSurfaceVariant,
-                              fontSize: 12))
-                    ])),
-                Text('$completed/${unit.lessons.length}',
-                    style: TextStyle(
-                        color: Theme.of(context).colorScheme.primary,
-                        fontWeight: FontWeight.w900)),
+                      Text(
+                        unit.description,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Text(
+                  '$completed/${unit.lessons.length}',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.primary,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
               ],
             ),
             const Spacer(),
@@ -301,7 +350,9 @@ class _UnitCard extends StatelessWidget {
             ClipRRect(
               borderRadius: BorderRadius.circular(20),
               child: LinearProgressIndicator(
-                  value: completed / unit.lessons.length, minHeight: 7),
+                value: completed / unit.lessons.length,
+                minHeight: 7,
+              ),
             ),
           ],
         ),
@@ -311,11 +362,12 @@ class _UnitCard extends StatelessWidget {
 }
 
 class _LessonNode extends StatelessWidget {
-  const _LessonNode(
-      {required this.lesson,
-      required this.index,
-      required this.completed,
-      required this.onTap});
+  const _LessonNode({
+    required this.lesson,
+    required this.index,
+    required this.completed,
+    required this.onTap,
+  });
 
   final Lesson lesson;
   final int index;
@@ -339,14 +391,15 @@ class _LessonNode extends StatelessWidget {
             color: completed
                 ? scheme.primary
                 : (index == 0
-                    ? scheme.primaryContainer
-                    : scheme.surfaceContainerHighest),
+                      ? scheme.primaryContainer
+                      : scheme.surfaceContainerHighest),
             shape: BoxShape.circle,
             border: Border.all(
-                color: completed || index == 0
-                    ? scheme.primary
-                    : scheme.outlineVariant,
-                width: 2),
+              color: completed || index == 0
+                  ? scheme.primary
+                  : scheme.outlineVariant,
+              width: 2,
+            ),
           ),
           child: completed
               ? Icon(Icons.check_rounded, color: scheme.onPrimary)

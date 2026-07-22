@@ -163,6 +163,10 @@ class GrammarTopic {
     required this.summary,
     required this.examples,
     required this.emoji,
+    this.explanation = '',
+    this.keyRules = const [],
+    this.commonMistakes = const [],
+    this.practicePrompts = const [],
   });
 
   final String title;
@@ -170,6 +174,10 @@ class GrammarTopic {
   final String summary;
   final List<String> examples;
   final String emoji;
+  final String explanation;
+  final List<String> keyRules;
+  final List<String> commonMistakes;
+  final List<String> practicePrompts;
 }
 
 class SpecializedPath {

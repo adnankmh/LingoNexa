@@ -26,23 +26,25 @@ class AppUser {
   bool get isAdmin => role == UserRole.administrator;
 
   Map<String, Object?> toJson() => {
-        'id': id,
-        'username': username,
-        'email': email,
-        'displayName': displayName,
-        'role': role.name,
-        'provider': provider,
-      };
+    'id': id,
+    'username': username,
+    'email': email,
+    'displayName': displayName,
+    'role': role.name,
+    'provider': provider,
+  };
 
   static AppUser fromJson(Map<String, Object?> json) => AppUser(
-        id: json['id']! as String,
-        username: json['username']! as String,
-        email: json['email']! as String,
-        displayName: json['displayName']! as String,
-        role: UserRole.values.firstWhere((item) => item.name == json['role'],
-            orElse: () => UserRole.learner),
-        provider: json['provider'] as String? ?? 'password',
-      );
+    id: json['id']! as String,
+    username: json['username']! as String,
+    email: json['email']! as String,
+    displayName: json['displayName']! as String,
+    role: UserRole.values.firstWhere(
+      (item) => item.name == json['role'],
+      orElse: () => UserRole.learner,
+    ),
+    provider: json['provider'] as String? ?? 'password',
+  );
 }
 
 class AuthResult {
@@ -57,13 +59,15 @@ class _StoredAccount {
   final AppUser user;
   final String passwordHash;
 
-  Map<String, Object?> toJson() =>
-      {...user.toJson(), 'passwordHash': passwordHash};
+  Map<String, Object?> toJson() => {
+    ...user.toJson(),
+    'passwordHash': passwordHash,
+  };
 
   static _StoredAccount fromJson(Map<String, Object?> json) => _StoredAccount(
-        user: AppUser.fromJson(json),
-        passwordHash: json['passwordHash']! as String,
-      );
+    user: AppUser.fromJson(json),
+    passwordHash: json['passwordHash']! as String,
+  );
 }
 
 /// Local account adapter used for the offline demo. It deliberately exposes no
@@ -88,8 +92,11 @@ class AuthService {
       try {
         final decoded = jsonDecode(encoded) as List<dynamic>;
         _accounts = decoded
-            .map((item) =>
-                _StoredAccount.fromJson(Map<String, Object?>.from(item as Map)))
+            .map(
+              (item) => _StoredAccount.fromJson(
+                Map<String, Object?>.from(item as Map),
+              ),
+            )
             .toList();
       } on FormatException {
         _accounts = _seedAccounts();
@@ -113,7 +120,7 @@ class AuthService {
     for (final account in _accounts) {
       final matchesIdentity =
           account.user.username.toLowerCase() == normalized ||
-              account.user.email.toLowerCase() == normalized;
+          account.user.email.toLowerCase() == normalized;
       if (matchesIdentity && account.passwordHash == _hash(password)) {
         await _storage.writeString(_sessionKey, account.user.id);
         return AuthResult(user: account.user);
@@ -122,11 +129,12 @@ class AuthService {
     return const AuthResult(error: 'Incorrect username, email, or password.');
   }
 
-  Future<AuthResult> register(
-      {required String displayName,
-      required String username,
-      required String email,
-      required String password}) async {
+  Future<AuthResult> register({
+    required String displayName,
+    required String username,
+    required String email,
+    required String password,
+  }) async {
     final cleanUsername = username.trim();
     final cleanEmail = email.trim().toLowerCase();
     if (displayName.trim().length < 2 || cleanUsername.length < 3) {
@@ -137,13 +145,17 @@ class AuthService {
     }
     if (password.length < 6) {
       return const AuthResult(
-          error: 'Password must contain at least 6 characters.');
+        error: 'Password must contain at least 6 characters.',
+      );
     }
-    if (_accounts.any((item) =>
-        item.user.username.toLowerCase() == cleanUsername.toLowerCase() ||
-        item.user.email == cleanEmail)) {
+    if (_accounts.any(
+      (item) =>
+          item.user.username.toLowerCase() == cleanUsername.toLowerCase() ||
+          item.user.email == cleanEmail,
+    )) {
       return const AuthResult(
-          error: 'This username or email is already registered.');
+        error: 'This username or email is already registered.',
+      );
     }
     final user = AppUser(
       id: 'user_${DateTime.now().millisecondsSinceEpoch}',
@@ -166,48 +178,54 @@ class AuthService {
   Future<void> signOut() => _storage.remove(_sessionKey);
 
   static const guestUser = AppUser(
-      id: 'guest',
-      username: 'guest',
-      email: '',
-      displayName: 'Guest Explorer',
-      role: UserRole.guest);
+    id: 'guest',
+    username: 'guest',
+    email: '',
+    displayName: 'Guest Explorer',
+    role: UserRole.guest,
+  );
 
   static List<_StoredAccount> _seedAccounts() => [
-        const _StoredAccount(
-          user: AppUser(
-              id: 'admin_adnan',
-              username: 'Adnan',
-              email: 'adnanasd63@gmail.com',
-              displayName: 'Adnan',
-              role: UserRole.administrator),
-          passwordHash:
-              '5189848b80763ad69c8fca00f09e22fb5ebda3b1eb0cce3c4ab86f374a543ace',
-        ),
-        const _StoredAccount(
-          user: AppUser(
-              id: 'demo_1',
-              username: 'demo1',
-              email: 'demo1@lingonexa.app',
-              displayName: 'Demo Explorer',
-              role: UserRole.learner),
-          passwordHash:
-              '97b2dfa7f25e76ea534d30ae9fe1d4b650bc1b7cd3f3092ab9db5a72f6a8ddf4',
-        ),
-        const _StoredAccount(
-          user: AppUser(
-              id: 'demo_2',
-              username: 'demo2',
-              email: 'demo2@lingonexa.app',
-              displayName: 'World Learner',
-              role: UserRole.learner),
-          passwordHash:
-              '97b2dfa7f25e76ea534d30ae9fe1d4b650bc1b7cd3f3092ab9db5a72f6a8ddf4',
-        ),
-      ];
+    const _StoredAccount(
+      user: AppUser(
+        id: 'admin_adnan',
+        username: 'Adnan',
+        email: 'adnanasd63@gmail.com',
+        displayName: 'Adnan',
+        role: UserRole.administrator,
+      ),
+      passwordHash:
+          '5189848b80763ad69c8fca00f09e22fb5ebda3b1eb0cce3c4ab86f374a543ace',
+    ),
+    const _StoredAccount(
+      user: AppUser(
+        id: 'demo_1',
+        username: 'demo1',
+        email: 'demo1@lingonexa.app',
+        displayName: 'Demo Explorer',
+        role: UserRole.learner,
+      ),
+      passwordHash:
+          '97b2dfa7f25e76ea534d30ae9fe1d4b650bc1b7cd3f3092ab9db5a72f6a8ddf4',
+    ),
+    const _StoredAccount(
+      user: AppUser(
+        id: 'demo_2',
+        username: 'demo2',
+        email: 'demo2@lingonexa.app',
+        displayName: 'World Learner',
+        role: UserRole.learner,
+      ),
+      passwordHash:
+          '97b2dfa7f25e76ea534d30ae9fe1d4b650bc1b7cd3f3092ab9db5a72f6a8ddf4',
+    ),
+  ];
 
   static String _hash(String password) =>
       sha256.convert(utf8.encode('$_salt::$password')).toString();
 
-  Future<void> _persistAccounts() => _storage.writeString(_accountsKey,
-      jsonEncode(_accounts.map((item) => item.toJson()).toList()));
+  Future<void> _persistAccounts() => _storage.writeString(
+    _accountsKey,
+    jsonEncode(_accounts.map((item) => item.toJson()).toList()),
+  );
 }

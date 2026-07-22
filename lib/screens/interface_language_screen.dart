@@ -21,17 +21,17 @@ class InterfaceLanguageScreen extends StatelessWidget {
             const SizedBox(height: 18),
             Text(
               '${AppText.supported.length} interface languages',
-              style: Theme.of(context)
-                  .textTheme
-                  .headlineSmall
-                  ?.copyWith(fontWeight: FontWeight.w900),
+              style: Theme.of(
+                context,
+              ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900),
             ),
             const SizedBox(height: 6),
             Text(
               'Navigation, learning controls, Nexa Live, and the main experience change instantly. English is the safe fallback for newly added content.',
               style: TextStyle(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  height: 1.5),
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                height: 1.5,
+              ),
             ),
             const SizedBox(height: 20),
             LayoutBuilder(
@@ -39,8 +39,8 @@ class InterfaceLanguageScreen extends StatelessWidget {
                 final columns = constraints.maxWidth >= 760
                     ? 3
                     : constraints.maxWidth >= 480
-                        ? 2
-                        : 1;
+                    ? 2
+                    : 1;
                 return GridView.builder(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
@@ -66,33 +66,44 @@ class InterfaceLanguageScreen extends StatelessWidget {
                         },
                         child: Padding(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 12),
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
                           child: Row(
                             children: [
-                              Text(option.flag,
-                                  style: const TextStyle(fontSize: 30)),
+                              Text(
+                                option.flag,
+                                style: const TextStyle(fontSize: 30),
+                              ),
                               const SizedBox(width: 12),
                               Expanded(
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(option.nativeName,
-                                        style: const TextStyle(
-                                            fontWeight: FontWeight.w900)),
-                                    Text(option.englishName,
-                                        style: TextStyle(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .onSurfaceVariant,
-                                            fontSize: 11)),
+                                    Text(
+                                      option.nativeName,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w900,
+                                      ),
+                                    ),
+                                    Text(
+                                      option.englishName,
+                                      style: TextStyle(
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.onSurfaceVariant,
+                                        fontSize: 11,
+                                      ),
+                                    ),
                                   ],
                                 ),
                               ),
                               if (selected)
-                                Icon(Icons.check_circle_rounded,
-                                    color:
-                                        Theme.of(context).colorScheme.primary),
+                                Icon(
+                                  Icons.check_circle_rounded,
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
                             ],
                           ),
                         ),

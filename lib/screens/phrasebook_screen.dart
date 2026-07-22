@@ -29,25 +29,36 @@ class _PhrasebookScreenState extends State<PhrasebookScreen> {
   Widget build(BuildContext context) {
     final state = AppStateScope.of(context);
     final language = LanguageCatalog.byCode(state.targetLanguageCode);
-    final phrases = LearningContentRepository.phrasesFor(language.code,
-            sourceLanguageCode: state.locale.languageCode)
-        .where((phrase) {
-      final categoryMatch = _category == 'All' || phrase.category == _category;
-      final q = _query.toLowerCase().trim();
-      final queryMatch = q.isEmpty ||
-          phrase.source.toLowerCase().contains(q) ||
-          phrase.target.toLowerCase().contains(q);
-      return categoryMatch && queryMatch;
-    }).toList();
+    final phrases =
+        LearningContentRepository.phrasesFor(
+          language.code,
+          sourceLanguageCode: state.locale.languageCode,
+        ).where((phrase) {
+          final categoryMatch =
+              _category == 'All' || phrase.category == _category;
+          final q = _query.toLowerCase().trim();
+          final queryMatch =
+              q.isEmpty ||
+              phrase.source.toLowerCase().contains(q) ||
+              phrase.target.toLowerCase().contains(q);
+          return categoryMatch && queryMatch;
+        }).toList();
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Phrasebook & Dictionary'), actions: [
-        Padding(
+      appBar: AppBar(
+        title: const Text('Phrasebook & Dictionary'),
+        actions: [
+          Padding(
             padding: const EdgeInsetsDirectional.only(end: 16),
             child: Center(
-                child: Text('${language.flag} ${language.nativeName}',
-                    style: const TextStyle(fontWeight: FontWeight.w800))))
-      ]),
+              child: Text(
+                '${language.flag} ${language.nativeName}',
+                style: const TextStyle(fontWeight: FontWeight.w800),
+              ),
+            ),
+          ),
+        ],
+      ),
       body: SafeArea(
         top: false,
         child: Center(
@@ -58,31 +69,37 @@ class _PhrasebookScreenState extends State<PhrasebookScreen> {
                 Padding(
                   padding: const EdgeInsets.fromLTRB(18, 8, 18, 8),
                   child: TextField(
-                      onChanged: (value) => setState(() => _query = value),
-                      decoration: const InputDecoration(
-                          prefixIcon: Icon(Icons.search_rounded),
-                          hintText: 'Search words and phrases…')),
+                    onChanged: (value) => setState(() => _query = value),
+                    decoration: const InputDecoration(
+                      prefixIcon: Icon(Icons.search_rounded),
+                      hintText: 'Search words and phrases…',
+                    ),
+                  ),
                 ),
                 SizedBox(
                   height: 52,
                   child: ListView(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 18, vertical: 5),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 18,
+                      vertical: 5,
+                    ),
                     scrollDirection: Axis.horizontal,
                     children: [
                       for (final category in [
                         'All',
-                        ...LearningContentRepository.categories
+                        ...LearningContentRepository.categories,
                       ])
                         Padding(
                           padding: const EdgeInsetsDirectional.only(end: 7),
                           child: ChoiceChip(
-                              selected: _category == category,
-                              onSelected: (_) =>
-                                  setState(() => _category = category),
-                              label: Text(category),
-                              labelStyle:
-                                  const TextStyle(fontWeight: FontWeight.w800)),
+                            selected: _category == category,
+                            onSelected: (_) =>
+                                setState(() => _category = category),
+                            label: Text(category),
+                            labelStyle: const TextStyle(
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
                         ),
                     ],
                   ),
@@ -90,14 +107,16 @@ class _PhrasebookScreenState extends State<PhrasebookScreen> {
                 Expanded(
                   child: phrases.isEmpty
                       ? const Center(
-                          child: Text('No phrases match this filter.'))
+                          child: Text('No phrases match this filter.'),
+                        )
                       : ListView.builder(
                           padding: const EdgeInsets.fromLTRB(18, 8, 18, 30),
                           itemCount: phrases.length,
                           itemBuilder: (context, index) => _PhraseCard(
                             phrase: phrases[index],
-                            favorite:
-                                _favorites.contains(phrases[index].target),
+                            favorite: _favorites.contains(
+                              phrases[index].target,
+                            ),
                             onFavorite: () => setState(() {
                               if (!_favorites.add(phrases[index].target)) {
                                 _favorites.remove(phrases[index].target);
@@ -105,12 +124,18 @@ class _PhrasebookScreenState extends State<PhrasebookScreen> {
                             }),
                             onSpeak: () async {
                               final spoken = await _speech.speak(
-                                  phrases[index].target, language.code,
-                                  rate: state.speechRate);
+                                phrases[index].target,
+                                language.code,
+                                rate: state.speechRate,
+                              );
                               if (!spoken && context.mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
                                     content: Text(
-                                        '${language.englishName} voice is not installed. No English fallback was used.')));
+                                      '${language.englishName} voice is not installed. No English fallback was used.',
+                                    ),
+                                  ),
+                                );
                               }
                             },
                           ),
@@ -126,11 +151,12 @@ class _PhrasebookScreenState extends State<PhrasebookScreen> {
 }
 
 class _PhraseCard extends StatelessWidget {
-  const _PhraseCard(
-      {required this.phrase,
-      required this.favorite,
-      required this.onFavorite,
-      required this.onSpeak});
+  const _PhraseCard({
+    required this.phrase,
+    required this.favorite,
+    required this.onFavorite,
+    required this.onSpeak,
+  });
   final PhraseEntry phrase;
   final bool favorite;
   final VoidCallback onFavorite;
@@ -144,56 +170,78 @@ class _PhraseCard extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         child: Row(
           children: [
-            Column(children: [
-              Text(phrase.visual, style: const TextStyle(fontSize: 31)),
-              const SizedBox(height: 5),
-              IconButton.filledTonal(
-                  onPressed: onSpeak, icon: const Icon(Icons.volume_up_rounded))
-            ]),
+            Column(
+              children: [
+                Text(phrase.visual, style: const TextStyle(fontSize: 31)),
+                const SizedBox(height: 5),
+                IconButton.filledTonal(
+                  onPressed: onSpeak,
+                  icon: const Icon(Icons.volume_up_rounded),
+                ),
+              ],
+            ),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(phrase.target,
-                      style: const TextStyle(
-                          fontWeight: FontWeight.w900, fontSize: 18)),
+                  Text(
+                    phrase.target,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w900,
+                      fontSize: 18,
+                    ),
+                  ),
                   const SizedBox(height: 4),
-                  Text(phrase.source,
-                      style: TextStyle(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          fontWeight: FontWeight.w600)),
+                  Text(
+                    phrase.source,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                   if (phrase.pronunciation.isNotEmpty) ...[
                     const SizedBox(height: 4),
-                    Text('/${phrase.pronunciation}/',
-                        style: TextStyle(
-                            color: Theme.of(context).colorScheme.primary,
-                            fontSize: 12)),
+                    Text(
+                      '/${phrase.pronunciation}/',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.primary,
+                        fontSize: 12,
+                      ),
+                    ),
                   ],
                   const SizedBox(height: 6),
                   Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 3),
-                      decoration: BoxDecoration(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .surfaceContainerHighest,
-                          borderRadius: BorderRadius.circular(12)),
-                      child: Text(phrase.category,
-                          style: const TextStyle(
-                              fontSize: 10, fontWeight: FontWeight.w800))),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 3,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.surfaceContainerHighest,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      phrase.category,
+                      style: const TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
             IconButton(
-                onPressed: onFavorite,
-                icon: Icon(
-                    favorite
-                        ? Icons.bookmark_rounded
-                        : Icons.bookmark_border_rounded,
-                    color: favorite
-                        ? Theme.of(context).colorScheme.primary
-                        : null)),
+              onPressed: onFavorite,
+              icon: Icon(
+                favorite
+                    ? Icons.bookmark_rounded
+                    : Icons.bookmark_border_rounded,
+                color: favorite ? Theme.of(context).colorScheme.primary : null,
+              ),
+            ),
           ],
         ),
       ),

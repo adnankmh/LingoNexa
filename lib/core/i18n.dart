@@ -2,7 +2,11 @@ import 'package:flutter/widgets.dart';
 
 class InterfaceLocaleOption {
   const InterfaceLocaleOption(
-      this.code, this.nativeName, this.englishName, this.flag);
+    this.code,
+    this.nativeName,
+    this.englishName,
+    this.flag,
+  );
 
   final String code;
   final String nativeName;
@@ -876,8 +880,10 @@ class AppText {
   String get(String key) =>
       _values[locale.languageCode]?[key] ?? _values['en']![key] ?? key;
 
-  static InterfaceLocaleOption optionFor(String code) => supported
-      .firstWhere((item) => item.code == code, orElse: () => supported[1]);
+  static InterfaceLocaleOption optionFor(String code) => supported.firstWhere(
+    (item) => item.code == code,
+    orElse: () => supported[1],
+  );
 }
 
 extension AppTextContext on BuildContext {

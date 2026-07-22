@@ -91,7 +91,8 @@ class AppState extends ChangeNotifier {
     downloadedPackCodes
       ..clear()
       ..addAll(
-          await _storage.readStrings(_userKey('downloaded_packs')) ?? const []);
+        await _storage.readStrings(_userKey('downloaded_packs')) ?? const [],
+      );
     completedLessonIds
       ..clear()
       ..addAll(await _storage.readStrings(_userKey('completed')) ?? const []);
@@ -101,7 +102,8 @@ class AppState extends ChangeNotifier {
     completedExamIds
       ..clear()
       ..addAll(
-          await _storage.readStrings(_userKey('completed_exams')) ?? const []);
+        await _storage.readStrings(_userKey('completed_exams')) ?? const [],
+      );
   }
 
   Future<bool> signIn(String identifier, String password) async {
@@ -121,19 +123,21 @@ class AppState extends ChangeNotifier {
     return true;
   }
 
-  Future<bool> register(
-      {required String displayName,
-      required String username,
-      required String email,
-      required String password}) async {
+  Future<bool> register({
+    required String displayName,
+    required String username,
+    required String email,
+    required String password,
+  }) async {
     authBusy = true;
     authError = null;
     notifyListeners();
     final result = await _auth.register(
-        displayName: displayName,
-        username: username,
-        email: email,
-        password: password);
+      displayName: displayName,
+      username: username,
+      email: email,
+      password: password,
+    );
     authBusy = false;
     if (!result.success) {
       authError = result.error;
@@ -208,7 +212,9 @@ class AppState extends ChangeNotifier {
   Future<void> toggleDownloadedPack(String code) async {
     if (!downloadedPackCodes.add(code)) downloadedPackCodes.remove(code);
     await _storage.writeStrings(
-        _userKey('downloaded_packs'), downloadedPackCodes.toList());
+      _userKey('downloaded_packs'),
+      downloadedPackCodes.toList(),
+    );
     notifyListeners();
   }
 
@@ -224,7 +230,9 @@ class AppState extends ChangeNotifier {
     xp += earnedXp ?? lessonXp;
     dailyMinutes += 5;
     await _storage.writeStrings(
-        _userKey('completed'), completedLessonIds.toList());
+      _userKey('completed'),
+      completedLessonIds.toList(),
+    );
     await _storage.writeStrings(_userKey('review'), reviewLessonIds.toList());
     await _storage.writeInt(_userKey('xp'), xp);
     await _storage.writeInt(_userKey('daily_minutes'), dailyMinutes);
@@ -237,8 +245,8 @@ class AppState extends ChangeNotifier {
     xp += score >= 90
         ? 180
         : score >= 70
-            ? 120
-            : 35;
+        ? 120
+        : 35;
     dailyMinutes += 10;
     if (score >= 70) {
       const order = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
@@ -248,7 +256,9 @@ class AppState extends ChangeNotifier {
       }
     }
     await _storage.writeStrings(
-        _userKey('completed_exams'), completedExamIds.toList());
+      _userKey('completed_exams'),
+      completedExamIds.toList(),
+    );
     await _storage.writeInt(_userKey('xp'), xp);
     await _storage.writeInt(_userKey('daily_minutes'), dailyMinutes);
     await _storage.writeString(_userKey('level'), currentLevel);
@@ -313,34 +323,34 @@ class AppState extends ChangeNotifier {
   }
 
   String exportConfiguration() => const JsonEncoder.withIndent('  ').convert({
-        'brandName': brandName,
-        'user': currentUser?.toJson(),
-        'locale': locale.languageCode,
-        'nativeLanguage': nativeLanguageCode,
-        'targetLanguage': targetLanguageCode,
-        'theme': themeId,
-        'level': currentLevel,
-        'dailyGoalMinutes': dailyGoalMinutes,
-        'learningReason': learningReason,
-        'downloadedPacks': downloadedPackCodes.toList(),
-        'completedExams': completedExamIds.toList(),
-        'features': {
-          'aiTutor': aiTutorEnabled,
-          'community': communityEnabled,
-          'voiceRooms': voiceRoomsEnabled,
-          'exams': examsEnabled,
-          'stories': storiesEnabled,
-          'registration': registrationEnabled,
-          'offline': offlineMode,
-          'sprintMode': sprintMode,
-        },
-        'conversation': {
-          'provider': aiProvider,
-          'endpoint': aiEndpoint,
-          'apiKeyStoredInApp': false,
-          'speechRate': speechRate,
-        },
-      });
+    'brandName': brandName,
+    'user': currentUser?.toJson(),
+    'locale': locale.languageCode,
+    'nativeLanguage': nativeLanguageCode,
+    'targetLanguage': targetLanguageCode,
+    'theme': themeId,
+    'level': currentLevel,
+    'dailyGoalMinutes': dailyGoalMinutes,
+    'learningReason': learningReason,
+    'downloadedPacks': downloadedPackCodes.toList(),
+    'completedExams': completedExamIds.toList(),
+    'features': {
+      'aiTutor': aiTutorEnabled,
+      'community': communityEnabled,
+      'voiceRooms': voiceRoomsEnabled,
+      'exams': examsEnabled,
+      'stories': storiesEnabled,
+      'registration': registrationEnabled,
+      'offline': offlineMode,
+      'sprintMode': sprintMode,
+    },
+    'conversation': {
+      'provider': aiProvider,
+      'endpoint': aiEndpoint,
+      'apiKeyStoredInApp': false,
+      'speechRate': speechRate,
+    },
+  });
 }
 
 class AppStateScope extends InheritedNotifier<AppState> {

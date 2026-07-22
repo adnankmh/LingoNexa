@@ -53,8 +53,8 @@ class _AppHome extends StatelessWidget {
     final page = !state.isAuthenticated
         ? const LoginScreen()
         : state.onboardingCompleted
-            ? const ShellScreen()
-            : const OnboardingScreen();
+        ? const ShellScreen()
+        : const OnboardingScreen();
 
     // This control must stay inside the home route so PopupMenuButton can find
     // the Navigator overlay. Placing it in MaterialApp.builder makes it a
@@ -93,26 +93,33 @@ class _GlobalThemeButton extends StatelessWidget {
           padding: EdgeInsets.zero,
           iconSize: 19,
           icon: state.isAuthenticated
-              ? Stack(clipBehavior: Clip.none, children: [
-                  Text(language.flag, style: const TextStyle(fontSize: 19)),
-                  PositionedDirectional(
+              ? Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    Text(language.flag, style: const TextStyle(fontSize: 19)),
+                    PositionedDirectional(
                       end: -5,
                       bottom: -5,
                       child: Icon(
-                          current.brightness == Brightness.dark
-                              ? Icons.dark_mode_rounded
-                              : Icons.light_mode_rounded,
-                          size: 12))
-                ])
-              : Icon(current.brightness == Brightness.dark
-                  ? Icons.dark_mode_rounded
-                  : Icons.light_mode_rounded),
+                        current.brightness == Brightness.dark
+                            ? Icons.dark_mode_rounded
+                            : Icons.light_mode_rounded,
+                        size: 12,
+                      ),
+                    ),
+                  ],
+                )
+              : Icon(
+                  current.brightness == Brightness.dark
+                      ? Icons.dark_mode_rounded
+                      : Icons.light_mode_rounded,
+                ),
           onSelected: (value) {
             if (value == '__language__') {
               Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (_) => const LanguagePickerScreen()));
+                context,
+                MaterialPageRoute(builder: (_) => const LanguagePickerScreen()),
+              );
             } else {
               state.setTheme(value);
             }
@@ -120,31 +127,41 @@ class _GlobalThemeButton extends StatelessWidget {
           itemBuilder: (context) => [
             if (state.isAuthenticated)
               PopupMenuItem(
-                  value: '__language__',
-                  child: Row(children: [
+                value: '__language__',
+                child: Row(
+                  children: [
                     Text(language.flag, style: const TextStyle(fontSize: 22)),
                     const SizedBox(width: 10),
                     Expanded(
-                        child: Text('Learning: ${language.nativeName}',
-                            style:
-                                const TextStyle(fontWeight: FontWeight.w800))),
-                    const Icon(Icons.swap_horiz_rounded, size: 18)
-                  ])),
+                      child: Text(
+                        'Learning: ${language.nativeName}',
+                        style: const TextStyle(fontWeight: FontWeight.w800),
+                      ),
+                    ),
+                    const Icon(Icons.swap_horiz_rounded, size: 18),
+                  ],
+                ),
+              ),
             if (state.isAuthenticated) const PopupMenuDivider(),
             for (final preset in AppThemes.presets)
               PopupMenuItem(
                 value: preset.id,
-                child: Row(children: [
-                  Container(
+                child: Row(
+                  children: [
+                    Container(
                       width: 18,
                       height: 18,
                       decoration: BoxDecoration(
-                          color: preset.seed, shape: BoxShape.circle)),
-                  const SizedBox(width: 10),
-                  Expanded(child: Text(preset.name)),
-                  if (preset.id == state.themeId)
-                    const Icon(Icons.check_rounded, size: 18),
-                ]),
+                        color: preset.seed,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(child: Text(preset.name)),
+                    if (preset.id == state.themeId)
+                      const Icon(Icons.check_rounded, size: 18),
+                  ],
+                ),
               ),
           ],
         ),

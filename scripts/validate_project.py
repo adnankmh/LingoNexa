@@ -84,8 +84,30 @@ if interface_language_count < 10:
 
 global_content = (ROOT / "lib/data/global_content_repository.dart").read_text(encoding="utf-8")
 concept_count = len(re.findall(r"GlobalPhraseConcept\(\s*source:", global_content))
-if concept_count < 35:
+if concept_count < 50:
     fail(f"only {concept_count} global phrase concepts found")
+for category in ("Airport", "At the Doctor", "Pharmacy", "Emergencies"):
+    if f"category: '{category}'" not in global_content:
+        fail(f"missing real-world content category: {category}")
+
+learning_content = (ROOT / "lib/data/learning_content_repository.dart").read_text(encoding="utf-8")
+grammar_count = len(re.findall(r"GrammarTopic\(\s*title:", learning_content))
+path_count = len(re.findall(r"SpecializedPath\(\s*id:", learning_content))
+if grammar_count < 30:
+    fail(f"only {grammar_count} grammar lessons found")
+if path_count < 16:
+    fail(f"only {path_count} specialized paths found")
+
+course_topic_source = repository.split("static const _topics = [", 1)[1].split("];", 1)[0]
+course_topic_count = len(
+    re.findall(
+        r"\(\s*'[^']+',\s*'[^']+',\s*'[^']+',\s*'[^']+',?\s*\)",
+        course_topic_source,
+        flags=re.DOTALL,
+    )
+)
+if course_topic_count < 15:
+    fail(f"only {course_topic_count} course topics found")
 
 speech = (ROOT / "lib/services/speech_service.dart").read_text(encoding="utf-8")
 speech_locale_count = len(re.findall(r"'[a-z]+':\s*'[a-z]{2,3}-[A-Z]{2}'", speech))

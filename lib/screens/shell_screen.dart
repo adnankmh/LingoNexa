@@ -31,25 +31,30 @@ class _ShellScreenState extends State<ShellScreen> {
     final wide = MediaQuery.sizeOf(context).width >= 900;
     final destinations = [
       NavigationDestination(
-          icon: const Icon(Icons.route_outlined),
-          selectedIcon: const Icon(Icons.route_rounded),
-          label: context.text.get('learn')),
+        icon: const Icon(Icons.route_outlined),
+        selectedIcon: const Icon(Icons.route_rounded),
+        label: context.text.get('learn'),
+      ),
       NavigationDestination(
-          icon: const Icon(Icons.fitness_center_outlined),
-          selectedIcon: const Icon(Icons.fitness_center_rounded),
-          label: context.text.get('practice')),
+        icon: const Icon(Icons.fitness_center_outlined),
+        selectedIcon: const Icon(Icons.fitness_center_rounded),
+        label: context.text.get('practice'),
+      ),
       NavigationDestination(
-          icon: const Icon(Icons.explore_outlined),
-          selectedIcon: const Icon(Icons.explore_rounded),
-          label: context.text.get('explore')),
+        icon: const Icon(Icons.explore_outlined),
+        selectedIcon: const Icon(Icons.explore_rounded),
+        label: context.text.get('explore'),
+      ),
       NavigationDestination(
-          icon: const Icon(Icons.people_alt_outlined),
-          selectedIcon: const Icon(Icons.people_alt_rounded),
-          label: context.text.get('community')),
+        icon: const Icon(Icons.people_alt_outlined),
+        selectedIcon: const Icon(Icons.people_alt_rounded),
+        label: context.text.get('community'),
+      ),
       NavigationDestination(
-          icon: const Icon(Icons.person_outline_rounded),
-          selectedIcon: const Icon(Icons.person_rounded),
-          label: context.text.get('profile')),
+        icon: const Icon(Icons.person_outline_rounded),
+        selectedIcon: const Icon(Icons.person_rounded),
+        label: context.text.get('profile'),
+      ),
     ];
 
     return Scaffold(
@@ -70,8 +75,9 @@ class _ShellScreenState extends State<ShellScreen> {
                   child: Column(
                     children: [
                       const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 18),
-                          child: BrandMark(size: 48)),
+                        padding: EdgeInsets.symmetric(vertical: 18),
+                        child: BrandMark(size: 48),
+                      ),
                       Expanded(
                         child: NavigationRail(
                           backgroundColor: Colors.transparent,
@@ -83,16 +89,19 @@ class _ShellScreenState extends State<ShellScreen> {
                           destinations: [
                             for (final item in destinations)
                               NavigationRailDestination(
-                                  icon: item.icon,
-                                  selectedIcon: item.selectedIcon,
-                                  label: Text(item.label)),
+                                icon: item.icon,
+                                selectedIcon: item.selectedIcon,
+                                label: Text(item.label),
+                              ),
                           ],
                         ),
                       ),
                     ],
                   ),
                 ),
-              Expanded(child: IndexedStack(index: _index, children: _pages)),
+              Expanded(
+                child: IndexedStack(index: _index, children: _pages),
+              ),
             ],
           ),
         ),

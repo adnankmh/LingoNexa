@@ -32,7 +32,7 @@ Dart يحتوي `dart pub get`. مشروع LingoNexa هو Flutter ويجب أن 
 5. شغّل `APPLY_LINGONEXA_FIX_WINDOWS.bat` بنقرة مزدوجة.
 6. تأكد أن ملفات YAML الأساسية داخل `.github\workflows` هي: `flutter_ci.yml` و`apk.yml` و`aab.yml` و`web.yml` و`pages.yml`.
    ملف `README.md` الموجود معها طبيعي ولا يتم تشغيله.
-7. ارجع إلى GitHub Desktop. اكتب Summary مثل `Upgrade LingoNexa 1.3.1 and fix CI workflows`.
+7. ارجع إلى GitHub Desktop. اكتب Summary مثل `Upgrade LingoNexa 1.4.0 Content Mastery Edition`.
 8. اضغط **Commit to main** ثم **Push origin**.
 9. في موقع GitHub افتح **Actions**. يجب أن تظهر Workflows منفصلة بأسماء: `Flutter CI` و`APK` و`AAB` و`Web` و`Deploy GitHub Pages`.
 10. بعد Push تبدأ `Flutter CI` وAPK وAAB وWeb بالتوازي كأربع عمليات مستقلة. فشل الاختبارات لا يجعل عمليات البناء الثلاث الأخرى Skipped، ويمكن تشغيل أي واحدة يدويًا من **Run workflow**.
