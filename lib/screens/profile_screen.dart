@@ -5,6 +5,7 @@ import '../core/app_theme.dart';
 import '../core/i18n.dart';
 import '../data/language_catalog.dart';
 import '../widgets/ui.dart';
+import '../widgets/speech_control_panel.dart';
 import 'achievements_screen.dart';
 import 'admin_screen.dart';
 import 'certificates_screen.dart';
@@ -276,6 +277,8 @@ class ProfileScreen extends StatelessWidget {
               ],
             ),
           ),
+          const SizedBox(height: 12),
+          SpeechControlPanel(languageCode: target.code),
           const SizedBox(height: 22),
           Card(
             child: Column(
@@ -341,28 +344,6 @@ class ProfileScreen extends StatelessWidget {
                 ),
                 const Divider(height: 1),
                 ListTile(
-                  leading: const Icon(Icons.notifications_outlined),
-                  title: const Text(
-                    'Learning reminders',
-                    style: TextStyle(fontWeight: FontWeight.w800),
-                  ),
-                  subtitle: const Text('Daily at 7:30 PM'),
-                  trailing: const Icon(Icons.chevron_right_rounded),
-                  onTap: () {},
-                ),
-                const Divider(height: 1),
-                ListTile(
-                  leading: const Icon(Icons.accessibility_new_rounded),
-                  title: const Text(
-                    'Accessibility',
-                    style: TextStyle(fontWeight: FontWeight.w800),
-                  ),
-                  subtitle: const Text('Text scale, reduced motion, contrast'),
-                  trailing: const Icon(Icons.chevron_right_rounded),
-                  onTap: () {},
-                ),
-                const Divider(height: 1),
-                ListTile(
                   leading: const Icon(Icons.restart_alt_rounded),
                   title: const Text(
                     'Rebuild my learning plan',
@@ -375,26 +356,6 @@ class ProfileScreen extends StatelessWidget {
                   onTap: () => _confirmReset(context, state),
                 ),
               ],
-            ),
-          ),
-          const SizedBox(height: 12),
-          Card(
-            child: ListTile(
-              leading: Icon(
-                Icons.workspace_premium_rounded,
-                color: Theme.of(context).colorScheme.primary,
-              ),
-              title: Text(
-                context.text.get('premium'),
-                style: const TextStyle(fontWeight: FontWeight.w900),
-              ),
-              subtitle: const Text(
-                'Offline packs, unlimited role-play, family learning',
-              ),
-              trailing: FilledButton.tonal(
-                onPressed: () {},
-                child: const Text('View'),
-              ),
             ),
           ),
           const SizedBox(height: 12),
@@ -435,7 +396,7 @@ class ProfileScreen extends StatelessWidget {
           const SizedBox(height: 15),
           Center(
             child: Text(
-              'LingoNexa 1.4.0 · Content Mastery Edition',
+              'LingoNexa 1.6.0 · Global Learning Hub',
               style: TextStyle(
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
                 fontSize: 11,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../core/app_state.dart';
+import '../core/i18n.dart';
 import '../widgets/ui.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -146,6 +147,11 @@ class _LoginScreenState extends State<LoginScreen> {
                                   Icons.lock_outline_rounded,
                                 ),
                                 suffixIcon: IconButton(
+                                  tooltip: context.text.get(
+                                    _hidePassword
+                                        ? 'tip_password_show'
+                                        : 'tip_password_hide',
+                                  ),
                                   onPressed: () => setState(
                                     () => _hidePassword = !_hidePassword,
                                   ),

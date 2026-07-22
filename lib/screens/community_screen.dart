@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../core/app_state.dart';
 import '../core/i18n.dart';
@@ -15,6 +16,9 @@ class CommunityScreen extends StatefulWidget {
 
 class _CommunityScreenState extends State<CommunityScreen> {
   final List<CommunityPost> _posts = [...CourseRepository.communityPosts];
+  final Set<CommunityPost> _liked = {};
+  final Set<CommunityPost> _saved = {};
+  final Map<CommunityPost, List<String>> _comments = {};
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +59,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Safe language exchange, corrections, and cultural discovery.',
+                      context.text.get('community_subtitle'),
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
@@ -66,7 +70,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
               FilledButton.icon(
                 onPressed: _composePost,
                 icon: const Icon(Icons.add_rounded),
-                label: const Text('Post'),
+                label: Text(context.text.get('post')),
               ),
             ],
           ),
@@ -113,7 +117,26 @@ class _CommunityScreenState extends State<CommunityScreen> {
           ),
           const SizedBox(height: 14),
           for (final post in _posts)
-            _PostCard(post: post, onMore: () => _moderationSheet(post)),
+            _PostCard(
+              post: post,
+              liked: _liked.contains(post),
+              saved: _saved.contains(post),
+              commentCount: post.comments + (_comments[post]?.length ?? 0),
+              onLike: () {
+                HapticFeedback.selectionClick();
+                setState(() {
+                  if (!_liked.add(post)) _liked.remove(post);
+                });
+              },
+              onComment: () => _showComments(post),
+              onSave: () {
+                HapticFeedback.selectionClick();
+                setState(() {
+                  if (!_saved.add(post)) _saved.remove(post);
+                });
+              },
+              onMore: () => _moderationSheet(post),
+            ),
         ],
       ),
     );
@@ -137,7 +160,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Practice with the community',
+              context.text.get('practice_with_community'),
               style: Theme.of(
                 context,
               ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900),
@@ -149,15 +172,15 @@ class _CommunityScreenState extends State<CommunityScreen> {
               minLines: 4,
               maxLines: 7,
               maxLength: 500,
-              decoration: const InputDecoration(
-                hintText: 'Write in the language you are learning…',
+              decoration: InputDecoration(
+                hintText: context.text.get('write_learning_language'),
               ),
             ),
             const SizedBox(height: 10),
             FilledButton(
               onPressed: () =>
                   Navigator.pop(context, controller.text.trim().isNotEmpty),
-              child: const Text('Publish'),
+              child: Text(context.text.get('publish')),
             ),
           ],
         ),
@@ -168,9 +191,9 @@ class _CommunityScreenState extends State<CommunityScreen> {
         () => _posts.insert(
           0,
           CommunityPost(
-            author: 'You',
-            nativeLanguage: 'Arabic',
-            learningLanguage: 'Practice',
+            author: AppStateScope.of(context).currentUser!.displayName,
+            nativeLanguage: AppStateScope.of(context).nativeLanguageCode,
+            learningLanguage: AppStateScope.of(context).targetLanguageCode,
             text: controller.text.trim(),
             avatar: '🙂',
             likes: 0,
@@ -179,6 +202,84 @@ class _CommunityScreenState extends State<CommunityScreen> {
         ),
       );
     }
+    controller.dispose();
+  }
+
+  Future<void> _showComments(CommunityPost post) async {
+    final controller = TextEditingController();
+    final comments = _comments.putIfAbsent(post, () => []);
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (sheetContext) => StatefulBuilder(
+        builder: (context, refresh) => Padding(
+          padding: EdgeInsets.fromLTRB(
+            18,
+            0,
+            18,
+            MediaQuery.viewInsetsOf(context).bottom + 18,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                context.text.get('discussion'),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900),
+              ),
+              const SizedBox(height: 6),
+              Text(post.text, maxLines: 3, overflow: TextOverflow.ellipsis),
+              const Divider(height: 24),
+              if (comments.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Text(context.text.get('start_discussion')),
+                ),
+              for (final comment in comments)
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: const CircleAvatar(child: Icon(Icons.person)),
+                  title: Text(
+                    AppStateScope.of(context).currentUser!.displayName,
+                    style: const TextStyle(fontWeight: FontWeight.w900),
+                  ),
+                  subtitle: Text(comment),
+                ),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: controller,
+                      minLines: 1,
+                      maxLines: 4,
+                      decoration: InputDecoration(
+                        hintText: context.text.get('write_comment'),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  IconButton.filled(
+                    tooltip: context.text.get('tip_send'),
+                    onPressed: () {
+                      final text = controller.text.trim();
+                      if (text.isEmpty) return;
+                      comments.add(text);
+                      controller.clear();
+                      refresh(() {});
+                      setState(() {});
+                    },
+                    icon: const Icon(Icons.send_rounded),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
     controller.dispose();
   }
 
@@ -194,31 +295,93 @@ class _CommunityScreenState extends State<CommunityScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Live voice rooms',
+                context.text.get('voice_rooms'),
                 style: Theme.of(
                   context,
                 ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900),
               ),
               const SizedBox(height: 12),
-              const _RoomTile(
-                title: 'English confidence café',
+              _RoomTile(
+                title: context.text.get('room_english_confidence'),
                 people: 18,
                 level: 'A2–B1',
                 color: Color(0xFF6C63FF),
+                onJoin: () =>
+                    _openRoom(context.text.get('room_english_confidence')),
               ),
-              const _RoomTile(
-                title: 'Palestinian Arabic exchange',
+              _RoomTile(
+                title: context.text.get('room_arabic_exchange'),
                 people: 9,
-                level: 'All levels',
+                level: context.text.get('all_levels'),
                 color: Color(0xFF20C997),
+                onJoin: () =>
+                    _openRoom(context.text.get('room_arabic_exchange')),
               ),
-              const _RoomTile(
-                title: 'Spanish travel stories',
+              _RoomTile(
+                title: context.text.get('room_spanish_stories'),
                 people: 12,
                 level: 'B1',
                 color: Color(0xFFFFA94D),
+                onJoin: () =>
+                    _openRoom(context.text.get('room_spanish_stories')),
               ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _openRoom(String title) {
+    var microphoneOn = false;
+    showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (context) => StatefulBuilder(
+        builder: (context, refresh) => SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(22, 0, 22, 26),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.graphic_eq_rounded, size: 58),
+                const SizedBox(height: 8),
+                Text(
+                  title,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  context.text.get('room_preview_note'),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 18),
+                IconButton.filled(
+                  tooltip: context.text.get('tip_record'),
+                  onPressed: () {
+                    HapticFeedback.mediumImpact();
+                    refresh(() => microphoneOn = !microphoneOn);
+                  },
+                  icon: Icon(
+                    microphoneOn ? Icons.mic_rounded : Icons.mic_off_rounded,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  microphoneOn
+                      ? context.text.get('microphone_on')
+                      : context.text.get('microphone_off'),
+                ),
+                const SizedBox(height: 18),
+                OutlinedButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text(context.text.get('leave_room')),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -235,24 +398,22 @@ class _CommunityScreenState extends State<CommunityScreen> {
           children: [
             ListTile(
               leading: const Icon(Icons.flag_outlined),
-              title: const Text('Report post'),
+              title: Text(context.text.get('report_post')),
               onTap: () {
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Report received for moderator review.'),
-                  ),
+                  SnackBar(content: Text(context.text.get('report_received'))),
                 );
               },
             ),
             ListTile(
               leading: const Icon(Icons.block_rounded),
-              title: Text('Block ${post.author}'),
+              title: Text('${context.text.get('block_user')} ${post.author}'),
               onTap: () => Navigator.pop(context),
             ),
             ListTile(
               leading: const Icon(Icons.visibility_off_outlined),
-              title: const Text('Hide this post'),
+              title: Text(context.text.get('hide_post')),
               onTap: () {
                 Navigator.pop(context);
                 setState(() => _posts.remove(post));
@@ -285,21 +446,21 @@ class _VoiceRoomBanner extends StatelessWidget {
             child: const Icon(Icons.graphic_eq_rounded, color: Colors.white),
           ),
           const SizedBox(width: 12),
-          const Expanded(
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Live voice rooms',
-                  style: TextStyle(
+                  context.text.get('voice_rooms'),
+                  style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w900,
                     fontSize: 17,
                   ),
                 ),
                 Text(
-                  '39 learners are speaking now',
-                  style: TextStyle(color: Colors.white70, fontSize: 12),
+                  '39 ${context.text.get('learners_speaking_now')}',
+                  style: const TextStyle(color: Colors.white70, fontSize: 12),
                 ),
               ],
             ),
@@ -311,7 +472,7 @@ class _VoiceRoomBanner extends StatelessWidget {
               foregroundColor: Theme.of(context).colorScheme.primary,
               minimumSize: const Size(78, 42),
             ),
-            child: const Text('Join'),
+            child: Text(context.text.get('join')),
           ),
         ],
       ),
@@ -386,8 +547,23 @@ class _Partner extends StatelessWidget {
 }
 
 class _PostCard extends StatelessWidget {
-  const _PostCard({required this.post, required this.onMore});
+  const _PostCard({
+    required this.post,
+    required this.liked,
+    required this.saved,
+    required this.commentCount,
+    required this.onLike,
+    required this.onComment,
+    required this.onSave,
+    required this.onMore,
+  });
   final CommunityPost post;
+  final bool liked;
+  final bool saved;
+  final int commentCount;
+  final VoidCallback onLike;
+  final VoidCallback onComment;
+  final VoidCallback onSave;
   final VoidCallback onMore;
 
   @override
@@ -427,6 +603,7 @@ class _PostCard extends StatelessWidget {
                   ),
                 ),
                 IconButton(
+                  tooltip: context.text.get('tip_more'),
                   onPressed: onMore,
                   icon: const Icon(Icons.more_horiz_rounded),
                 ),
@@ -476,20 +653,32 @@ class _PostCard extends StatelessWidget {
             Row(
               children: [
                 IconButton(
-                  onPressed: () {},
-                  icon: const Icon(Icons.favorite_border_rounded),
+                  tooltip: context.text.get('tip_like'),
+                  onPressed: onLike,
+                  icon: Icon(
+                    liked
+                        ? Icons.favorite_rounded
+                        : Icons.favorite_border_rounded,
+                    color: liked ? Colors.red : null,
+                  ),
                 ),
-                Text('${post.likes}'),
+                Text('${post.likes + (liked ? 1 : 0)}'),
                 const SizedBox(width: 12),
                 IconButton(
-                  onPressed: () {},
+                  tooltip: context.text.get('tip_comment'),
+                  onPressed: onComment,
                   icon: const Icon(Icons.chat_bubble_outline_rounded),
                 ),
-                Text('${post.comments}'),
+                Text('$commentCount'),
                 const Spacer(),
                 IconButton(
-                  onPressed: () {},
-                  icon: const Icon(Icons.bookmark_border_rounded),
+                  tooltip: context.text.get('tip_save'),
+                  onPressed: onSave,
+                  icon: Icon(
+                    saved
+                        ? Icons.bookmark_rounded
+                        : Icons.bookmark_border_rounded,
+                  ),
                 ),
               ],
             ),
@@ -506,11 +695,13 @@ class _RoomTile extends StatelessWidget {
     required this.people,
     required this.level,
     required this.color,
+    required this.onJoin,
   });
   final String title;
   final int people;
   final String level;
   final Color color;
+  final VoidCallback onJoin;
 
   @override
   Widget build(BuildContext context) => ListTile(
@@ -520,6 +711,9 @@ class _RoomTile extends StatelessWidget {
     ),
     title: Text(title, style: const TextStyle(fontWeight: FontWeight.w800)),
     subtitle: Text('$people speaking · $level'),
-    trailing: FilledButton.tonal(onPressed: () {}, child: const Text('Join')),
+    trailing: FilledButton.tonal(
+      onPressed: onJoin,
+      child: Text(context.text.get('join')),
+    ),
   );
 }

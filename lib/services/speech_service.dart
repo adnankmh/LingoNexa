@@ -2,6 +2,16 @@ import 'package:flutter_tts/flutter_tts.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 
+class SpeechVoice {
+  const SpeechVoice({required this.name, required this.locale});
+
+  final String name;
+  final String locale;
+
+  String get label => name.replaceAll('_', ' ');
+  String get id => '$name\u001F$locale';
+}
+
 class SpeechService {
   final FlutterTts _tts = FlutterTts();
   final SpeechToText _speech = SpeechToText();
@@ -14,6 +24,7 @@ class SpeechService {
     String text,
     String languageCode, {
     double rate = .42,
+    String? voiceName,
   }) async {
     final locale = voiceLocale(languageCode);
     try {
@@ -26,6 +37,13 @@ class SpeechService {
           languageResult == 0 ||
           languageResult == '0') {
         return false;
+      }
+      if (voiceName != null && voiceName.trim().isNotEmpty) {
+        final parts = voiceName.split('\u001F');
+        await _tts.setVoice({
+          'name': parts.first,
+          'locale': parts.length > 1 ? parts[1] : locale,
+        });
       }
       await _tts.awaitSpeakCompletion(true);
       await _tts.setSpeechRate(rate.clamp(.25, .60).toDouble());
@@ -88,6 +106,48 @@ class SpeechService {
   }
 
   Future<void> stopListening() => _speech.stop();
+
+  Future<bool> isVoiceAvailable(String languageCode) async {
+    try {
+      final availability = await _tts.isLanguageAvailable(
+        voiceLocale(languageCode),
+      );
+      return availability != false && availability != 0 && availability != '0';
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// Returns every installed reader for the requested language. The list is
+  /// device-dependent; no voice from another language is ever offered.
+  Future<List<SpeechVoice>> installedVoices(String languageCode) async {
+    final requested = voiceLocale(languageCode).replaceAll('_', '-');
+    final requestedLanguage = requested.split('-').first.toLowerCase();
+    try {
+      final raw = await _tts.getVoices;
+      if (raw is! List) return const [];
+      final voices = <SpeechVoice>[];
+      final seen = <String>{};
+      for (final item in raw) {
+        if (item is! Map) continue;
+        final name = item['name']?.toString().trim() ?? '';
+        final locale = item['locale']?.toString().trim() ?? '';
+        final normalizedLocale = locale.replaceAll('_', '-');
+        if (name.isEmpty || normalizedLocale.isEmpty) continue;
+        if (normalizedLocale.split('-').first.toLowerCase() !=
+            requestedLanguage) {
+          continue;
+        }
+        if (seen.add('$name|$locale')) {
+          voices.add(SpeechVoice(name: name, locale: locale));
+        }
+      }
+      voices.sort((a, b) => a.label.compareTo(b.label));
+      return voices;
+    } catch (_) {
+      return const [];
+    }
+  }
 
   static String voiceLocale(String code) => _voiceLocales[code] ?? code;
 

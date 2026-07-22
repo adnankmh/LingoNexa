@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 
 import '../core/app_state.dart';
+import '../core/i18n.dart';
 import '../data/course_repository.dart';
 import '../data/language_catalog.dart';
 import '../models/models.dart';
@@ -35,7 +36,6 @@ class _LevelExamScreenState extends State<LevelExamScreen> {
     if (_questions.isNotEmpty) return;
     final state = AppStateScope.of(context);
     final code = state.targetLanguageCode;
-    final seen = <String>{};
     _questions =
         CourseRepository.unitsFor(
               code,
@@ -46,11 +46,9 @@ class _LevelExamScreenState extends State<LevelExamScreen> {
             .expand((lesson) => lesson.steps)
             .where(
               (step) =>
-                  step.type == ExerciseType.choice &&
-                  step.options.length >= 3 &&
-                  seen.add(step.answer),
+                  step.type == ExerciseType.choice && step.options.length >= 3,
             )
-            .take(12)
+            .take(20)
             .toList(growable: false);
   }
 
@@ -63,7 +61,7 @@ class _LevelExamScreenState extends State<LevelExamScreen> {
     final selected = _answers[_index];
     return Scaffold(
       appBar: AppBar(
-        title: Text('${widget.level} Level Exam'),
+        title: Text('${widget.level} · ${context.text.get('level_exam')}'),
         actions: [
           Padding(
             padding: const EdgeInsetsDirectional.only(end: 54),
@@ -102,7 +100,7 @@ class _LevelExamScreenState extends State<LevelExamScreen> {
                       ),
                       const SizedBox(width: 8),
                       IconButton.filledTonal(
-                        tooltip: 'Hear the target-language question',
+                        tooltip: context.text.get('tip_speak'),
                         onPressed: () => _play(question.answer, language),
                         icon: const Icon(Icons.volume_up_rounded),
                       ),
@@ -160,8 +158,8 @@ class _LevelExamScreenState extends State<LevelExamScreen> {
                       ),
                       label: Text(
                         _index == _questions.length - 1
-                            ? 'Finish exam'
-                            : 'Next question',
+                            ? context.text.get('finish_exam')
+                            : context.text.get('next_question'),
                       ),
                     ),
                   ),
@@ -193,12 +191,13 @@ class _LevelExamScreenState extends State<LevelExamScreen> {
       text,
       language.code,
       rate: AppStateScope.of(context).speechRate,
+      voiceName: AppStateScope.of(context).preferredVoiceFor(language.code),
     );
     if (!spoken && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            '${language.englishName} voice is not installed. English fallback is disabled.',
+            '${language.nativeName}: ${context.text.get('voice_not_installed')}',
           ),
         ),
       );
@@ -208,7 +207,9 @@ class _LevelExamScreenState extends State<LevelExamScreen> {
   Widget _result(BuildContext context, LanguageOption language) {
     final passed = _score >= 70;
     return Scaffold(
-      appBar: AppBar(title: Text('${widget.level} Exam Result')),
+      appBar: AppBar(
+        title: Text('${widget.level} · ${context.text.get('exam_result')}'),
+      ),
       body: SafeArea(
         child: Center(
           child: ConstrainedBox(
@@ -228,7 +229,9 @@ class _LevelExamScreenState extends State<LevelExamScreen> {
                     ),
                   ),
                   Text(
-                    passed ? 'Level passed!' : 'Keep building your foundation',
+                    passed
+                        ? context.text.get('level_passed')
+                        : context.text.get('keep_building_foundation'),
                     style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                       fontWeight: FontWeight.w900,
                     ),
@@ -246,8 +249,8 @@ class _LevelExamScreenState extends State<LevelExamScreen> {
                   const SizedBox(height: 8),
                   Text(
                     passed
-                        ? 'Your next level is unlocked and your XP has been updated.'
-                        : 'Review the exact phrases and try again. No wrong answer is added to your vocabulary.',
+                        ? context.text.get('exam_passed_detail')
+                        : context.text.get('exam_retry_detail'),
                     textAlign: TextAlign.center,
                     style: const TextStyle(height: 1.5),
                   ),
@@ -256,7 +259,7 @@ class _LevelExamScreenState extends State<LevelExamScreen> {
                     width: double.infinity,
                     child: FilledButton(
                       onPressed: () => Navigator.pop(context),
-                      child: const Text('Return to course'),
+                      child: Text(context.text.get('return_to_course')),
                     ),
                   ),
                 ],

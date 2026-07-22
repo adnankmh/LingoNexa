@@ -28,6 +28,20 @@ class SentenceDrill {
   final String visual;
 }
 
+class TranslationResult {
+  const TranslationResult({
+    required this.source,
+    required this.target,
+    required this.category,
+    required this.visual,
+  });
+
+  final String source;
+  final String target;
+  final String category;
+  final String visual;
+}
+
 /// Original, bundled content shared by the phrasebook, Sentence Lab, lessons,
 /// and Nexa Live. The compact concept model keeps every translation aligned
 /// and makes future JSON/admin imports predictable.
@@ -948,6 +962,618 @@ abstract final class GlobalContentRepository {
         'ko': '적어 주세요',
       },
     ),
+    GlobalPhraseConcept(
+      source: 'Where is the baggage claim?',
+      category: 'Airport',
+      translations: {
+        'en': 'Where is the baggage claim?',
+        'ar': 'أين استلام الأمتعة؟',
+        'es': '¿Dónde está la recogida de equipaje?',
+        'fr': 'Où se trouve la livraison des bagages ?',
+        'de': 'Wo ist die Gepäckausgabe?',
+        'tr': 'Bagaj teslim yeri nerede?',
+        'pt': 'Onde fica a recolha de bagagem?',
+        'it': 'Dov’è il ritiro bagagli?',
+        'ru': 'Где выдача багажа?',
+        'zh': '行李领取处在哪里？',
+        'ja': '手荷物受取所はどこですか？',
+        'ko': '수하물 찾는 곳이 어디예요?',
+      },
+    ),
+    GlobalPhraseConcept(
+      source: 'Where can I report missing luggage?',
+      category: 'Airport',
+      translations: {
+        'en': 'Where can I report missing luggage?',
+        'ar': 'أين يمكنني الإبلاغ عن أمتعتي المفقودة؟',
+        'es': '¿Dónde puedo informar de la pérdida de mi equipaje?',
+        'fr': 'Où puis-je signaler la perte de mes bagages ?',
+        'de': 'Wo kann ich mein fehlendes Gepäck melden?',
+        'tr': 'Kayıp bagajımı nereye bildirebilirim?',
+        'pt': 'Onde posso comunicar a perda da minha bagagem?',
+        'it': 'Dove posso denunciare lo smarrimento del bagaglio?',
+        'ru': 'Где можно сообщить о пропаже багажа?',
+        'zh': '我可以在哪里报告行李丢失？',
+        'ja': '手荷物の紛失はどこで届け出ればいいですか？',
+        'ko': '분실 수하물은 어디에 신고하나요?',
+      },
+    ),
+    GlobalPhraseConcept(
+      source: 'I have a medical appointment',
+      category: 'At the Doctor',
+      translations: {
+        'en': 'I have a medical appointment',
+        'ar': 'لدي موعد طبي',
+        'es': 'Tengo una cita médica',
+        'fr': 'J’ai un rendez-vous médical',
+        'de': 'Ich habe einen Arzttermin',
+        'tr': 'Doktor randevum var',
+        'pt': 'Tenho uma consulta médica',
+        'it': 'Ho un appuntamento medico',
+        'ru': 'У меня запись к врачу',
+        'zh': '我预约了看医生',
+        'ja': '診察の予約があります',
+        'ko': '진료 예약이 있어요',
+      },
+    ),
+    GlobalPhraseConcept(
+      source: 'I am allergic to penicillin',
+      category: 'At the Doctor',
+      translations: {
+        'en': 'I am allergic to penicillin',
+        'ar': 'لدي حساسية من البنسلين',
+        'es': 'Soy alérgico a la penicilina',
+        'fr': 'Je suis allergique à la pénicilline',
+        'de': 'Ich bin gegen Penicillin allergisch',
+        'tr': 'Penisiline alerjim var',
+        'pt': 'Sou alérgico à penicilina',
+        'it': 'Sono allergico alla penicillina',
+        'ru': 'У меня аллергия на пенициллин',
+        'zh': '我对青霉素过敏',
+        'ja': 'ペニシリンにアレルギーがあります',
+        'ko': '페니실린 알레르기가 있어요',
+      },
+    ),
+    GlobalPhraseConcept(
+      source: 'How often should I take this medicine?',
+      category: 'Pharmacy',
+      translations: {
+        'en': 'How often should I take this medicine?',
+        'ar': 'كم مرة يجب أن أتناول هذا الدواء؟',
+        'es': '¿Con qué frecuencia debo tomar este medicamento?',
+        'fr': 'À quelle fréquence dois-je prendre ce médicament ?',
+        'de': 'Wie oft soll ich dieses Medikament einnehmen?',
+        'tr': 'Bu ilacı ne sıklıkla almalıyım?',
+        'pt': 'Com que frequência devo tomar este medicamento?',
+        'it': 'Quanto spesso devo prendere questo medicinale?',
+        'ru': 'Как часто мне принимать это лекарство?',
+        'zh': '这个药我应该多久吃一次？',
+        'ja': 'この薬はどのくらいの頻度で飲めばいいですか？',
+        'ko': '이 약은 얼마나 자주 복용해야 하나요?',
+      },
+    ),
+    GlobalPhraseConcept(
+      source: 'Is breakfast included?',
+      category: 'Hotel',
+      translations: {
+        'en': 'Is breakfast included?',
+        'ar': 'هل الإفطار مشمول؟',
+        'es': '¿Está incluido el desayuno?',
+        'fr': 'Le petit-déjeuner est-il compris ?',
+        'de': 'Ist das Frühstück inbegriffen?',
+        'tr': 'Kahvaltı dahil mi?',
+        'pt': 'O pequeno-almoço está incluído?',
+        'it': 'La colazione è inclusa?',
+        'ru': 'Завтрак включён?',
+        'zh': '包含早餐吗？',
+        'ja': '朝食は含まれていますか？',
+        'ko': '조식이 포함되어 있나요?',
+      },
+    ),
+    GlobalPhraseConcept(
+      source: 'The air conditioning is not working',
+      category: 'Hotel',
+      translations: {
+        'en': 'The air conditioning is not working',
+        'ar': 'مكيف الهواء لا يعمل',
+        'es': 'El aire acondicionado no funciona',
+        'fr': 'La climatisation ne fonctionne pas',
+        'de': 'Die Klimaanlage funktioniert nicht',
+        'tr': 'Klima çalışmıyor',
+        'pt': 'O ar condicionado não funciona',
+        'it': 'L’aria condizionata non funziona',
+        'ru': 'Кондиционер не работает',
+        'zh': '空调坏了',
+        'ja': 'エアコンが動きません',
+        'ko': '에어컨이 작동하지 않아요',
+      },
+    ),
+    GlobalPhraseConcept(
+      source: 'I would like to open a bank account',
+      category: 'Banking',
+      translations: {
+        'en': 'I would like to open a bank account',
+        'ar': 'أود فتح حساب مصرفي',
+        'es': 'Quisiera abrir una cuenta bancaria',
+        'fr': 'Je voudrais ouvrir un compte bancaire',
+        'de': 'Ich möchte ein Bankkonto eröffnen',
+        'tr': 'Bir banka hesabı açmak istiyorum',
+        'pt': 'Gostaria de abrir uma conta bancária',
+        'it': 'Vorrei aprire un conto bancario',
+        'ru': 'Я хотел бы открыть банковский счёт',
+        'zh': '我想开一个银行账户',
+        'ja': '銀行口座を開設したいです',
+        'ko': '은행 계좌를 개설하고 싶어요',
+      },
+    ),
+    GlobalPhraseConcept(
+      source: 'Where can I charge my phone?',
+      category: 'Technology',
+      translations: {
+        'en': 'Where can I charge my phone?',
+        'ar': 'أين يمكنني شحن هاتفي؟',
+        'es': '¿Dónde puedo cargar mi teléfono?',
+        'fr': 'Où puis-je recharger mon téléphone ?',
+        'de': 'Wo kann ich mein Handy aufladen?',
+        'tr': 'Telefonumu nerede şarj edebilirim?',
+        'pt': 'Onde posso carregar o telemóvel?',
+        'it': 'Dove posso caricare il telefono?',
+        'ru': 'Где можно зарядить телефон?',
+        'zh': '我可以在哪里给手机充电？',
+        'ja': 'どこで携帯電話を充電できますか？',
+        'ko': '휴대전화를 어디에서 충전할 수 있나요?',
+      },
+    ),
+    GlobalPhraseConcept(
+      source: 'I need help with this form',
+      category: 'Public Services',
+      translations: {
+        'en': 'I need help with this form',
+        'ar': 'أحتاج مساعدة في هذه الاستمارة',
+        'es': 'Necesito ayuda con este formulario',
+        'fr': 'J’ai besoin d’aide avec ce formulaire',
+        'de': 'Ich brauche Hilfe mit diesem Formular',
+        'tr': 'Bu formla ilgili yardıma ihtiyacım var',
+        'pt': 'Preciso de ajuda com este formulário',
+        'it': 'Ho bisogno di aiuto con questo modulo',
+        'ru': 'Мне нужна помощь с этой формой',
+        'zh': '我需要帮助填写这张表格',
+        'ja': 'この用紙の記入を手伝ってください',
+        'ko': '이 양식 작성에 도움이 필요해요',
+      },
+    ),
+    GlobalPhraseConcept(
+      source: 'Could you send me the agenda?',
+      category: 'Work',
+      translations: {
+        'en': 'Could you send me the agenda?',
+        'ar': 'هل يمكنك إرسال جدول الأعمال إليّ؟',
+        'es': '¿Podría enviarme el orden del día?',
+        'fr': 'Pourriez-vous m’envoyer l’ordre du jour ?',
+        'de': 'Könnten Sie mir die Tagesordnung schicken?',
+        'tr': 'Gündemi bana gönderebilir misiniz?',
+        'pt': 'Pode enviar-me a ordem de trabalhos?',
+        'it': 'Potrebbe inviarmi l’ordine del giorno?',
+        'ru': 'Не могли бы вы прислать мне повестку?',
+        'zh': '您能把议程发给我吗？',
+        'ja': '議題を送っていただけますか？',
+        'ko': '회의 안건을 보내 주시겠어요?',
+      },
+    ),
+    GlobalPhraseConcept(
+      source: 'What homework do we have?',
+      category: 'Education',
+      translations: {
+        'en': 'What homework do we have?',
+        'ar': 'ما الواجب المنزلي المطلوب؟',
+        'es': '¿Qué tarea tenemos?',
+        'fr': 'Quels devoirs avons-nous ?',
+        'de': 'Welche Hausaufgaben haben wir?',
+        'tr': 'Hangi ödevimiz var?',
+        'pt': 'Que trabalho de casa temos?',
+        'it': 'Quali compiti abbiamo?',
+        'ru': 'Какое у нас домашнее задание?',
+        'zh': '我们有什么作业？',
+        'ja': '宿題は何ですか？',
+        'ko': '숙제가 무엇인가요?',
+      },
+    ),
+    GlobalPhraseConcept(
+      source: 'I am looking for an apartment',
+      category: 'Home',
+      translations: {
+        'en': 'I am looking for an apartment',
+        'ar': 'أبحث عن شقة',
+        'es': 'Estoy buscando un apartamento',
+        'fr': 'Je cherche un appartement',
+        'de': 'Ich suche eine Wohnung',
+        'tr': 'Bir daire arıyorum',
+        'pt': 'Estou à procura de um apartamento',
+        'it': 'Sto cercando un appartamento',
+        'ru': 'Я ищу квартиру',
+        'zh': '我在找公寓',
+        'ja': 'アパートを探しています',
+        'ko': '아파트를 찾고 있어요',
+      },
+    ),
+    GlobalPhraseConcept(
+      source: 'What will the weather be like tomorrow?',
+      category: 'Weather',
+      translations: {
+        'en': 'What will the weather be like tomorrow?',
+        'ar': 'كيف سيكون الطقس غدًا؟',
+        'es': '¿Qué tiempo hará mañana?',
+        'fr': 'Quel temps fera-t-il demain ?',
+        'de': 'Wie wird das Wetter morgen?',
+        'tr': 'Yarın hava nasıl olacak?',
+        'pt': 'Como estará o tempo amanhã?',
+        'it': 'Che tempo farà domani?',
+        'ru': 'Какая погода будет завтра?',
+        'zh': '明天天气怎么样？',
+        'ja': '明日の天気はどうですか？',
+        'ko': '내일 날씨가 어떨까요?',
+      },
+    ),
+    GlobalPhraseConcept(
+      source: 'Where is the nearest bus stop?',
+      category: 'Transport',
+      translations: {
+        'en': 'Where is the nearest bus stop?',
+        'ar': 'أين أقرب موقف للحافلات؟',
+        'es': '¿Dónde está la parada de autobús más cercana?',
+        'fr': 'Où se trouve l’arrêt de bus le plus proche ?',
+        'de': 'Wo ist die nächste Bushaltestelle?',
+        'tr': 'En yakın otobüs durağı nerede?',
+        'pt': 'Onde fica a paragem de autocarro mais próxima?',
+        'it': 'Dov’è la fermata dell’autobus più vicina?',
+        'ru': 'Где ближайшая автобусная остановка?',
+        'zh': '最近的公交车站在哪里？',
+        'ja': '一番近いバス停はどこですか？',
+        'ko': '가장 가까운 버스 정류장이 어디예요?',
+      },
+    ),
+    GlobalPhraseConcept(
+      source: 'Can I return this item?',
+      category: 'Shopping',
+      translations: {
+        'en': 'Can I return this item?',
+        'ar': 'هل يمكنني إرجاع هذه السلعة؟',
+        'es': '¿Puedo devolver este artículo?',
+        'fr': 'Puis-je retourner cet article ?',
+        'de': 'Kann ich diesen Artikel zurückgeben?',
+        'tr': 'Bu ürünü iade edebilir miyim?',
+        'pt': 'Posso devolver este artigo?',
+        'it': 'Posso restituire questo articolo?',
+        'ru': 'Можно вернуть этот товар?',
+        'zh': '我可以退这件商品吗？',
+        'ja': 'この商品を返品できますか？',
+        'ko': '이 상품을 반품할 수 있나요?',
+      },
+    ),
+    GlobalPhraseConcept(
+      source: 'Could you speak more slowly?',
+      category: 'Essentials',
+      translations: {
+        'en': 'Could you speak more slowly?',
+        'ar': 'هل يمكنك التحدث ببطء أكثر؟',
+        'es': '¿Podría hablar más despacio?',
+        'fr': 'Pourriez-vous parler plus lentement ?',
+        'de': 'Könnten Sie bitte langsamer sprechen?',
+        'tr': 'Daha yavaş konuşabilir misiniz?',
+        'pt': 'Pode falar mais devagar?',
+        'it': 'Potrebbe parlare più lentamente?',
+        'ru': 'Не могли бы вы говорить медленнее?',
+        'zh': '您能说慢一点吗？',
+        'ja': 'もう少しゆっくり話していただけますか？',
+        'ko': '좀 더 천천히 말씀해 주시겠어요?',
+      },
+    ),
+    GlobalPhraseConcept(
+      source: 'Could you repeat that?',
+      category: 'Essentials',
+      translations: {
+        'en': 'Could you repeat that?',
+        'ar': 'هل يمكنك تكرار ذلك؟',
+        'es': '¿Podría repetirlo?',
+        'fr': 'Pourriez-vous répéter ?',
+        'de': 'Könnten Sie das wiederholen?',
+        'tr': 'Bunu tekrar edebilir misiniz?',
+        'pt': 'Pode repetir?',
+        'it': 'Potrebbe ripeterlo?',
+        'ru': 'Не могли бы вы повторить?',
+        'zh': '您能再说一遍吗？',
+        'ja': 'もう一度言っていただけますか？',
+        'ko': '다시 말씀해 주시겠어요?',
+      },
+    ),
+    GlobalPhraseConcept(
+      source: 'I do not understand this word.',
+      category: 'Education',
+      translations: {
+        'en': 'I do not understand this word.',
+        'ar': 'لا أفهم هذه الكلمة.',
+        'es': 'No entiendo esta palabra.',
+        'fr': 'Je ne comprends pas ce mot.',
+        'de': 'Ich verstehe dieses Wort nicht.',
+        'tr': 'Bu kelimeyi anlamıyorum.',
+        'pt': 'Não compreendo esta palavra.',
+        'it': 'Non capisco questa parola.',
+        'ru': 'Я не понимаю это слово.',
+        'zh': '我不明白这个词。',
+        'ja': 'この単語の意味が分かりません。',
+        'ko': '이 단어를 이해하지 못하겠어요.',
+      },
+    ),
+    GlobalPhraseConcept(
+      source: 'Where is passport control?',
+      category: 'Airport',
+      translations: {
+        'en': 'Where is passport control?',
+        'ar': 'أين نقطة فحص الجوازات؟',
+        'es': '¿Dónde está el control de pasaportes?',
+        'fr': 'Où se trouve le contrôle des passeports ?',
+        'de': 'Wo ist die Passkontrolle?',
+        'tr': 'Pasaport kontrolü nerede?',
+        'pt': 'Onde fica o controlo de passaportes?',
+        'it': 'Dov’è il controllo passaporti?',
+        'ru': 'Где находится паспортный контроль?',
+        'zh': '护照检查处在哪里？',
+        'ja': '入国審査はどこですか？',
+        'ko': '여권 심사대가 어디에 있나요?',
+      },
+    ),
+    GlobalPhraseConcept(
+      source: 'My flight has been cancelled.',
+      category: 'Airport',
+      translations: {
+        'en': 'My flight has been cancelled.',
+        'ar': 'تم إلغاء رحلتي.',
+        'es': 'Mi vuelo ha sido cancelado.',
+        'fr': 'Mon vol a été annulé.',
+        'de': 'Mein Flug wurde gestrichen.',
+        'tr': 'Uçuşum iptal edildi.',
+        'pt': 'O meu voo foi cancelado.',
+        'it': 'Il mio volo è stato cancellato.',
+        'ru': 'Мой рейс отменили.',
+        'zh': '我的航班被取消了。',
+        'ja': '私の便は欠航になりました。',
+        'ko': '제 항공편이 취소되었습니다.',
+      },
+    ),
+    GlobalPhraseConcept(
+      source: 'Is breakfast included?',
+      category: 'Hotel',
+      translations: {
+        'en': 'Is breakfast included?',
+        'ar': 'هل الإفطار مشمول؟',
+        'es': '¿Está incluido el desayuno?',
+        'fr': 'Le petit-déjeuner est-il compris ?',
+        'de': 'Ist das Frühstück inbegriffen?',
+        'tr': 'Kahvaltı dahil mi?',
+        'pt': 'O pequeno-almoço está incluído?',
+        'it': 'La colazione è inclusa?',
+        'ru': 'Завтрак включён?',
+        'zh': '包含早餐吗？',
+        'ja': '朝食は含まれていますか？',
+        'ko': '조식이 포함되어 있나요?',
+      },
+    ),
+    GlobalPhraseConcept(
+      source: 'The room needs to be cleaned.',
+      category: 'Hotel',
+      translations: {
+        'en': 'The room needs to be cleaned.',
+        'ar': 'تحتاج الغرفة إلى التنظيف.',
+        'es': 'La habitación necesita limpieza.',
+        'fr': 'La chambre doit être nettoyée.',
+        'de': 'Das Zimmer muss gereinigt werden.',
+        'tr': 'Odanın temizlenmesi gerekiyor.',
+        'pt': 'O quarto precisa de ser limpo.',
+        'it': 'La camera deve essere pulita.',
+        'ru': 'Номер нужно убрать.',
+        'zh': '房间需要打扫。',
+        'ja': '部屋の清掃をお願いします。',
+        'ko': '방 청소가 필요합니다.',
+      },
+    ),
+    GlobalPhraseConcept(
+      source: 'I have a fever.',
+      category: 'At the Doctor',
+      translations: {
+        'en': 'I have a fever.',
+        'ar': 'لدي حمى.',
+        'es': 'Tengo fiebre.',
+        'fr': 'J’ai de la fièvre.',
+        'de': 'Ich habe Fieber.',
+        'tr': 'Ateşim var.',
+        'pt': 'Estou com febre.',
+        'it': 'Ho la febbre.',
+        'ru': 'У меня температура.',
+        'zh': '我发烧了。',
+        'ja': '熱があります。',
+        'ko': '열이 납니다.',
+      },
+    ),
+    GlobalPhraseConcept(
+      source: 'How long should I take this medicine?',
+      category: 'Pharmacy',
+      translations: {
+        'en': 'How long should I take this medicine?',
+        'ar': 'كم من الوقت يجب أن أتناول هذا الدواء؟',
+        'es': '¿Durante cuánto tiempo debo tomar este medicamento?',
+        'fr': 'Pendant combien de temps dois-je prendre ce médicament ?',
+        'de': 'Wie lange soll ich dieses Medikament einnehmen?',
+        'tr': 'Bu ilacı ne kadar süre kullanmalıyım?',
+        'pt': 'Durante quanto tempo devo tomar este medicamento?',
+        'it': 'Per quanto tempo devo assumere questo medicinale?',
+        'ru': 'Как долго мне принимать это лекарство?',
+        'zh': '这种药我应该吃多久？',
+        'ja': 'この薬はどのくらいの期間飲めばよいですか？',
+        'ko': '이 약을 얼마나 오래 복용해야 하나요?',
+      },
+    ),
+    GlobalPhraseConcept(
+      source: 'I am allergic to penicillin.',
+      category: 'At the Doctor',
+      translations: {
+        'en': 'I am allergic to penicillin.',
+        'ar': 'لدي حساسية من البنسلين.',
+        'es': 'Soy alérgico a la penicilina.',
+        'fr': 'Je suis allergique à la pénicilline.',
+        'de': 'Ich bin allergisch gegen Penicillin.',
+        'tr': 'Penisiline alerjim var.',
+        'pt': 'Sou alérgico à penicilina.',
+        'it': 'Sono allergico alla penicillina.',
+        'ru': 'У меня аллергия на пенициллин.',
+        'zh': '我对青霉素过敏。',
+        'ja': 'ペニシリンにアレルギーがあります。',
+        'ko': '페니실린 알레르기가 있습니다.',
+      },
+    ),
+    GlobalPhraseConcept(
+      source: 'I need help immediately.',
+      category: 'Emergencies',
+      translations: {
+        'en': 'I need help immediately.',
+        'ar': 'أحتاج إلى مساعدة فورًا.',
+        'es': 'Necesito ayuda de inmediato.',
+        'fr': 'J’ai besoin d’aide immédiatement.',
+        'de': 'Ich brauche sofort Hilfe.',
+        'tr': 'Hemen yardıma ihtiyacım var.',
+        'pt': 'Preciso de ajuda imediatamente.',
+        'it': 'Ho bisogno di aiuto immediatamente.',
+        'ru': 'Мне срочно нужна помощь.',
+        'zh': '我需要立即得到帮助。',
+        'ja': 'すぐに助けが必要です。',
+        'ko': '즉시 도움이 필요합니다.',
+      },
+    ),
+    GlobalPhraseConcept(
+      source: 'Is there an accessible entrance?',
+      category: 'Public Services',
+      translations: {
+        'en': 'Is there an accessible entrance?',
+        'ar': 'هل يوجد مدخل مهيأ لذوي الإعاقة؟',
+        'es': '¿Hay una entrada accesible?',
+        'fr': 'Y a-t-il une entrée accessible ?',
+        'de': 'Gibt es einen barrierefreien Eingang?',
+        'tr': 'Erişilebilir bir giriş var mı?',
+        'pt': 'Existe uma entrada acessível?',
+        'it': 'C’è un ingresso accessibile?',
+        'ru': 'Есть ли доступный вход?',
+        'zh': '有无障碍入口吗？',
+        'ja': 'バリアフリーの入口はありますか？',
+        'ko': '휠체어 이용 가능한 입구가 있나요?',
+      },
+    ),
+    GlobalPhraseConcept(
+      source: 'Could you correct this sentence?',
+      category: 'Education',
+      translations: {
+        'en': 'Could you correct this sentence?',
+        'ar': 'هل يمكنك تصحيح هذه الجملة؟',
+        'es': '¿Podría corregir esta oración?',
+        'fr': 'Pourriez-vous corriger cette phrase ?',
+        'de': 'Könnten Sie diesen Satz korrigieren?',
+        'tr': 'Bu cümleyi düzeltebilir misiniz?',
+        'pt': 'Pode corrigir esta frase?',
+        'it': 'Potrebbe correggere questa frase?',
+        'ru': 'Не могли бы вы исправить это предложение?',
+        'zh': '您能纠正这个句子吗？',
+        'ja': 'この文を直していただけますか？',
+        'ko': '이 문장을 고쳐 주시겠어요?',
+      },
+    ),
+    GlobalPhraseConcept(
+      source: 'What does this expression mean?',
+      category: 'Education',
+      translations: {
+        'en': 'What does this expression mean?',
+        'ar': 'ماذا يعني هذا التعبير؟',
+        'es': '¿Qué significa esta expresión?',
+        'fr': 'Que signifie cette expression ?',
+        'de': 'Was bedeutet dieser Ausdruck?',
+        'tr': 'Bu ifade ne anlama geliyor?',
+        'pt': 'O que significa esta expressão?',
+        'it': 'Cosa significa questa espressione?',
+        'ru': 'Что означает это выражение?',
+        'zh': '这个表达是什么意思？',
+        'ja': 'この表現はどういう意味ですか？',
+        'ko': '이 표현은 무슨 뜻인가요?',
+      },
+    ),
+    GlobalPhraseConcept(
+      source: 'I agree with your point.',
+      category: 'Work',
+      translations: {
+        'en': 'I agree with your point.',
+        'ar': 'أتفق مع وجهة نظرك.',
+        'es': 'Estoy de acuerdo con tu punto.',
+        'fr': 'Je suis d’accord avec votre point de vue.',
+        'de': 'Ich stimme Ihrem Punkt zu.',
+        'tr': 'Görüşünüze katılıyorum.',
+        'pt': 'Concordo com o seu ponto.',
+        'it': 'Sono d’accordo con il suo punto.',
+        'ru': 'Я согласен с вашей точкой зрения.',
+        'zh': '我同意您的观点。',
+        'ja': 'そのご意見に賛成です。',
+        'ko': '그 의견에 동의합니다.',
+      },
+    ),
+    GlobalPhraseConcept(
+      source: 'Could you give an example?',
+      category: 'Education',
+      translations: {
+        'en': 'Could you give an example?',
+        'ar': 'هل يمكنك إعطاء مثال؟',
+        'es': '¿Podría dar un ejemplo?',
+        'fr': 'Pourriez-vous donner un exemple ?',
+        'de': 'Könnten Sie ein Beispiel geben?',
+        'tr': 'Bir örnek verebilir misiniz?',
+        'pt': 'Pode dar um exemplo?',
+        'it': 'Potrebbe fare un esempio?',
+        'ru': 'Не могли бы вы привести пример?',
+        'zh': '您能举个例子吗？',
+        'ja': '例を挙げていただけますか？',
+        'ko': '예를 들어 주시겠어요?',
+      },
+    ),
+    GlobalPhraseConcept(
+      source: 'The internet connection is unstable.',
+      category: 'Technology',
+      translations: {
+        'en': 'The internet connection is unstable.',
+        'ar': 'اتصال الإنترنت غير مستقر.',
+        'es': 'La conexión a internet es inestable.',
+        'fr': 'La connexion internet est instable.',
+        'de': 'Die Internetverbindung ist instabil.',
+        'tr': 'İnternet bağlantısı kararsız.',
+        'pt': 'A ligação à internet está instável.',
+        'it': 'La connessione internet è instabile.',
+        'ru': 'Интернет-соединение нестабильно.',
+        'zh': '网络连接不稳定。',
+        'ja': 'インターネット接続が不安定です。',
+        'ko': '인터넷 연결이 불안정합니다.',
+      },
+    ),
+    GlobalPhraseConcept(
+      source: 'I would like a refund.',
+      category: 'Shopping',
+      translations: {
+        'en': 'I would like a refund.',
+        'ar': 'أود استرداد المبلغ.',
+        'es': 'Quisiera un reembolso.',
+        'fr': 'Je voudrais un remboursement.',
+        'de': 'Ich möchte eine Rückerstattung.',
+        'tr': 'Para iadesi istiyorum.',
+        'pt': 'Gostaria de um reembolso.',
+        'it': 'Vorrei un rimborso.',
+        'ru': 'Я хотел бы вернуть деньги.',
+        'zh': '我想退款。',
+        'ja': '返金をお願いします。',
+        'ko': '환불을 받고 싶습니다.',
+      },
+    ),
   ];
 
   static List<PhraseEntry> phrasesFor(
@@ -1005,6 +1631,70 @@ abstract final class GlobalContentRepository {
       concepts.length * coreLanguageCodes.length;
   static int get sentenceDrillCount => localizedPhrasePairs * 4;
 
+  static TranslationResult? translateExact(
+    String input, {
+    required String sourceLanguageCode,
+    required String targetLanguageCode,
+  }) {
+    if (!coreLanguageCodes.contains(sourceLanguageCode) ||
+        !coreLanguageCodes.contains(targetLanguageCode)) {
+      return null;
+    }
+    final normalized = _normalize(input);
+    if (normalized.isEmpty) return null;
+    for (final concept in concepts) {
+      final source = concept.translations[sourceLanguageCode];
+      final target = concept.translations[targetLanguageCode];
+      if (source != null &&
+          target != null &&
+          _normalize(source) == normalized) {
+        return TranslationResult(
+          source: source,
+          target: target,
+          category: concept.category,
+          visual: visualFor(concept.category, concept.source),
+        );
+      }
+    }
+    return null;
+  }
+
+  static List<TranslationResult> translationSuggestions({
+    required String sourceLanguageCode,
+    required String targetLanguageCode,
+    String query = '',
+    int limit = 12,
+  }) {
+    if (!coreLanguageCodes.contains(sourceLanguageCode) ||
+        !coreLanguageCodes.contains(targetLanguageCode)) {
+      return const [];
+    }
+    final normalizedQuery = _normalize(query);
+    return concepts
+        .where((concept) {
+          if (normalizedQuery.isEmpty) return true;
+          return _normalize(
+            concept.translations[sourceLanguageCode] ?? '',
+          ).contains(normalizedQuery);
+        })
+        .take(limit)
+        .map(
+          (concept) => TranslationResult(
+            source: concept.translations[sourceLanguageCode]!,
+            target: concept.translations[targetLanguageCode]!,
+            category: concept.category,
+            visual: visualFor(concept.category, concept.source),
+          ),
+        )
+        .toList(growable: false);
+  }
+
+  static String _normalize(String value) => value
+      .toLowerCase()
+      .replaceAll(RegExp(r'''[.,!?،؛:;"'“”‘’…()\[\]{}_-]+'''), ' ')
+      .replaceAll(RegExp(r'\s+'), ' ')
+      .trim();
+
   static String visualFor(String category, String source) {
     final lower = source.toLowerCase();
     if (lower.contains('train') ||
@@ -1054,6 +1744,12 @@ abstract final class GlobalContentRepository {
       'Airport' => '🛫',
       'At the Doctor' => '👨‍⚕️',
       'Pharmacy' => '💊',
+      'Banking' => '🏦',
+      'Public Services' => '🏛️',
+      'Education' => '🎓',
+      'Home' => '🏠',
+      'Weather' => '🌦️',
+      'Transport' => '🚌',
       _ => '💬',
     };
   }

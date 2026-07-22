@@ -100,6 +100,31 @@ abstract final class AppThemes {
       scaffoldBackgroundColor: preset.background,
       fontFamily: 'sans-serif',
       visualDensity: VisualDensity.standard,
+      tooltipTheme: TooltipThemeData(
+        waitDuration: const Duration(milliseconds: 350),
+        showDuration: const Duration(seconds: 4),
+        preferBelow: false,
+        verticalOffset: 16,
+        padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 9),
+        margin: const EdgeInsets.symmetric(horizontal: 12),
+        decoration: BoxDecoration(
+          color: dark ? const Color(0xFFF5F7FF) : const Color(0xFF172039),
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: .18),
+              blurRadius: 14,
+              offset: const Offset(0, 6),
+            ),
+          ],
+        ),
+        textStyle: TextStyle(
+          color: dark ? const Color(0xFF172039) : Colors.white,
+          fontSize: 12.5,
+          fontWeight: FontWeight.w700,
+          height: 1.25,
+        ),
+      ),
       appBarTheme: AppBarTheme(
         backgroundColor: Colors.transparent,
         surfaceTintColor: Colors.transparent,

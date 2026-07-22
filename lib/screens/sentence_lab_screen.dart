@@ -166,11 +166,15 @@ class _SentenceLabScreenState extends State<SentenceLabScreen> {
                                     style: const TextStyle(fontSize: 30),
                                   ),
                                   IconButton.filledTonal(
+                                    tooltip: context.text.get('tip_speak'),
                                     onPressed: () async {
                                       final spoken = await _speech.speak(
                                         item.target,
                                         language.code,
                                         rate: state.speechRate,
+                                        voiceName: state.preferredVoiceFor(
+                                          language.code,
+                                        ),
                                       );
                                       if (!spoken && context.mounted) {
                                         ScaffoldMessenger.of(
@@ -178,7 +182,9 @@ class _SentenceLabScreenState extends State<SentenceLabScreen> {
                                         ).showSnackBar(
                                           SnackBar(
                                             content: Text(
-                                              '${language.englishName} voice is not installed.',
+                                              context.text.get(
+                                                'voice_not_installed',
+                                              ),
                                             ),
                                           ),
                                         );
@@ -224,6 +230,9 @@ class _SentenceLabScreenState extends State<SentenceLabScreen> {
                                 ),
                               ),
                               IconButton(
+                                tooltip: context.text.get(
+                                  mastered ? 'tip_unmaster' : 'tip_master',
+                                ),
                                 onPressed: () => setState(() {
                                   if (!_mastered.add(key)) {
                                     _mastered.remove(key);

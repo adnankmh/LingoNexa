@@ -9,7 +9,11 @@ import '../widgets/ui.dart';
 import 'language_picker_screen.dart';
 import 'lesson_screen.dart';
 import 'level_exam_screen.dart';
+import 'grammar_screen.dart';
+import 'phrasebook_screen.dart';
 import 'story_library_screen.dart';
+import 'translator_screen.dart';
+import 'unit_hub_screen.dart';
 
 class LearnScreen extends StatefulWidget {
   const LearnScreen({super.key});
@@ -171,9 +175,93 @@ class _LearnScreenState extends State<LearnScreen> {
           ),
           const SizedBox(height: 28),
           SectionHeading(
-            title: 'CEFR Journey',
+            title: context.text.get('learning_center'),
+            subtitle: context.text.get('learning_center_subtitle'),
+          ),
+          const SizedBox(height: 11),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final columns = constraints.maxWidth >= 820 ? 3 : 2;
+              final firstUnit = units.first;
+              final actions = [
+                _HomeAction(
+                  icon: Icons.menu_book_rounded,
+                  title: context.text.get('full_explanation'),
+                  subtitle: context.text.get('full_explanation_short'),
+                  color: const Color(0xFF6C63FF),
+                  onTap: () => _openUnit(context, firstUnit),
+                ),
+                _HomeAction(
+                  icon: Icons.text_fields_rounded,
+                  title: context.text.get('words_examples'),
+                  subtitle: context.text.get('words_examples_short'),
+                  color: const Color(0xFFEC8B20),
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const PhrasebookScreen()),
+                  ),
+                ),
+                _HomeAction(
+                  icon: Icons.account_tree_rounded,
+                  title: context.text.get('grammar'),
+                  subtitle: context.text.get('grammar_short'),
+                  color: const Color(0xFFB14FCE),
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const GrammarScreen()),
+                  ),
+                ),
+                _HomeAction(
+                  icon: Icons.fact_check_rounded,
+                  title: context.text.get('exams'),
+                  subtitle: context.text.get('exams_short'),
+                  color: const Color(0xFF0E9F79),
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => LevelExamScreen(level: _selectedLevel),
+                    ),
+                  ),
+                ),
+                _HomeAction(
+                  icon: Icons.auto_stories_rounded,
+                  title: context.text.get('stories'),
+                  subtitle: context.text.get('stories_short'),
+                  color: const Color(0xFFE04F78),
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const StoryLibraryScreen(),
+                    ),
+                  ),
+                ),
+                _HomeAction(
+                  icon: Icons.g_translate_rounded,
+                  title: context.text.get('translator'),
+                  subtitle: context.text.get('translator_short'),
+                  color: const Color(0xFF1675D1),
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const TranslatorScreen()),
+                  ),
+                ),
+              ];
+              return GridView.count(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                crossAxisCount: columns,
+                childAspectRatio: constraints.maxWidth < 520 ? 1.12 : 1.55,
+                mainAxisSpacing: 10,
+                crossAxisSpacing: 10,
+                children: actions,
+              );
+            },
+          ),
+          const SizedBox(height: 28),
+          SectionHeading(
+            title: context.text.get('cefr_journey'),
             subtitle:
-                '${CourseRepository.levels.length} levels · 90 units · 450 lessons per language',
+                '${CourseRepository.levels.length} ${context.text.get('levels')} · 90 ${context.text.get('units')} · 450 ${context.text.get('lessons')}',
           ),
           const SizedBox(height: 11),
           Wrap(
@@ -189,7 +277,9 @@ class _LearnScreenState extends State<LearnScreen> {
                     ),
                   ),
                   icon: const Icon(Icons.fact_check_rounded),
-                  label: Text('$_selectedLevel level exam'),
+                  label: Text(
+                    '$_selectedLevel · ${context.text.get('unit_exam')}',
+                  ),
                 ),
               if (state.storiesEnabled)
                 OutlinedButton.icon(
@@ -200,7 +290,7 @@ class _LearnScreenState extends State<LearnScreen> {
                     ),
                   ),
                   icon: const Icon(Icons.auto_stories_rounded),
-                  label: const Text('Dialogue stories'),
+                  label: Text(context.text.get('dialogue_stories')),
                 ),
             ],
           ),
@@ -247,7 +337,7 @@ class _LearnScreenState extends State<LearnScreen> {
                 itemBuilder: (context, index) => _UnitCard(
                   unit: units[index],
                   completedIds: state.completedLessonIds,
-                  onLessonTap: (lesson) => _openLesson(context, lesson),
+                  onOpen: () => _openUnit(context, units[index]),
                 ),
               );
             },
@@ -263,18 +353,25 @@ class _LearnScreenState extends State<LearnScreen> {
       MaterialPageRoute(builder: (_) => LessonScreen(lesson: lesson)),
     );
   }
+
+  void _openUnit(BuildContext context, CourseUnit unit) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => UnitHubScreen(unit: unit)),
+    );
+  }
 }
 
 class _UnitCard extends StatelessWidget {
   const _UnitCard({
     required this.unit,
     required this.completedIds,
-    required this.onLessonTap,
+    required this.onOpen,
   });
 
   final CourseUnit unit;
   final Set<String> completedIds;
-  final ValueChanged<Lesson> onLessonTap;
+  final VoidCallback onOpen;
 
   @override
   Widget build(BuildContext context) {
@@ -334,17 +431,13 @@ class _UnitCard extends StatelessWidget {
               ],
             ),
             const Spacer(),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                for (var i = 0; i < unit.lessons.length; i++)
-                  _LessonNode(
-                    lesson: unit.lessons[i],
-                    index: i,
-                    completed: completedIds.contains(unit.lessons[i].id),
-                    onTap: () => onLessonTap(unit.lessons[i]),
-                  ),
-              ],
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.tonalIcon(
+                onPressed: onOpen,
+                icon: const Icon(Icons.school_rounded),
+                label: Text(context.text.get('open_complete_unit')),
+              ),
             ),
             const Spacer(),
             ClipRRect(
@@ -361,51 +454,55 @@ class _UnitCard extends StatelessWidget {
   }
 }
 
-class _LessonNode extends StatelessWidget {
-  const _LessonNode({
-    required this.lesson,
-    required this.index,
-    required this.completed,
+class _HomeAction extends StatelessWidget {
+  const _HomeAction({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.color,
     required this.onTap,
   });
 
-  final Lesson lesson;
-  final int index;
-  final bool completed;
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final Color color;
   final VoidCallback onTap;
 
   @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return Semantics(
-      button: true,
-      label: lesson.title,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(50),
-        child: Container(
-          width: 48,
-          height: 48,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: completed
-                ? scheme.primary
-                : (index == 0
-                      ? scheme.primaryContainer
-                      : scheme.surfaceContainerHighest),
-            shape: BoxShape.circle,
-            border: Border.all(
-              color: completed || index == 0
-                  ? scheme.primary
-                  : scheme.outlineVariant,
-              width: 2,
+  Widget build(BuildContext context) => Card(
+    child: InkWell(
+      borderRadius: BorderRadius.circular(24),
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            CircleAvatar(
+              backgroundColor: color.withValues(alpha: .14),
+              child: Icon(icon, color: color),
             ),
-          ),
-          child: completed
-              ? Icon(Icons.check_rounded, color: scheme.onPrimary)
-              : Text(lesson.emoji, style: const TextStyle(fontSize: 20)),
+            const Spacer(),
+            Text(
+              title,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontWeight: FontWeight.w900),
+            ),
+            const SizedBox(height: 3),
+            Text(
+              subtitle,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                fontSize: 10.5,
+              ),
+            ),
+          ],
         ),
       ),
-    );
-  }
+    ),
+  );
 }

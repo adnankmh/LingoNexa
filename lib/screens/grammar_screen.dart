@@ -391,6 +391,28 @@ class _GrammarDetailScreenState extends State<_GrammarDetailScreen> {
                 ),
               ),
               _LessonSection(
+                icon: Icons.account_tree_rounded,
+                title: 'Meaning, form, and use',
+                child: Text(
+                  _conceptLensFor(topic),
+                  style: const TextStyle(height: 1.7),
+                ),
+              ),
+              _LessonSection(
+                icon: Icons.pattern_rounded,
+                title: 'Pattern bank',
+                child: Column(
+                  children: [
+                    for (var index = 0; index < topic.examples.length; index++)
+                      _NumberedLine(
+                        number: index + 1,
+                        text:
+                            '${topic.examples[index]} — change one detail, preserve the structure, then say the new version aloud.',
+                      ),
+                  ],
+                ),
+              ),
+              _LessonSection(
                 icon: Icons.rule_rounded,
                 title: 'Rules and decision steps',
                 child: Column(
@@ -402,7 +424,8 @@ class _GrammarDetailScreenState extends State<_GrammarDetailScreen> {
               ),
               _LessonSection(
                 icon: Icons.translate_rounded,
-                title: 'Verified examples in ${widget.language.englishName}',
+                title:
+                    'Aligned practice phrases in ${widget.language.englishName}',
                 child: Column(
                   children: [
                     for (final example in widget.examples)
@@ -485,7 +508,7 @@ class _GrammarDetailScreenState extends State<_GrammarDetailScreen> {
                 title: 'Guided practice',
                 child: Column(
                   children: [
-                    for (var index = 0; index < 5; index++)
+                    for (var index = 0; index < 8; index++)
                       CheckboxListTile(
                         value: _completed.contains(index),
                         onChanged: (value) => setState(
@@ -545,7 +568,10 @@ class _GrammarDetailScreenState extends State<_GrammarDetailScreen> {
   }
 
   String _explanationFor(GrammarTopic topic) =>
-      '${topic.summary} Start by identifying the communicative goal: what meaning must the listener understand? Then notice how ${widget.language.englishName} places the key information, marks relationships between words, and signals time or attitude. Compare complete phrases instead of translating one word at a time. Read the examples aloud, replace one element, and check whether the structure still carries the same meaning. At ${topic.level}, the goal is accurate communication first, followed by faster and more natural production.';
+      '${topic.summary}\n\nStart with the communicative goal: decide exactly what the listener must understand. Then identify which part of the pattern carries that meaning—word order, an ending, a helper word, a particle, agreement, or context. In ${widget.language.englishName}, compare complete phrases instead of translating isolated words.\n\nWork in four passes: notice the pattern, explain the contrast, produce a controlled variation, and use it in a personal message. At ${topic.level}, accuracy comes first; speed, flexibility, and natural register are added only after the pattern stays stable.';
+
+  String _conceptLensFor(GrammarTopic topic) =>
+      'MEANING — ${topic.summary}\n\nFORM — Locate the smallest visible or audible change that carries the grammar. It may appear before the main word, after it, inside it, or through word order.\n\nUSE — Ask who is speaking, to whom, for what purpose, and in which setting. A structurally correct sentence can still sound unnatural if its register is wrong.\n\nCONTRAST — Build a pair in which only one feature changes. Explain how that change affects time, certainty, politeness, focus, or relationship.\n\nTRANSFER — Create one spoken example and one written example about your own life, then revisit both after one day.';
 
   List<String> _rulesFor(GrammarTopic topic) => [
     'For ${topic.title.toLowerCase()}, identify the meaning you want to express before choosing a form.',
@@ -554,6 +580,8 @@ class _GrammarDetailScreenState extends State<_GrammarDetailScreen> {
     'Check whether the situation is formal, neutral, or friendly before speaking.',
     'Say the complete pattern aloud, then substitute only one element at a time.',
     'Review the pattern through listening, recognition, controlled production, and a personal sentence.',
+    'Compare a positive, negative, and question version where the language allows that contrast.',
+    'Finish with a context check: who can say it, to whom, and in which register?',
   ];
 
   List<String> _mistakesFor(GrammarTopic topic) => [
@@ -562,6 +590,8 @@ class _GrammarDetailScreenState extends State<_GrammarDetailScreen> {
     'Using one form for every context without checking politeness or register.',
     'Recognizing the rule on paper but never producing it aloud.',
     'Moving to a new topic before correcting the same repeated error.',
+    'Assuming that a grammatically possible form is automatically the most natural form.',
+    'Ignoring regional or spoken variation when the course labels a form as formal or neutral.',
   ];
 
   String _practiceFor(GrammarTopic topic, int index) => switch (index) {
@@ -570,7 +600,10 @@ class _GrammarDetailScreenState extends State<_GrammarDetailScreen> {
     1 => 'Change one person, time, quantity, or place in a verified example.',
     2 => 'Turn one example into a question or a negative form.',
     3 => 'Say a personal sentence using the same pattern without reading.',
-    _ => 'Create a two-line mini-dialogue that uses this structure naturally.',
+    4 => 'Create a two-line mini-dialogue that uses this structure naturally.',
+    5 => 'Rewrite one example for a more formal or more friendly situation.',
+    6 => 'Record yourself, wait ten seconds, then correct one detail you hear.',
+    _ => 'Teach the rule in one minute and give an original example.',
   };
 
   String _answerFor(GrammarTopic topic, int index) => switch (index) {
@@ -582,8 +615,14 @@ class _GrammarDetailScreenState extends State<_GrammarDetailScreen> {
       'Use the question or negative strategy described by the target language, not a word-for-word translation.',
     3 =>
       'A strong answer is accurate, relevant to your life, and easy to say twice at a natural pace.',
-    _ =>
+    4 =>
       'Line 1 introduces the situation; line 2 responds with the target pattern and an appropriate level of politeness.',
+    5 =>
+      'Keep the core meaning, but adjust pronouns, politeness markers, vocabulary, or sentence length to match the relationship.',
+    6 =>
+      'Listen for one target only: order, ending, helper word, agreement, or rhythm. Correct that target and record again.',
+    _ =>
+      'A successful explanation names the meaning, identifies the form, states when it is used, and includes an original example.',
   };
 }
 

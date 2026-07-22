@@ -2,9 +2,9 @@
 
 Current release: **1.4.0+9**
 
-An original Flutter foundation for a multilingual learning platform. Version 1.4 includes local accounts and isolated progress, administrator access, A1–C2 exams, 72 dialogue stories per language path, 30 full grammar lessons, 16 interactive scenario paths, 450 lessons per language, fast six-step lessons, strict target-language TTS/STT locale selection, semantic pictograms, Lottie feedback, optimized brand assets, English/light first-launch defaults, and a compact global language/theme control. The catalog contains 67 learning languages and 12 interface languages.
+An original Flutter foundation for a multilingual learning platform. Version 1.5 includes local accounts and isolated progress, administrator access, A1–C2 exams, 108 dialogue stories per language path, 42 grammar masterclasses, 22 interactive scenario paths, 450 lessons per language, fast six-step lessons, strict target-language TTS/STT locale selection, semantic pictograms, Lottie feedback, optimized brand assets, English/light first-launch defaults, localized explanatory tooltips, and a compact global language/theme control. The catalog contains 67 learning languages and 12 interface languages.
 
-Content integrity is explicit: 12 core languages include the expanded 50-concept aligned bank (600 localized entries and 2,400 generated drills). The remaining 55 languages use their verified starter lexicons and never receive English text disguised as target-language content. Expand them only through reviewed course packs.
+Content integrity is explicit: 12 core languages include the expanded 84-concept aligned bank (1,008 localized entries and 4,032 generated drills). The remaining 55 languages use their verified starter lexicons and never receive English text disguised as target-language content. Expand them only through reviewed course packs.
 
 Local demonstration accounts:
 

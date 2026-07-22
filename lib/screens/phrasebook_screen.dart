@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../core/app_state.dart';
+import '../core/i18n.dart';
 import '../data/language_catalog.dart';
 import '../data/learning_content_repository.dart';
 import '../models/models.dart';
@@ -29,20 +30,22 @@ class _PhrasebookScreenState extends State<PhrasebookScreen> {
   Widget build(BuildContext context) {
     final state = AppStateScope.of(context);
     final language = LanguageCatalog.byCode(state.targetLanguageCode);
-    final phrases =
-        LearningContentRepository.phrasesFor(
-          language.code,
-          sourceLanguageCode: state.locale.languageCode,
-        ).where((phrase) {
-          final categoryMatch =
-              _category == 'All' || phrase.category == _category;
-          final q = _query.toLowerCase().trim();
-          final queryMatch =
-              q.isEmpty ||
-              phrase.source.toLowerCase().contains(q) ||
-              phrase.target.toLowerCase().contains(q);
-          return categoryMatch && queryMatch;
-        }).toList();
+    final allPhrases = LearningContentRepository.phrasesFor(
+      language.code,
+      sourceLanguageCode: state.locale.languageCode,
+    );
+    final availableCategories = <String>{
+      for (final phrase in allPhrases) phrase.category,
+    }.toList()..sort();
+    final phrases = allPhrases.where((phrase) {
+      final categoryMatch = _category == 'All' || phrase.category == _category;
+      final q = _query.toLowerCase().trim();
+      final queryMatch =
+          q.isEmpty ||
+          phrase.source.toLowerCase().contains(q) ||
+          phrase.target.toLowerCase().contains(q);
+      return categoryMatch && queryMatch;
+    }).toList();
 
     return Scaffold(
       appBar: AppBar(
@@ -85,10 +88,7 @@ class _PhrasebookScreenState extends State<PhrasebookScreen> {
                     ),
                     scrollDirection: Axis.horizontal,
                     children: [
-                      for (final category in [
-                        'All',
-                        ...LearningContentRepository.categories,
-                      ])
+                      for (final category in ['All', ...availableCategories])
                         Padding(
                           padding: const EdgeInsetsDirectional.only(end: 7),
                           child: ChoiceChip(
@@ -127,12 +127,15 @@ class _PhrasebookScreenState extends State<PhrasebookScreen> {
                                 phrases[index].target,
                                 language.code,
                                 rate: state.speechRate,
+                                voiceName: state.preferredVoiceFor(
+                                  language.code,
+                                ),
                               );
                               if (!spoken && context.mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content: Text(
-                                      '${language.englishName} voice is not installed. No English fallback was used.',
+                                      context.text.get('voice_not_installed'),
                                     ),
                                   ),
                                 );
@@ -175,6 +178,7 @@ class _PhraseCard extends StatelessWidget {
                 Text(phrase.visual, style: const TextStyle(fontSize: 31)),
                 const SizedBox(height: 5),
                 IconButton.filledTonal(
+                  tooltip: context.text.get('tip_speak'),
                   onPressed: onSpeak,
                   icon: const Icon(Icons.volume_up_rounded),
                 ),
@@ -234,6 +238,7 @@ class _PhraseCard extends StatelessWidget {
               ),
             ),
             IconButton(
+              tooltip: context.text.get(favorite ? 'tip_unsave' : 'tip_save'),
               onPressed: onFavorite,
               icon: Icon(
                 favorite

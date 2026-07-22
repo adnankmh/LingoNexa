@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../core/app_state.dart';
+import '../core/i18n.dart';
 import '../data/course_repository.dart';
 import '../data/language_catalog.dart';
 import '../data/learning_content_repository.dart';
@@ -209,6 +210,12 @@ class _StoryLibraryScreenState extends State<StoryLibraryScreen> {
       ('At the pharmacy', '💊', 'Health'),
       ('Getting urgent help', '🆘', 'Emergencies'),
       ('A new friendship', '🤝', 'Relationships'),
+      ('Opening a bank account', '🏦', 'Banking'),
+      ('At the public service office', '🏛️', 'Public Services'),
+      ('Finding a new home', '🏠', 'Home'),
+      ('The first class', '🎓', 'Education'),
+      ('When the weather changed', '🌦️', 'Weather'),
+      ('Across town by bus', '🚌', 'Transport'),
     ];
     final levelIndex = CourseRepository.levels.indexWhere(
       (item) => item.code == level,
@@ -236,7 +243,7 @@ class _StoryLibraryScreenState extends State<StoryLibraryScreen> {
     final related = phrases.where((item) => item.category == category).toList();
     final pool = related.length >= 3 ? related : phrases;
     return [
-      for (var lineIndex = 0; lineIndex < 12; lineIndex++)
+      for (var lineIndex = 0; lineIndex < 16; lineIndex++)
         pool[(offset + lineIndex) % pool.length],
     ];
   }
@@ -309,6 +316,8 @@ class _StoryReaderState extends State<_StoryReader> {
                   for (final prompt in const [
                     'Who is speaking, and what do they need?',
                     'Which phrase changes the direction of the conversation?',
+                    'What detail is stated directly, and what must you infer?',
+                    'Choose two expressions and replace one detail in each.',
                     'Retell the situation in three sentences.',
                     'Record a new ending using two phrases from the story.',
                   ])
@@ -372,6 +381,7 @@ class _StoryReaderState extends State<_StoryReader> {
                   ),
                 ),
                 IconButton.filledTonal(
+                  tooltip: context.text.get('tip_speak'),
                   onPressed: () => _play(line.target),
                   icon: const Icon(Icons.volume_up_rounded),
                 ),
@@ -388,14 +398,13 @@ class _StoryReaderState extends State<_StoryReader> {
       text,
       widget.language.code,
       rate: AppStateScope.of(context).speechRate,
+      voiceName: AppStateScope.of(
+        context,
+      ).preferredVoiceFor(widget.language.code),
     );
     if (!spoken && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            '${widget.language.englishName} voice is not installed.',
-          ),
-        ),
+        SnackBar(content: Text(context.text.get('voice_not_installed'))),
       );
     }
   }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../core/app_state.dart';
+import '../core/i18n.dart';
 import '../data/language_catalog.dart';
 import '../data/learning_content_repository.dart';
 import '../models/models.dart';
@@ -293,6 +294,25 @@ class _ScenarioModuleScreenState extends State<_ScenarioModuleScreen> {
     'citizenship': ['Travel', 'Work', 'Shopping', 'Essentials'],
     'exam': ['Essentials', 'Introductions', 'Work'],
     'media': ['Culture', 'Relationships', 'Technology'],
+    'relocation': [
+      'Immigration',
+      'Public Services',
+      'Housing',
+      'Home',
+      'Banking',
+      'Transport',
+    ],
+    'customer_service': [
+      'Customer Service',
+      'Work',
+      'Shopping',
+      'Technology',
+      'Essentials',
+    ],
+    'hospitality': ['Hospitality', 'Hotel', 'Food', 'Work', 'Travel'],
+    'driving': ['Driving', 'Transport', 'Travel', 'Emergencies'],
+    'parents': ['Childcare', 'Family', 'Health', 'Education', 'Relationships'],
+    'wellness': ['Fitness', 'Sports', 'Health', 'Food'],
   };
 
   @override
@@ -390,7 +410,7 @@ class _ScenarioModuleScreenState extends State<_ScenarioModuleScreen> {
                       spacing: 3,
                       children: [
                         IconButton(
-                          tooltip: 'Listen',
+                          tooltip: context.text.get('tip_speak'),
                           onPressed: () => _play(
                             phrases[index].target,
                             language,
@@ -399,7 +419,11 @@ class _ScenarioModuleScreenState extends State<_ScenarioModuleScreen> {
                           icon: const Icon(Icons.volume_up_rounded),
                         ),
                         IconButton(
-                          tooltip: 'Mark as mastered',
+                          tooltip: context.text.get(
+                            _mastered.contains(index)
+                                ? 'tip_unmaster'
+                                : 'tip_master',
+                          ),
                           onPressed: () => setState(() {
                             if (!_mastered.add(index)) {
                               _mastered.remove(index);
@@ -461,12 +485,15 @@ class _ScenarioModuleScreenState extends State<_ScenarioModuleScreen> {
   }
 
   Future<void> _play(String text, LanguageOption language, double rate) async {
-    final spoken = await _speech.speak(text, language.code, rate: rate);
+    final spoken = await _speech.speak(
+      text,
+      language.code,
+      rate: rate,
+      voiceName: AppStateScope.of(context).preferredVoiceFor(language.code),
+    );
     if (!spoken && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('${language.englishName} voice is not installed.'),
-        ),
+        SnackBar(content: Text(context.text.get('voice_not_installed'))),
       );
     }
   }

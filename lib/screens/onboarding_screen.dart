@@ -118,6 +118,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 child: Row(
                   children: [
                     IconButton.outlined(
+                      tooltip: context.text.get('tip_back'),
                       onPressed: _back,
                       icon: const Icon(Icons.arrow_back_rounded),
                     ),

@@ -89,7 +89,7 @@ class _GlobalThemeButton extends StatelessWidget {
         width: 36,
         height: 36,
         child: PopupMenuButton<String>(
-          tooltip: 'Quick theme',
+          tooltip: context.text.get('tip_theme'),
           padding: EdgeInsets.zero,
           iconSize: 19,
           icon: state.isAuthenticated

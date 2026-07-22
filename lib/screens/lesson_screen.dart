@@ -71,6 +71,7 @@ class _LessonScreenState extends State<LessonScreen> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
+          tooltip: context.text.get('tip_close'),
           icon: const Icon(Icons.close_rounded),
           onPressed: () => Navigator.pop(context),
         ),
@@ -298,14 +299,11 @@ class _LessonScreenState extends State<LessonScreen> {
       text,
       languageCode,
       rate: AppStateScope.of(context).speechRate,
+      voiceName: AppStateScope.of(context).preferredVoiceFor(languageCode),
     );
     if (!spoken && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'The ${LanguageCatalog.byCode(languageCode).englishName} voice is not installed on this device. Install that language in Android Text-to-Speech settings. English fallback was intentionally disabled.',
-          ),
-        ),
+        SnackBar(content: Text(context.text.get('voice_not_installed'))),
       );
     }
   }
@@ -516,6 +514,7 @@ class _StepBody extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
                   IconButton.filledTonal(
+                    tooltip: context.text.get('tip_speak'),
                     onPressed: onSpeak,
                     icon: const Icon(Icons.volume_up_rounded),
                   ),
@@ -582,29 +581,40 @@ class _StepBody extends StatelessWidget {
                   ),
                 ),
               const SizedBox(height: 22),
-              GestureDetector(
-                onTap: onListen,
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 240),
-                  width: listening ? 106 : 92,
-                  height: listening ? 106 : 92,
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primary,
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.primary.withValues(alpha: .35),
-                        blurRadius: listening ? 32 : 18,
-                        spreadRadius: listening ? 8 : 2,
-                      ),
-                    ],
-                  ),
-                  child: Icon(
-                    listening ? Icons.stop_rounded : Icons.mic_rounded,
-                    color: Theme.of(context).colorScheme.onPrimary,
-                    size: 40,
+              Tooltip(
+                message: context.text.get('tip_record'),
+                child: GestureDetector(
+                  onTap: onListen,
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 240),
+                    width: listening ? 106 : 92,
+                    height: listening ? 106 : 92,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primary,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.primary.withValues(alpha: .35),
+                          blurRadius: listening ? 32 : 18,
+                          spreadRadius: listening ? 8 : 2,
+                        ),
+                      ],
+                    ),
+                    child: listening
+                        ? Icon(
+                            Icons.stop_rounded,
+                            color: Theme.of(context).colorScheme.onPrimary,
+                            size: 40,
+                          )
+                        : Padding(
+                            padding: const EdgeInsets.all(12),
+                            child: Lottie.asset(
+                              'assets/lottie/speaking.json',
+                              repeat: true,
+                            ),
+                          ),
                   ),
                 ),
               ),
@@ -730,20 +740,22 @@ class _AudioButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      customBorder: const CircleBorder(),
-      child: Container(
-        width: 94,
-        height: 94,
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.primaryContainer,
-          shape: BoxShape.circle,
-        ),
-        child: Icon(
-          Icons.volume_up_rounded,
-          color: Theme.of(context).colorScheme.primary,
-          size: 43,
+    return Tooltip(
+      message: context.text.get('tip_speak'),
+      child: InkWell(
+        onTap: onTap,
+        customBorder: const CircleBorder(),
+        child: Container(
+          width: 94,
+          height: 94,
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.primaryContainer,
+            shape: BoxShape.circle,
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(9),
+            child: Lottie.asset('assets/lottie/listening.json', repeat: true),
+          ),
         ),
       ),
     );

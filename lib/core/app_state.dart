@@ -33,6 +33,7 @@ class AppState extends ChangeNotifier {
   bool registrationEnabled = true;
   double speechRate = .42;
   int lessonXp = 30;
+  int weeklyXp = 0;
   String aiProvider = 'Local practice engine';
   String aiEndpoint = '';
   String learningReason = 'Travel';
@@ -43,6 +44,7 @@ class AppState extends ChangeNotifier {
   final Set<String> completedLessonIds = {};
   final Set<String> reviewLessonIds = {};
   final Set<String> completedExamIds = {};
+  final Map<String, String> _preferredVoices = {};
 
   Future<void> initialize() async {
     locale = Locale(await _storage.readString('locale') ?? 'en');
@@ -104,6 +106,23 @@ class AppState extends ChangeNotifier {
       ..addAll(
         await _storage.readStrings(_userKey('completed_exams')) ?? const [],
       );
+    weeklyXp = await _storage.readInt(_userKey('weekly_xp')) ?? 0;
+    final savedVoices = await _storage.readString(_userKey('voice_choices'));
+    _preferredVoices.clear();
+    if (savedVoices != null && savedVoices.isNotEmpty) {
+      try {
+        final decoded = jsonDecode(savedVoices);
+        if (decoded is Map) {
+          for (final entry in decoded.entries) {
+            if (entry.key is String && entry.value is String) {
+              _preferredVoices[entry.key as String] = entry.value as String;
+            }
+          }
+        }
+      } catch (_) {
+        // Ignore a damaged local preference and let the device choose a voice.
+      }
+    }
   }
 
   Future<bool> signIn(String identifier, String password) async {
@@ -164,6 +183,8 @@ class AppState extends ChangeNotifier {
     reviewLessonIds.clear();
     downloadedPackCodes.clear();
     completedExamIds.clear();
+    _preferredVoices.clear();
+    weeklyXp = 0;
     notifyListeners();
   }
 
@@ -227,7 +248,9 @@ class AppState extends ChangeNotifier {
   Future<void> completeLesson(String lessonId, {int? earnedXp}) async {
     completedLessonIds.add(lessonId);
     reviewLessonIds.add(lessonId);
-    xp += earnedXp ?? lessonXp;
+    final reward = earnedXp ?? lessonXp;
+    xp += reward;
+    weeklyXp += reward;
     dailyMinutes += 5;
     await _storage.writeStrings(
       _userKey('completed'),
@@ -235,6 +258,7 @@ class AppState extends ChangeNotifier {
     );
     await _storage.writeStrings(_userKey('review'), reviewLessonIds.toList());
     await _storage.writeInt(_userKey('xp'), xp);
+    await _storage.writeInt(_userKey('weekly_xp'), weeklyXp);
     await _storage.writeInt(_userKey('daily_minutes'), dailyMinutes);
     notifyListeners();
   }
@@ -242,11 +266,13 @@ class AppState extends ChangeNotifier {
   Future<void> completeLevelExam(String level, int score) async {
     final examId = '${targetLanguageCode}_$level';
     if (score >= 70) completedExamIds.add(examId);
-    xp += score >= 90
+    final reward = score >= 90
         ? 180
         : score >= 70
         ? 120
         : 35;
+    xp += reward;
+    weeklyXp += reward;
     dailyMinutes += 10;
     if (score >= 70) {
       const order = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'];
@@ -260,6 +286,7 @@ class AppState extends ChangeNotifier {
       completedExamIds.toList(),
     );
     await _storage.writeInt(_userKey('xp'), xp);
+    await _storage.writeInt(_userKey('weekly_xp'), weeklyXp);
     await _storage.writeInt(_userKey('daily_minutes'), dailyMinutes);
     await _storage.writeString(_userKey('level'), currentLevel);
     notifyListeners();
@@ -313,6 +340,28 @@ class AppState extends ChangeNotifier {
   Future<void> setOfflineMode(bool value) async {
     offlineMode = value;
     await _storage.writeBool('offline', value);
+    notifyListeners();
+  }
+
+  Future<void> setSpeechRate(double value) async {
+    speechRate = value.clamp(.25, .60).toDouble();
+    await _storage.writeDouble('speech_rate', speechRate);
+    notifyListeners();
+  }
+
+  String? preferredVoiceFor(String languageCode) =>
+      _preferredVoices[languageCode];
+
+  Future<void> setPreferredVoice(String languageCode, String? voiceName) async {
+    if (voiceName == null || voiceName.trim().isEmpty) {
+      _preferredVoices.remove(languageCode);
+    } else {
+      _preferredVoices[languageCode] = voiceName.trim();
+    }
+    await _storage.writeString(
+      _userKey('voice_choices'),
+      jsonEncode(_preferredVoices),
+    );
     notifyListeners();
   }
 

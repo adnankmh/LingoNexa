@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lingonexa/data/course_repository.dart';
 import 'package:lingonexa/data/global_content_repository.dart';
@@ -62,14 +65,14 @@ void main() {
     'global content and interface localization are substantially expanded',
     () {
       expect(AppText.supported, hasLength(12));
-      expect(GlobalContentRepository.concepts.length, greaterThanOrEqualTo(50));
+      expect(GlobalContentRepository.concepts.length, greaterThanOrEqualTo(84));
       expect(
         GlobalContentRepository.localizedPhrasePairs,
-        greaterThanOrEqualTo(600),
+        greaterThanOrEqualTo(1008),
       );
       expect(
         GlobalContentRepository.sentenceDrillCount,
-        greaterThanOrEqualTo(2400),
+        greaterThanOrEqualTo(4032),
       );
       for (final code in GlobalContentRepository.coreLanguageCodes) {
         expect(
@@ -99,14 +102,14 @@ void main() {
   test(
     'expanded learning studio covers goals, grammar, scripts, and phrases',
     () {
-      expect(LearningContentRepository.specializedPaths, hasLength(16));
+      expect(LearningContentRepository.specializedPaths, hasLength(28));
       expect(
         LearningContentRepository.categories.length,
-        greaterThanOrEqualTo(24),
+        greaterThanOrEqualTo(34),
       );
       expect(
         LearningContentRepository.grammarTopics.length,
-        greaterThanOrEqualTo(30),
+        greaterThanOrEqualTo(54),
       );
       expect(
         LearningContentRepository.grammarTopics
@@ -123,6 +126,87 @@ void main() {
       expect(LearningContentRepository.phrasesFor('unknown'), isNotEmpty);
     },
   );
+
+  test(
+    'new learning hub and translator labels are localized in every UI pack',
+    () {
+      const keys = [
+        'learning_center',
+        'full_explanation',
+        'words_examples',
+        'exams',
+        'translator',
+        'instant_translator',
+        'voice_and_speed',
+        'choose_reader',
+        'unit_exam',
+        'open_complete_unit',
+        'offline_ready',
+        'community_subtitle',
+        'league',
+        'certificate_title',
+        'certificate_level',
+        'finish_exam',
+        'exam_result',
+        'report_post',
+        'room_preview_note',
+      ];
+      final english = AppText(const Locale('en'));
+      for (final locale in AppText.supported) {
+        final text = AppText(Locale(locale.code));
+        for (final key in keys) {
+          expect(text.get(key), isNot(key), reason: '${locale.code}: $key');
+          if (locale.code != 'en') {
+            expect(
+              text.get(key),
+              isNot(english.get(key)),
+              reason: '${locale.code} falls back to English for $key',
+            );
+          }
+        }
+      }
+    },
+  );
+
+  test('translator returns only aligned verified meanings', () {
+    final result = GlobalContentRepository.translateExact(
+      'أحتاج إلى مساعدة فورًا.',
+      sourceLanguageCode: 'ar',
+      targetLanguageCode: 'es',
+    );
+    expect(result, isNotNull);
+    expect(result!.target, 'Necesito ayuda de inmediato.');
+    expect(
+      GlobalContentRepository.translateExact(
+        'unverified free text',
+        sourceLanguageCode: 'en',
+        targetLanguageCode: 'ar',
+      ),
+      isNull,
+    );
+  });
+
+  test('every actionable icon has a clear tooltip', () {
+    final source = Directory('lib/screens')
+        .listSync(recursive: true)
+        .whereType<File>()
+        .where((file) => file.path.endsWith('.dart'))
+        .map((file) => file.readAsStringSync())
+        .join('\n');
+    final buttons = RegExp(
+      r'IconButton(?:\.filledTonal|\.filled|\.outlined)?\(',
+    ).allMatches(source).length;
+    final described = RegExp(
+      r'IconButton(?:\.filledTonal|\.filled|\.outlined)?\([\s\S]{0,260}?tooltip:',
+    ).allMatches(source).length;
+    expect(described, buttons, reason: 'Every icon action needs a tooltip.');
+
+    for (final locale in AppText.supported) {
+      final text = AppText(Locale(locale.code));
+      expect(text.get('tip_speak'), isNot('tip_speak'));
+      expect(text.get('tip_theme'), isNot('tip_theme'));
+    }
+  });
 
   test(
     'every catalog language has an explicit speech locale and aligned starter meanings',

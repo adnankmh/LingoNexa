@@ -36,17 +36,25 @@ REQUIRED = [
     "lib/screens/achievements_screen.dart",
     "lib/screens/downloads_screen.dart",
     "lib/screens/certificates_screen.dart",
+    "lib/screens/translator_screen.dart",
+    "lib/screens/unit_hub_screen.dart",
+    "lib/widgets/speech_control_panel.dart",
     ".github/workflows/flutter_ci.yml",
     ".github/workflows/apk.yml",
     ".github/workflows/aab.yml",
     ".github/workflows/web.yml",
     ".github/workflows/pages.yml",
     "scripts/ci_prepare.sh",
+    "tool/verify_release.dart",
     "android/app/src/main/AndroidManifest.xml",
     "android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png",
     "assets/branding/lingonexa_logo.png",
     "assets/branding/lingonexa_icon.png",
     "assets/lottie/error.json",
+    "assets/lottie/listening.json",
+    "assets/lottie/speaking.json",
+    "assets/lottie/streak.json",
+    "assets/lottie/download.json",
     "web/icons/Icon-512.png",
     "android/settings.gradle.kts",
     "android/gradle/wrapper/gradle-wrapper.properties",
@@ -82,9 +90,36 @@ interface_language_count = i18n.split("static const supported = [", 1)[1].split(
 if interface_language_count < 10:
     fail(f"only {interface_language_count} interface languages found")
 
+feature_block = i18n.split(
+    "static const Map<String, Map<String, String>> _featureValues = {", 1
+)[1].split("\n  };", 1)[0]
+feature_sections = list(
+    re.finditer(r"^    '([a-z]{2})': \{$", feature_block, flags=re.MULTILINE)
+)
+feature_keys: dict[str, list[str]] = {}
+for index, section in enumerate(feature_sections):
+    end = (
+        feature_sections[index + 1].start()
+        if index + 1 < len(feature_sections)
+        else len(feature_block)
+    )
+    keys = re.findall(
+        r"^      '([^']+)':", feature_block[section.end() : end], flags=re.MULTILINE
+    )
+    duplicates = sorted({key for key in keys if keys.count(key) > 1})
+    if duplicates:
+        fail(f"duplicate feature keys in {section.group(1)}: {', '.join(duplicates)}")
+    feature_keys[section.group(1)] = keys
+if len(feature_keys) != interface_language_count:
+    fail("feature translation packs do not match the supported interface languages")
+english_feature_keys = set(feature_keys["en"])
+for code, keys in feature_keys.items():
+    if set(keys) != english_feature_keys:
+        fail(f"feature translation parity failed for {code}")
+
 global_content = (ROOT / "lib/data/global_content_repository.dart").read_text(encoding="utf-8")
 concept_count = len(re.findall(r"GlobalPhraseConcept\(\s*source:", global_content))
-if concept_count < 50:
+if concept_count < 84:
     fail(f"only {concept_count} global phrase concepts found")
 for category in ("Airport", "At the Doctor", "Pharmacy", "Emergencies"):
     if f"category: '{category}'" not in global_content:
@@ -93,9 +128,9 @@ for category in ("Airport", "At the Doctor", "Pharmacy", "Emergencies"):
 learning_content = (ROOT / "lib/data/learning_content_repository.dart").read_text(encoding="utf-8")
 grammar_count = len(re.findall(r"GrammarTopic\(\s*title:", learning_content))
 path_count = len(re.findall(r"SpecializedPath\(\s*id:", learning_content))
-if grammar_count < 30:
+if grammar_count < 54:
     fail(f"only {grammar_count} grammar lessons found")
-if path_count < 16:
+if path_count < 28:
     fail(f"only {path_count} specialized paths found")
 
 course_topic_source = repository.split("static const _topics = [", 1)[1].split("];", 1)[0]
@@ -113,8 +148,14 @@ speech = (ROOT / "lib/services/speech_service.dart").read_text(encoding="utf-8")
 speech_locale_count = len(re.findall(r"'[a-z]+':\s*'[a-z]{2,3}-[A-Z]{2}'", speech))
 if speech_locale_count < len(codes):
     fail(f"only {speech_locale_count} explicit speech locales for {len(codes)} languages")
-if "English fallback was intentionally disabled" not in (ROOT / "lib/screens/lesson_screen.dart").read_text(encoding="utf-8"):
+if "It never falls back to English" not in speech:
     fail("missing strict no-English-fallback behavior")
+if "Future<List<SpeechVoice>> installedVoices" not in speech or "String get id" not in speech:
+    fail("installed multi-reader selection is missing")
+
+exam_source = (ROOT / "lib/screens/level_exam_screen.dart").read_text(encoding="utf-8")
+if ".take(20)" not in exam_source:
+    fail("level exams must contain at least 20 varied questions")
 
 state_source = (ROOT / "lib/core/app_state.dart").read_text(encoding="utf-8")
 if "Locale locale = const Locale('en')" not in state_source or "String themeId = 'snow'" not in state_source:
@@ -139,6 +180,16 @@ for file in (ROOT / "lib").rglob("*.dart"):
     for forbidden in ("TODO", "FIXME", "Icons.mult "):
         if forbidden in text:
             fail(f"forbidden marker {forbidden!r} in {file.relative_to(ROOT)}")
+
+screen_source = "\n".join(
+    file.read_text(encoding="utf-8") for file in (ROOT / "lib/screens").rglob("*.dart")
+)
+icon_button_pattern = r"IconButton(?:\.filledTonal|\.filled|\.outlined)?\("
+described_icon_pattern = icon_button_pattern + r"[\s\S]{0,260}?tooltip:"
+icon_button_count = len(re.findall(icon_button_pattern, screen_source))
+described_icon_count = len(re.findall(described_icon_pattern, screen_source))
+if described_icon_count != icon_button_count:
+    fail(f"only {described_icon_count} of {icon_button_count} icon buttons have tooltips")
 
 workflow_files = sorted((ROOT / ".github/workflows").glob("*.y*ml"))
 workflow_names = [file.name for file in workflow_files]

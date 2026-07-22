@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 
 import '../core/app_state.dart';
+import '../core/i18n.dart';
 import '../data/learning_content_repository.dart';
 import '../models/models.dart';
 
@@ -19,18 +21,24 @@ class AchievementsScreen extends StatelessWidget {
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Achievements & League'),
-          bottom: const TabBar(
+          title: Text(context.text.get('achievements')),
+          bottom: TabBar(
             tabs: [
-              Tab(icon: Icon(Icons.emoji_events_rounded), text: 'Achievements'),
-              Tab(icon: Icon(Icons.leaderboard_rounded), text: 'League'),
+              Tab(
+                icon: const Icon(Icons.emoji_events_rounded),
+                text: context.text.get('achievements_only'),
+              ),
+              Tab(
+                icon: const Icon(Icons.leaderboard_rounded),
+                text: context.text.get('league'),
+              ),
             ],
           ),
         ),
         body: TabBarView(
           children: [
             _AchievementsList(achievements: achievements),
-            const _LeagueTable(),
+            _LeagueTable(state: state),
           ],
         ),
       ),
@@ -135,23 +143,33 @@ class _AchievementsList extends StatelessWidget {
 }
 
 class _LeagueTable extends StatelessWidget {
-  const _LeagueTable();
+  const _LeagueTable({required this.state});
 
-  static const players = [
-    ('🥇', 'Lina', '🇵🇸', 2840),
-    ('🥈', 'Mateo', '🇪🇸', 2675),
-    ('🥉', 'Yuki', '🇯🇵', 2510),
-    ('4', 'Adnan', '🌍', 2340),
-    ('5', 'Amira', '🇲🇦', 2210),
-    ('6', 'Thomas', '🇩🇪', 2085),
-    ('7', 'Sofia', '🇮🇹', 1960),
-    ('8', 'Omar', '🇯🇴', 1810),
-    ('9', 'Mina', '🇰🇷', 1740),
-    ('10', 'Ana', '🇧🇷', 1625),
-  ];
+  final AppState state;
 
   @override
   Widget build(BuildContext context) {
+    final userName = state.currentUser!.displayName;
+    final userScore = state.weeklyXp;
+    final players = <(String, String, int, bool)>[
+      ('🇵🇸', 'Lina', 760, false),
+      ('🇪🇸', 'Mateo', 690, false),
+      ('🇯🇵', 'Yuki', 640, false),
+      ('🌍', userName, userScore, true),
+      ('🇲🇦', 'Amira', 515, false),
+      ('🇩🇪', 'Thomas', 470, false),
+      ('🇮🇹', 'Sofia', 420, false),
+      ('🇯🇴', 'Omar', 360, false),
+      ('🇰🇷', 'Mina', 310, false),
+      ('🇧🇷', 'Ana', 260, false),
+    ]..sort((a, b) => b.$3.compareTo(a.$3));
+    final leagueName = userScore >= 1000
+        ? context.text.get('diamond_league')
+        : userScore >= 600
+        ? context.text.get('gold_league')
+        : userScore >= 250
+        ? context.text.get('silver_league')
+        : context.text.get('bronze_league');
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 720),
@@ -169,11 +187,16 @@ class _LeagueTable extends StatelessWidget {
                 ),
                 borderRadius: BorderRadius.circular(25),
               ),
-              child: const Column(
+              child: Column(
                 children: [
+                  SizedBox(
+                    width: 74,
+                    height: 74,
+                    child: Lottie.asset('assets/lottie/streak.json'),
+                  ),
                   Text(
-                    '💎 Diamond League',
-                    style: TextStyle(
+                    '🏆 $leagueName',
+                    style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.w900,
                       fontSize: 23,
@@ -181,16 +204,16 @@ class _LeagueTable extends StatelessWidget {
                   ),
                   SizedBox(height: 5),
                   Text(
-                    'Top 10 advance in 3 days',
-                    style: TextStyle(color: Colors.white70),
+                    context.text.get('weekly_league_subtitle'),
+                    style: const TextStyle(color: Colors.white70),
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 14),
-            for (final player in players)
+            for (var index = 0; index < players.length; index++)
               Card(
-                color: player.$2 == 'Adnan'
+                color: players[index].$4
                     ? Theme.of(context).colorScheme.primaryContainer
                     : null,
                 child: ListTile(
@@ -198,7 +221,7 @@ class _LeagueTable extends StatelessWidget {
                     width: 38,
                     child: Center(
                       child: Text(
-                        player.$1,
+                        index < 3 ? ['🥇', '🥈', '🥉'][index] : '${index + 1}',
                         style: const TextStyle(
                           fontWeight: FontWeight.w900,
                           fontSize: 19,
@@ -207,11 +230,11 @@ class _LeagueTable extends StatelessWidget {
                     ),
                   ),
                   title: Text(
-                    '${player.$3} ${player.$2}',
+                    '${players[index].$1} ${players[index].$2}',
                     style: const TextStyle(fontWeight: FontWeight.w900),
                   ),
                   trailing: Text(
-                    '${player.$4} XP',
+                    '${players[index].$3} XP',
                     style: const TextStyle(fontWeight: FontWeight.w900),
                   ),
                 ),

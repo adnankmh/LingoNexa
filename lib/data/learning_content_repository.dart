@@ -28,6 +28,16 @@ abstract final class LearningContentRepository {
     'Weather',
     'Sports',
     'Media',
+    'Immigration',
+    'Housing',
+    'Childcare',
+    'Driving',
+    'Postal Services',
+    'Events',
+    'Fitness',
+    'Nature',
+    'Customer Service',
+    'Hospitality',
   ];
 
   static const specializedPaths = [
@@ -158,6 +168,105 @@ abstract final class LearningContentRepository {
       emoji: '🚨',
       modules: 20,
       colorValue: 0xFFFA5252,
+    ),
+    SpecializedPath(
+      id: 'relocation',
+      title: 'Relocation & Immigration',
+      subtitle: 'Documents, appointments, housing, services, and daily life',
+      emoji: '🛂',
+      modules: 30,
+      colorValue: 0xFF4263EB,
+    ),
+    SpecializedPath(
+      id: 'customer_service',
+      title: 'Customer Service',
+      subtitle: 'Welcoming, explaining, solving problems, and following up',
+      emoji: '🎧',
+      modules: 26,
+      colorValue: 0xFF12B886,
+    ),
+    SpecializedPath(
+      id: 'hospitality',
+      title: 'Hospitality Careers',
+      subtitle: 'Hotels, restaurants, reservations, guests, and teamwork',
+      emoji: '🛎️',
+      modules: 28,
+      colorValue: 0xFFCC5DE8,
+    ),
+    SpecializedPath(
+      id: 'driving',
+      title: 'Driving & Road Life',
+      subtitle: 'Directions, fuel, parking, repairs, rules, and emergencies',
+      emoji: '🚗',
+      modules: 24,
+      colorValue: 0xFF339AF0,
+    ),
+    SpecializedPath(
+      id: 'parents',
+      title: 'Parents & Childcare',
+      subtitle: 'School, health, routines, play, safety, and family support',
+      emoji: '🧒',
+      modules: 28,
+      colorValue: 0xFFFF922B,
+    ),
+    SpecializedPath(
+      id: 'wellness',
+      title: 'Sport & Wellness',
+      subtitle: 'Training, movement, goals, equipment, and healthy routines',
+      emoji: '🏃',
+      modules: 24,
+      colorValue: 0xFF51CF66,
+    ),
+    SpecializedPath(
+      id: 'medical_professionals',
+      title: 'Medical Professionals',
+      subtitle:
+          'History, examination, consent, handover, treatment, and discharge',
+      emoji: '🩻',
+      modules: 42,
+      colorValue: 0xFF087F8C,
+    ),
+    SpecializedPath(
+      id: 'humanitarian',
+      title: 'Humanitarian Fieldwork',
+      subtitle:
+          'Assessment, distribution, protection, coordination, and reporting',
+      emoji: '🕊️',
+      modules: 34,
+      colorValue: 0xFF2F9E44,
+    ),
+    SpecializedPath(
+      id: 'engineering',
+      title: 'Engineering & Construction',
+      subtitle: 'Plans, measurements, safety, materials, faults, and progress',
+      emoji: '🏗️',
+      modules: 36,
+      colorValue: 0xFFF08C00,
+    ),
+    SpecializedPath(
+      id: 'interpreter',
+      title: 'Interpreting Skills',
+      subtitle: 'Clarification, accuracy, turn-taking, note-taking, and ethics',
+      emoji: '🎙️',
+      modules: 32,
+      colorValue: 0xFF5F3DC4,
+    ),
+    SpecializedPath(
+      id: 'sales',
+      title: 'Sales & Negotiation',
+      subtitle: 'Needs, value, objections, offers, agreement, and follow-up',
+      emoji: '🤝',
+      modules: 30,
+      colorValue: 0xFFE64980,
+    ),
+    SpecializedPath(
+      id: 'public_speaking',
+      title: 'Presentations & Public Speaking',
+      subtitle:
+          'Openings, structure, visuals, emphasis, questions, and closing',
+      emoji: '🎤',
+      modules: 30,
+      colorValue: 0xFF1C7ED6,
     ),
   ];
 
@@ -447,6 +556,466 @@ abstract final class LearningContentRepository {
         'balance parallel forms',
       ],
       emoji: '✍️',
+    ),
+    GrammarTopic(
+      title: 'Agreement inside the phrase',
+      level: 'A1',
+      summary:
+          'Keep articles, nouns, adjectives, pronouns, and verbs consistent where the language marks number, gender, or person.',
+      examples: [
+        'one new book → two new books',
+        'I am ready → we are ready',
+        'this person → these people',
+      ],
+      emoji: '🧲',
+    ),
+    GrammarTopic(
+      title: 'Building useful noun phrases',
+      level: 'A1',
+      summary:
+          'Combine quantity, description, ownership, and location into compact phrases you can reuse in real situations.',
+      examples: [
+        'my new phone',
+        'two tickets for tomorrow',
+        'the room near the lift',
+      ],
+      emoji: '🧰',
+    ),
+    GrammarTopic(
+      title: 'Connecting everyday ideas',
+      level: 'A2',
+      summary:
+          'Link short messages with addition, contrast, choice, reason, result, and simple sequence.',
+      examples: [
+        'I called, but nobody answered.',
+        'First check in, then find the gate.',
+        'I stayed home because I was ill.',
+      ],
+      emoji: '🔗',
+    ),
+    GrammarTopic(
+      title: 'Quantity and measurement',
+      level: 'A2',
+      summary:
+          'Talk accurately about countable items, amounts, portions, distance, weight, and approximate quantity.',
+      examples: ['a little water', 'three pieces', 'about five kilometres'],
+      emoji: '🧮',
+    ),
+    GrammarTopic(
+      title: 'Narrative sequence and interruption',
+      level: 'B1',
+      summary:
+          'Organize a story by separating background, main events, interruptions, and the final result.',
+      examples: [
+        'I was waiting when the message arrived.',
+        'After that, we changed our plan.',
+        'In the end, everything worked.',
+      ],
+      emoji: '📖',
+    ),
+    GrammarTopic(
+      title: 'Verbs with complements',
+      level: 'B1',
+      summary:
+          'Choose the natural structure after common verbs: a noun, infinitive, clause, participle, or language-specific complement.',
+      examples: [
+        'decide to leave',
+        'enjoy learning',
+        'explain that the flight changed',
+      ],
+      emoji: '🧩',
+    ),
+    GrammarTopic(
+      title: 'Focus through clause choice',
+      level: 'B2',
+      summary:
+          'Choose active, passive, existential, and cleft-like structures according to what the listener already knows.',
+      examples: [
+        'Someone repaired the lift.',
+        'The lift was repaired.',
+        'What we need is a clear answer.',
+      ],
+      emoji: '🎬',
+    ),
+    GrammarTopic(
+      title: 'Managing distance and certainty',
+      level: 'B2',
+      summary:
+          'Calibrate claims with probability, evidence, hedging, approximation, and polite distance.',
+      examples: [
+        'It is likely to change.',
+        'It seems that we misunderstood.',
+        'I may be mistaken, but…',
+      ],
+      emoji: '🌡️',
+    ),
+    GrammarTopic(
+      title: 'Nominalisation and information density',
+      level: 'C1',
+      summary:
+          'Package actions and qualities as noun phrases when formal or academic writing needs compact, connected information.',
+      examples: [
+        'They decided → their decision',
+        'The system failed → system failure',
+        'Because demand increased → due to increased demand',
+      ],
+      emoji: '🗜️',
+    ),
+    GrammarTopic(
+      title: 'Parallelism and rhetorical balance',
+      level: 'C1',
+      summary:
+          'Coordinate matching grammatical forms to make complex speech and writing clearer, more memorable, and more persuasive.',
+      examples: [
+        'to plan, to test, and to improve',
+        'not only accurate but also natural',
+        'what we know and what we still need',
+      ],
+      emoji: '⚖️',
+    ),
+    GrammarTopic(
+      title: 'Strategic ambiguity and implication',
+      level: 'C2',
+      summary:
+          'Recognize when grammar leaves agency, commitment, time, or evaluation implicit—and decide whether that effect is useful or misleading.',
+      examples: [
+        'Mistakes were made.',
+        'One might question whether…',
+        'That is an interesting choice.',
+      ],
+      emoji: '🌫️',
+    ),
+    GrammarTopic(
+      title: 'Grammar across dialect and genre',
+      level: 'C2',
+      summary:
+          'Compare how conversation, journalism, academic prose, literature, and regional varieties reshape the same underlying message.',
+      examples: [
+        'spoken compression',
+        'formal expansion',
+        'regional preference versus universal norm',
+      ],
+      emoji: '🗺️',
+    ),
+    GrammarTopic(
+      title: 'Core sentence order',
+      level: 'A1',
+      summary:
+          'Build a dependable sentence frame and learn where the subject, action, object, time, and place normally appear.',
+      explanation:
+          'Begin with the neutral word order used in clear everyday statements. Then compare how questions, emphasis, and the target language may move or omit parts. Learn the pattern as a meaning frame rather than translating one word at a time.',
+      keyRules: [
+        'Identify who or what the message is about.',
+        'Place the action in the normal position for the target language.',
+        'Add time and place without separating words that belong together.',
+      ],
+      commonMistakes: [
+        'Copying the source-language order exactly.',
+        'Keeping a subject that the target language normally omits.',
+      ],
+      practicePrompts: [
+        'Build a statement about today.',
+        'Turn the statement into a question.',
+        'Move one detail to add emphasis.',
+      ],
+      examples: [
+        'I need help today.',
+        'Where can I find the station?',
+        'Tomorrow we start early.',
+      ],
+      emoji: '🧱',
+    ),
+    GrammarTopic(
+      title: 'Negatives and short answers',
+      level: 'A1',
+      summary:
+          'Say no accurately, answer yes/no questions naturally, and avoid double-negation errors across languages.',
+      explanation:
+          'A negative is more than adding one word. The verb, auxiliary, pronoun, or word order may change. Learn the full negative frame and the short answer that native speakers actually use.',
+      keyRules: [
+        'Place the negative marker in its language-specific position.',
+        'Match the short answer to the form of the question.',
+        'Learn whether multiple negative words agree or cancel each other.',
+      ],
+      commonMistakes: [
+        'Using a literal yes where the target language answers the negative idea.',
+        'Forgetting the auxiliary or verb change.',
+      ],
+      practicePrompts: [
+        'Make three positive sentences negative.',
+        'Answer one positive and one negative question.',
+      ],
+      examples: [
+        'I do not understand.',
+        'No, I cannot.',
+        'I have never been there.',
+      ],
+      emoji: '🚫',
+    ),
+    GrammarTopic(
+      title: 'Everyday prepositions and particles',
+      level: 'A2',
+      summary:
+          'Choose natural markers for place, direction, time, transport, accompaniment, and purpose.',
+      explanation:
+          'Small linking words rarely match one-to-one across languages. Study them in complete chunks: at the airport, on Monday, by bus, with a friend. Contrast meaning groups and record exceptions as phrases.',
+      keyRules: [
+        'Learn prepositions with the noun or verb they accompany.',
+        'Separate static location from movement toward a destination.',
+        'Check whether the following word changes form.',
+      ],
+      commonMistakes: [
+        'Choosing a preposition by dictionary translation alone.',
+        'Using the same marker for time and place without checking usage.',
+      ],
+      practicePrompts: [
+        'Describe a route using five location phrases.',
+        'Schedule three events using time phrases.',
+      ],
+      examples: ['at the hotel', 'to the station', 'by train', 'for two days'],
+      emoji: '📍',
+    ),
+    GrammarTopic(
+      title: 'Requests, permission, and obligation',
+      level: 'A2',
+      summary:
+          'Ask politely, give permission, express necessity, and distinguish strong rules from friendly advice.',
+      explanation:
+          'Modal meaning changes with power, distance, and urgency. Compare a direct command, a neutral request, a polite request, advice, and a strict obligation. Use tone and softeners where the culture expects them.',
+      keyRules: [
+        'Match the request form to the relationship and situation.',
+        'Distinguish must, need to, should, may, and can.',
+        'Use a question form when a direct command would sound harsh.',
+      ],
+      commonMistakes: [
+        'Using the strongest modal for ordinary advice.',
+        'Translating please without changing the grammar of the request.',
+      ],
+      practicePrompts: [
+        'Rewrite one command in three levels of politeness.',
+        'Explain a hotel rule and give a travel recommendation.',
+      ],
+      examples: [
+        'Could you help me?',
+        'You may enter now.',
+        'You should rest.',
+      ],
+      emoji: '🤲',
+    ),
+    GrammarTopic(
+      title: 'Reported speech and viewpoint',
+      level: 'B1',
+      summary:
+          'Report what someone said, asked, promised, or believed while keeping time and viewpoint clear.',
+      explanation:
+          'When speech is reported, pronouns, tense, time expressions, and word order can shift. Some languages require backshifting; others keep the original tense. The key is to preserve who knew what and when.',
+      keyRules: [
+        'Choose a reporting verb that matches the communicative act.',
+        'Adjust pronouns and time references to the new speaker.',
+        'Use statement order inside reported questions where required.',
+      ],
+      commonMistakes: [
+        'Keeping question word order inside an indirect question.',
+        'Changing tense mechanically even when the fact is still true.',
+      ],
+      practicePrompts: [
+        'Report a request, a question, and a promise.',
+        'Retell a short conversation from another viewpoint.',
+      ],
+      examples: [
+        'She said that the flight was delayed.',
+        'He asked where the gate was.',
+        'They promised to call.',
+      ],
+      emoji: '🗨️',
+    ),
+    GrammarTopic(
+      title: 'Relative clauses for useful detail',
+      level: 'B1',
+      summary:
+          'Identify people and things, add extra information, and avoid repeating short sentences.',
+      explanation:
+          'A relative clause connects a noun with the information that identifies or describes it. Learn when the marker changes for person, thing, place, ownership, or grammatical role, and when commas change the meaning.',
+      keyRules: [
+        'Decide whether the information identifies the noun or only adds detail.',
+        'Choose the relative marker by its role inside the clause.',
+        'Keep the clause next to the noun it describes.',
+      ],
+      commonMistakes: [
+        'Repeating the noun or pronoun inside the clause unnecessarily.',
+        'Using commas around information that is needed to identify the noun.',
+      ],
+      practicePrompts: [
+        'Combine two sentences about a person.',
+        'Describe a place using where and an object using that.',
+      ],
+      examples: [
+        'The doctor who helped me was kind.',
+        'This is the room that we booked.',
+        'Gaza is a place where family matters deeply.',
+      ],
+      emoji: '🧷',
+    ),
+    GrammarTopic(
+      title: 'Advanced conditionals and alternatives',
+      level: 'B2',
+      summary:
+          'Discuss real possibilities, imagined situations, past regrets, mixed time, and alternatives to if.',
+      explanation:
+          'Conditional forms express more than time: they signal probability, distance, politeness, criticism, and regret. Map the time of the condition and result separately before choosing the form.',
+      keyRules: [
+        'Identify whether each clause refers to past, present, or future.',
+        'Choose a real or hypothetical frame according to probability.',
+        'Use alternatives such as unless, provided that, and otherwise accurately.',
+      ],
+      commonMistakes: [
+        'Using the same tense pattern for every conditional.',
+        'Confusing unless with if not in contexts where an exception exists.',
+      ],
+      practicePrompts: [
+        'Write a real plan, an imaginary plan, and a past regret.',
+        'Rewrite one condition using unless.',
+      ],
+      examples: [
+        'If the weather improves, we will leave.',
+        'If I had more time, I would study daily.',
+        'Had we known, we would have changed the booking.',
+      ],
+      emoji: '🔀',
+    ),
+    GrammarTopic(
+      title: 'Cohesion across a full paragraph',
+      level: 'B2',
+      summary:
+          'Guide the reader through contrast, cause, reference, repetition, and topic development without sounding mechanical.',
+      explanation:
+          'Strong writing connects ideas through grammar, not only linking words. Use pronouns, repeated key terms, substitution, parallel structures, and information order so every sentence grows from the previous one.',
+      keyRules: [
+        'Make every pronoun refer to one clear noun.',
+        'Use connectors only when the logical relationship is real.',
+        'Move from known information to new information.',
+      ],
+      commonMistakes: [
+        'Beginning every sentence with a connector.',
+        'Using this or it without a clear reference.',
+      ],
+      practicePrompts: [
+        'Repair a paragraph with unclear pronouns.',
+        'Combine five notes into one coherent paragraph.',
+      ],
+      examples: [
+        'The service was delayed. This affected every patient.',
+        'Although the plan was difficult, the team completed it.',
+      ],
+      emoji: '🧵',
+    ),
+    GrammarTopic(
+      title: 'Stance in academic and professional writing',
+      level: 'C1',
+      summary:
+          'Express confidence, caution, limitation, evaluation, and responsibility with precise grammatical choices.',
+      explanation:
+          'Expert writing distinguishes evidence from interpretation. Combine reporting verbs, modal expressions, adverbs, impersonal structures, and first-person responsibility to show exactly how strongly you support a claim.',
+      keyRules: [
+        'Match certainty to the strength of the evidence.',
+        'Attribute another person’s claim accurately.',
+        'State limitations without weakening every sentence.',
+      ],
+      commonMistakes: [
+        'Using proves when the evidence only suggests.',
+        'Hiding responsibility behind passive language unnecessarily.',
+      ],
+      practicePrompts: [
+        'Rewrite one absolute claim with appropriate caution.',
+        'Compare two sources using different reporting verbs.',
+      ],
+      examples: [
+        'The findings suggest that…',
+        'This may be explained by…',
+        'We acknowledge two limitations.',
+      ],
+      emoji: '🔬',
+    ),
+    GrammarTopic(
+      title: 'Fronting, inversion, and marked emphasis',
+      level: 'C1',
+      summary:
+          'Reshape normal word order to control emphasis, contrast, drama, and formal style without losing clarity.',
+      explanation:
+          'Marked word order tells the listener what deserves attention. It may require inversion, a resumptive form, or special intonation. Use it deliberately; excessive fronting makes ordinary information sound dramatic.',
+      keyRules: [
+        'Begin with the element that needs contrast or thematic focus.',
+        'Apply any required inversion after restrictive or negative openings.',
+        'Check that the marked structure remains natural in the genre.',
+      ],
+      commonMistakes: [
+        'Fronting every important word without grammatical adjustment.',
+        'Using literary inversion in casual conversation.',
+      ],
+      practicePrompts: [
+        'Emphasize the time, then the object, in one sentence.',
+        'Rewrite a neutral sentence for a formal speech.',
+      ],
+      examples: [
+        'Only then did we understand.',
+        'What matters most is consistency.',
+        'This problem, we can solve.',
+      ],
+      emoji: '🎯',
+    ),
+    GrammarTopic(
+      title: 'Pragmatic grammar and implied meaning',
+      level: 'C2',
+      summary:
+          'Interpret how grammar communicates politeness, irony, criticism, solidarity, hesitation, and meanings left unsaid.',
+      explanation:
+          'At mastery level, the grammar chosen can communicate a second message beyond the literal words. Analyze tense distance, question forms, understatement, echo structures, and deliberate vagueness together with tone and context.',
+      keyRules: [
+        'Separate literal sentence meaning from the speaker’s likely intention.',
+        'Use shared context to interpret omission and understatement.',
+        'Avoid irony where cultural or power differences make it unsafe.',
+      ],
+      commonMistakes: [
+        'Treating every question as a request for information.',
+        'Assuming a grammatically polite form always sounds warm.',
+      ],
+      practicePrompts: [
+        'Explain three possible intentions behind one question.',
+        'Rewrite a direct criticism as tactful professional feedback.',
+      ],
+      examples: [
+        'Could we perhaps reconsider that?',
+        'You might want to check the figures again.',
+        'So that was your plan, was it?',
+      ],
+      emoji: '🎭',
+    ),
+    GrammarTopic(
+      title: 'Editing for native-like precision',
+      level: 'C2',
+      summary:
+          'Diagnose subtle problems in agreement, information flow, idiomatic complementation, register, and rhythm.',
+      explanation:
+          'Final editing asks not only whether a sentence is correct, but whether it is the most natural choice for this audience and purpose. Review from structure to meaning, then from meaning to tone and sound.',
+      keyRules: [
+        'Check the sentence frame before replacing individual words.',
+        'Keep parallel items in matching grammatical forms.',
+        'Read aloud to detect overloaded rhythm and hidden ambiguity.',
+      ],
+      commonMistakes: [
+        'Replacing words with formal synonyms that do not fit the structure.',
+        'Editing every repeated word even when repetition supports cohesion.',
+      ],
+      practicePrompts: [
+        'Edit a paragraph for clarity, then for register.',
+        'Explain why each change improves meaning or tone.',
+      ],
+      examples: [
+        'precise reference',
+        'idiomatic verb pattern',
+        'balanced information density',
+      ],
+      emoji: '💎',
     ),
   ];
 

@@ -1,16 +1,34 @@
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 
 import '../core/app_state.dart';
+import '../core/i18n.dart';
 import '../data/language_catalog.dart';
+import '../services/speech_service.dart';
 
-class DownloadsScreen extends StatelessWidget {
+class DownloadsScreen extends StatefulWidget {
   const DownloadsScreen({super.key});
+
+  @override
+  State<DownloadsScreen> createState() => _DownloadsScreenState();
+}
+
+class _DownloadsScreenState extends State<DownloadsScreen> {
+  final SpeechService _speech = SpeechService();
+  final Set<String> _busy = {};
+  final Map<String, Future<bool>> _voiceChecks = {};
+
+  @override
+  void dispose() {
+    _speech.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final state = AppStateScope.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('Offline Course Packs')),
+      appBar: AppBar(title: Text(context.text.get('downloads'))),
       body: SafeArea(
         top: false,
         child: Center(
@@ -20,26 +38,42 @@ class DownloadsScreen extends StatelessWidget {
               children: [
                 Container(
                   margin: const EdgeInsets.fromLTRB(18, 8, 18, 10),
-                  padding: const EdgeInsets.all(17),
+                  padding: const EdgeInsets.all(15),
                   decoration: BoxDecoration(
                     color: Theme.of(context).colorScheme.primaryContainer,
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(22),
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.offline_bolt_rounded, size: 33),
-                      const SizedBox(width: 12),
+                      SizedBox(
+                        width: 64,
+                        height: 64,
+                        child: Lottie.asset('assets/lottie/download.json'),
+                      ),
+                      const SizedBox(width: 10),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
-                              'Learn without a connection',
-                              style: TextStyle(fontWeight: FontWeight.w900),
+                            Text(
+                              context.text.get('offline_ready'),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w900,
+                              ),
                             ),
                             Text(
-                              '${state.downloadedPackCodes.length} packs selected · Wi-Fi recommended',
+                              '${state.downloadedPackCodes.length} ${context.text.get('packs_active')}',
                               style: const TextStyle(fontSize: 11.5),
+                            ),
+                            const SizedBox(height: 3),
+                            Text(
+                              context.text.get('offline_voice_note'),
+                              style: TextStyle(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurfaceVariant,
+                                fontSize: 10.5,
+                              ),
                             ),
                           ],
                         ),
@@ -53,34 +87,77 @@ class DownloadsScreen extends StatelessWidget {
                     itemCount: LanguageCatalog.all.length,
                     itemBuilder: (context, index) {
                       final language = LanguageCatalog.all[index];
-                      final downloaded = state.downloadedPackCodes.contains(
+                      final active = state.downloadedPackCodes.contains(
                         language.code,
                       );
-                      final size = 42 + (index * 17) % 210;
+                      final busy = _busy.contains(language.code);
+                      final voiceCheck = _voiceChecks.putIfAbsent(
+                        language.code,
+                        () => _speech.isVoiceAvailable(language.code),
+                      );
                       return Card(
                         child: ListTile(
-                          leading: Text(
-                            language.flag,
-                            style: const TextStyle(fontSize: 31),
+                          contentPadding: const EdgeInsetsDirectional.fromSTEB(
+                            14,
+                            7,
+                            10,
+                            7,
+                          ),
+                          leading: Stack(
+                            clipBehavior: Clip.none,
+                            children: [
+                              Text(
+                                language.flag,
+                                style: const TextStyle(fontSize: 31),
+                              ),
+                              if (active)
+                                const PositionedDirectional(
+                                  end: -5,
+                                  bottom: -4,
+                                  child: Icon(
+                                    Icons.check_circle_rounded,
+                                    size: 18,
+                                    color: Colors.green,
+                                  ),
+                                ),
+                            ],
                           ),
                           title: Text(
                             language.nativeName,
                             style: const TextStyle(fontWeight: FontWeight.w900),
                           ),
-                          subtitle: Text(
-                            '${language.englishName} · $size MB · lessons + audio',
+                          subtitle: FutureBuilder<bool>(
+                            future: voiceCheck,
+                            builder: (context, snapshot) {
+                              final voiceReady = snapshot.data == true;
+                              return Text(
+                                '${context.text.get('lessons')} + ${context.text.get('stories')} + ${context.text.get('grammar')} · ${voiceReady ? context.text.get('voice_ready') : context.text.get('voice_required')}',
+                              );
+                            },
                           ),
-                          trailing: downloaded
+                          trailing: busy
+                              ? const SizedBox(
+                                  width: 28,
+                                  height: 28,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 3,
+                                  ),
+                                )
+                              : active
                               ? IconButton(
+                                  tooltip: context.text.get(
+                                    'tip_delete_download',
+                                  ),
                                   onPressed: () =>
-                                      state.toggleDownloadedPack(language.code),
+                                      _toggle(state, language.code),
                                   icon: const Icon(
                                     Icons.delete_outline_rounded,
                                   ),
                                 )
                               : IconButton.filledTonal(
+                                  tooltip: context.text.get('tip_download'),
                                   onPressed: () =>
-                                      state.toggleDownloadedPack(language.code),
+                                      _toggle(state, language.code),
                                   icon: const Icon(Icons.download_rounded),
                                 ),
                         ),
@@ -94,5 +171,12 @@ class DownloadsScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<void> _toggle(AppState state, String code) async {
+    setState(() => _busy.add(code));
+    await Future<void>.delayed(const Duration(milliseconds: 550));
+    await state.toggleDownloadedPack(code);
+    if (mounted) setState(() => _busy.remove(code));
   }
 }

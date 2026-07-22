@@ -421,9 +421,9 @@ class _AdminScreenState extends State<AdminScreen> {
                       _AdminAction(
                         icon: Icons.auto_stories_rounded,
                         title:
-                            '${LearningContentRepository.grammarTopics.length} grammar lessons',
+                            '${LearningContentRepository.grammarTopics.length} grammar masterclasses',
                         subtitle:
-                            '${LearningContentRepository.specializedPaths.length} scenario paths · 72 dialogue stories per language',
+                            '${LearningContentRepository.specializedPaths.length} scenario paths · 108 dialogue stories per language',
                         onTap: () => _showInfo(
                           'Curriculum coverage',
                           'The bundled curriculum includes complete grammar explanations, common-error guidance, guided practice, scenario missions, and comprehension tasks. Target-language examples always come from aligned records.',

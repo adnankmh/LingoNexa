@@ -102,7 +102,7 @@ class _TutorScreenState extends State<TutorScreen>
         ),
         actions: [
           IconButton(
-            tooltip: 'Focus view',
+            tooltip: context.text.get('tip_focus'),
             onPressed: () => setState(() => _focusMode = !_focusMode),
             icon: Icon(
               _focusMode
@@ -111,6 +111,7 @@ class _TutorScreenState extends State<TutorScreen>
             ),
           ),
           IconButton(
+            tooltip: context.text.get('tip_tutor_settings'),
             onPressed: _showSetup,
             icon: const Icon(Icons.tune_rounded),
           ),
@@ -268,6 +269,7 @@ class _TutorScreenState extends State<TutorScreen>
                       languageCode: language.code,
                       speech: _speech,
                       speechRate: state.speechRate,
+                      voiceName: state.preferredVoiceFor(language.code),
                     ),
                   ),
                 ),
@@ -281,6 +283,7 @@ class _TutorScreenState extends State<TutorScreen>
                             ? context.text.get('stop')
                             : context.text.get('speak_now'),
                         child: IconButton.filled(
+                          tooltip: context.text.get('tip_record'),
                           style: IconButton.styleFrom(
                             backgroundColor: _listening
                                 ? Colors.red
@@ -313,6 +316,7 @@ class _TutorScreenState extends State<TutorScreen>
                       ),
                       const SizedBox(width: 8),
                       IconButton.filled(
+                        tooltip: context.text.get('tip_send'),
                         onPressed: _send,
                         icon: const Icon(Icons.arrow_upward_rounded),
                       ),
@@ -388,14 +392,11 @@ class _TutorScreenState extends State<TutorScreen>
       reply.$1,
       language.code,
       rate: state.speechRate,
+      voiceName: state.preferredVoiceFor(language.code),
     );
     if (!spoken && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            '${language.englishName} voice is not installed. English fallback is disabled.',
-          ),
-        ),
+        SnackBar(content: Text(context.text.get('voice_not_installed'))),
       );
     }
     _scrollToEnd();
@@ -592,11 +593,13 @@ class _MessageBubble extends StatelessWidget {
     required this.languageCode,
     required this.speech,
     required this.speechRate,
+    required this.voiceName,
   });
   final _LiveMessage message;
   final String languageCode;
   final SpeechService speech;
   final double speechRate;
+  final String? voiceName;
 
   @override
   Widget build(BuildContext context) {
@@ -644,10 +647,12 @@ class _MessageBubble extends StatelessWidget {
                 ),
                 if (message.fromTutor)
                   IconButton(
+                    tooltip: context.text.get('tip_speak'),
                     onPressed: () => speech.speak(
                       message.text,
                       languageCode,
                       rate: speechRate,
+                      voiceName: voiceName,
                     ),
                     icon: const Icon(Icons.volume_up_rounded),
                     visualDensity: VisualDensity.compact,

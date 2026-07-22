@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../core/app_state.dart';
+import '../core/i18n.dart';
 import '../data/language_catalog.dart';
 import '../data/learning_content_repository.dart';
+import '../services/speech_service.dart';
 
 class AlphabetScreen extends StatefulWidget {
   const AlphabetScreen({super.key});
@@ -13,6 +15,13 @@ class AlphabetScreen extends StatefulWidget {
 
 class _AlphabetScreenState extends State<AlphabetScreen> {
   final List<Offset?> _points = [];
+  final SpeechService _speech = SpeechService();
+
+  @override
+  void dispose() {
+    _speech.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -151,7 +160,23 @@ class _AlphabetScreenState extends State<AlphabetScreen> {
           ),
           const SizedBox(height: 14),
           IconButton.filledTonal(
-            onPressed: () {},
+            tooltip: context.text.get('tip_speak'),
+            onPressed: () async {
+              final state = AppStateScope.of(context);
+              final success = await _speech.speak(
+                character,
+                state.targetLanguageCode,
+                rate: state.speechRate,
+                voiceName: state.preferredVoiceFor(state.targetLanguageCode),
+              );
+              if (!success && context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(context.text.get('voice_not_installed')),
+                  ),
+                );
+              }
+            },
             icon: const Icon(Icons.volume_up_rounded),
           ),
         ],
