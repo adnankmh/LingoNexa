@@ -53,8 +53,8 @@ class _AppHome extends StatelessWidget {
     final page = !state.isAuthenticated
         ? const LoginScreen()
         : state.onboardingCompleted
-        ? const ShellScreen()
-        : const OnboardingScreen();
+            ? const ShellScreen()
+            : const OnboardingScreen();
 
     // This control must stay inside the home route so PopupMenuButton can find
     // the Navigator overlay. Placing it in MaterialApp.builder makes it a

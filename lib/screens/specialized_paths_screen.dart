@@ -330,9 +330,8 @@ class _ScenarioModuleScreenState extends State<_ScenarioModuleScreen> {
       sourceLanguageCode: state.locale.languageCode,
     );
     final categories = _pathCategories[widget.path.id] ?? const ['Essentials'];
-    final relevant = all
-        .where((item) => categories.contains(item.category))
-        .toList();
+    final relevant =
+        all.where((item) => categories.contains(item.category)).toList();
     final pool = relevant.length >= 4 ? relevant : all;
     final phrases = [
       for (var i = 0; i < 10; i++)

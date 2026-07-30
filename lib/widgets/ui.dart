@@ -73,18 +73,18 @@ class LingoNexaLogo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Semantics(
-    image: true,
-    label: 'LingoNexa',
-    child: ClipRRect(
-      borderRadius: BorderRadius.circular(22),
-      child: Image.asset(
-        'assets/branding/lingonexa_logo.png',
-        height: height,
-        fit: BoxFit.contain,
-        filterQuality: FilterQuality.high,
-      ),
-    ),
-  );
+        image: true,
+        label: 'LingoNexa',
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(22),
+          child: Image.asset(
+            'assets/branding/lingonexa_logo.png',
+            height: height,
+            fit: BoxFit.contain,
+            filterQuality: FilterQuality.high,
+          ),
+        ),
+      );
 }
 
 class SectionHeading extends StatelessWidget {
@@ -119,8 +119,8 @@ class SectionHeading extends StatelessWidget {
                 Text(
                   subtitle!,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                 ),
               ],
             ],

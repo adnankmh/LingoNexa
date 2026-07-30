@@ -27,8 +27,7 @@ class _AlphabetScreenState extends State<AlphabetScreen> {
   Widget build(BuildContext context) {
     final state = AppStateScope.of(context);
     final language = LanguageCatalog.byCode(state.targetLanguageCode);
-    final sample =
-        LearningContentRepository.alphabetSamples[language.script] ??
+    final sample = LearningContentRepository.alphabetSamples[language.script] ??
         LearningContentRepository.alphabetSamples['Latin']!;
     final characters = sample.split(' ').where((item) => item != '·').toList();
     return Scaffold(
@@ -57,7 +56,9 @@ class _AlphabetScreenState extends State<AlphabetScreen> {
                     children: [
                       Text(
                         language.script,
-                        style: Theme.of(context).textTheme.headlineSmall
+                        style: Theme.of(context)
+                            .textTheme
+                            .headlineSmall
                             ?.copyWith(fontWeight: FontWeight.w900),
                       ),
                       const SizedBox(height: 6),
@@ -101,8 +102,8 @@ class _AlphabetScreenState extends State<AlphabetScreen> {
                       child: Text(
                         'Writing practice',
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.w900,
-                        ),
+                              fontWeight: FontWeight.w900,
+                            ),
                       ),
                     ),
                     TextButton.icon(
@@ -145,50 +146,52 @@ class _AlphabetScreenState extends State<AlphabetScreen> {
   }
 
   void _characterDialog(String character) => showDialog<void>(
-    context: context,
-    builder: (context) => AlertDialog(
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            character,
-            style: const TextStyle(fontSize: 82, fontWeight: FontWeight.w900),
-          ),
-          const SizedBox(height: 10),
-          const Text(
-            'Observe the shape, direction, and position. Audio mapping can be supplied by the language content pack.',
-          ),
-          const SizedBox(height: 14),
-          IconButton.filledTonal(
-            tooltip: context.text.get('tip_speak'),
-            onPressed: () async {
-              final state = AppStateScope.of(context);
-              final success = await _speech.speak(
+        context: context,
+        builder: (context) => AlertDialog(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
                 character,
-                state.targetLanguageCode,
-                rate: state.speechRate,
-                voiceName: state.preferredVoiceFor(state.targetLanguageCode),
-              );
-              if (!success && context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(context.text.get('voice_not_installed')),
-                  ),
-                );
-              }
-            },
-            icon: const Icon(Icons.volume_up_rounded),
+                style:
+                    const TextStyle(fontSize: 82, fontWeight: FontWeight.w900),
+              ),
+              const SizedBox(height: 10),
+              const Text(
+                'Observe the shape, direction, and position. Audio mapping can be supplied by the language content pack.',
+              ),
+              const SizedBox(height: 14),
+              IconButton.filledTonal(
+                tooltip: context.text.get('tip_speak'),
+                onPressed: () async {
+                  final state = AppStateScope.of(context);
+                  final success = await _speech.speak(
+                    character,
+                    state.targetLanguageCode,
+                    rate: state.speechRate,
+                    voiceName:
+                        state.preferredVoiceFor(state.targetLanguageCode),
+                  );
+                  if (!success && context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(context.text.get('voice_not_installed')),
+                      ),
+                    );
+                  }
+                },
+                icon: const Icon(Icons.volume_up_rounded),
+              ),
+            ],
           ),
-        ],
-      ),
-      actions: [
-        FilledButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Practice'),
+          actions: [
+            FilledButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Practice'),
+            ),
+          ],
         ),
-      ],
-    ),
-  );
+      );
 }
 
 class _TracePainter extends CustomPainter {

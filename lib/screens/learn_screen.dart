@@ -52,14 +52,15 @@ class _LearnScreenState extends State<LearnScreen> {
                     Text(
                       state.brandName,
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w900,
-                      ),
+                            fontWeight: FontWeight.w900,
+                          ),
                     ),
                     Text(
                       context.text.get('tagline'),
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
+                            color:
+                                Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
                     ),
                   ],
                 ),
@@ -375,9 +376,8 @@ class _UnitCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final completed = unit.lessons
-        .where((lesson) => completedIds.contains(lesson.id))
-        .length;
+    final completed =
+        unit.lessons.where((lesson) => completedIds.contains(lesson.id)).length;
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(18),
@@ -471,38 +471,38 @@ class _HomeAction extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Card(
-    child: InkWell(
-      borderRadius: BorderRadius.circular(24),
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.all(14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            CircleAvatar(
-              backgroundColor: color.withValues(alpha: .14),
-              child: Icon(icon, color: color),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(24),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.all(14),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                CircleAvatar(
+                  backgroundColor: color.withValues(alpha: .14),
+                  child: Icon(icon, color: color),
+                ),
+                const Spacer(),
+                Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontWeight: FontWeight.w900),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  subtitle,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    fontSize: 10.5,
+                  ),
+                ),
+              ],
             ),
-            const Spacer(),
-            Text(
-              title,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(fontWeight: FontWeight.w900),
-            ),
-            const SizedBox(height: 3),
-            Text(
-              subtitle,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-                fontSize: 10.5,
-              ),
-            ),
-          ],
+          ),
         ),
-      ),
-    ),
-  );
+      );
 }

@@ -562,18 +562,18 @@ class _AdminScreenState extends State<AdminScreen> {
   }
 
   void _showInfo(String title, String text) => showDialog<void>(
-    context: context,
-    builder: (context) => AlertDialog(
-      title: Text(title),
-      content: Text(text, style: const TextStyle(height: 1.5)),
-      actions: [
-        FilledButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Done'),
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text(title),
+          content: Text(text, style: const TextStyle(height: 1.5)),
+          actions: [
+            FilledButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Done'),
+            ),
+          ],
         ),
-      ],
-    ),
-  );
+      );
 }
 
 class _AdminHero extends StatelessWidget {
@@ -634,21 +634,22 @@ class _AdminHeading extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Text(
-        title,
-        style: Theme.of(
-          context,
-        ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900),
-      ),
-      const SizedBox(height: 3),
-      Text(
-        subtitle,
-        style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
-      ),
-    ],
-  );
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: Theme.of(
+              context,
+            ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900),
+          ),
+          const SizedBox(height: 3),
+          Text(
+            subtitle,
+            style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurfaceVariant),
+          ),
+        ],
+      );
 }
 
 class _AdminAction extends StatelessWidget {
@@ -665,41 +666,41 @@ class _AdminAction extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Card(
-    child: InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(24),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            CircleAvatar(child: Icon(icon)),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(fontWeight: FontWeight.w900),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(24),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                CircleAvatar(child: Icon(icon)),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: const TextStyle(fontWeight: FontWeight.w900),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        subtitle,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          fontSize: 11.5,
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    subtitle,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      fontSize: 11.5,
-                    ),
-                  ),
-                ],
-              ),
+                ),
+                const Icon(Icons.chevron_right_rounded),
+              ],
             ),
-            const Icon(Icons.chevron_right_rounded),
-          ],
+          ),
         ),
-      ),
-    ),
-  );
+      );
 }

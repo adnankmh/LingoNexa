@@ -1,5 +1,8 @@
 import 'dart:io';
 
+import 'package:lingonexa/core/i18n.dart';
+import 'package:lingonexa/data/academy_repository.dart';
+import 'package:lingonexa/data/course_repository.dart';
 import 'package:lingonexa/data/global_content_repository.dart';
 import 'package:lingonexa/data/learning_content_repository.dart';
 
@@ -35,8 +38,8 @@ void main() {
     );
     _require(
       concept.translations.keys.toSet().containsAll(
-        GlobalContentRepository.coreLanguageCodes,
-      ),
+            GlobalContentRepository.coreLanguageCodes,
+          ),
       'Missing core translation: ${concept.source}',
     );
     _require(
@@ -77,6 +80,38 @@ void main() {
         .containsAll(const ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']),
     'Grammar coverage does not include every CEFR level.',
   );
+  _require(
+    AcademyRepository.collections.length == 6,
+    'The academy collection contract is incomplete.',
+  );
+  final sampleUnit = CourseRepository.unitsFor('es').first;
+  for (final locale in AppText.supported) {
+    final guide = AcademyRepository.guideFor(sampleUnit, locale.code);
+    _require(
+      guide.overview.length == 2 &&
+          guide.objectives.length == 5 &&
+          guide.learningSequence.length == 8 &&
+          guide.commonMistakes.length == 4 &&
+          guide.masteryChecklist.length == 6,
+      'Incomplete academy guide for ${locale.code}.',
+    );
+    for (final key in const [
+      'academy',
+      'academy_subtitle',
+      'deep_lessons_subtitle',
+      'course_books_subtitle',
+      'motion_lessons_subtitle',
+      'listening_studio_subtitle',
+      'reference_guides_subtitle',
+      'exam_center_subtitle',
+      'coverage_note',
+    ]) {
+      _require(
+        AcademyRepository.text(locale.code, key) != key,
+        'Missing academy localization for ${locale.code}: $key',
+      );
+    }
+  }
 
   final screenSource = Directory('lib/screens')
       .listSync(recursive: true)
@@ -101,6 +136,7 @@ void main() {
     '${GlobalContentRepository.localizedPhrasePairs} localized pairs, '
     '${LearningContentRepository.grammarTopics.length} grammar lessons, '
     '${LearningContentRepository.specializedPaths.length} scenario paths, '
+    '${AcademyRepository.collections.length} academy collections, '
     '$iconButtons described icon buttons.',
   );
 }

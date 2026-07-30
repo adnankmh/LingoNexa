@@ -1,8 +1,8 @@
 # LingoNexa
 
-Current release: **1.4.0+9**
+Current release: **2.0.0+12 — Global Academy**
 
-An original Flutter foundation for a multilingual learning platform. Version 1.5 includes local accounts and isolated progress, administrator access, A1–C2 exams, 108 dialogue stories per language path, 42 grammar masterclasses, 22 interactive scenario paths, 450 lessons per language, fast six-step lessons, strict target-language TTS/STT locale selection, semantic pictograms, Lottie feedback, optimized brand assets, English/light first-launch defaults, localized explanatory tooltips, and a compact global language/theme control. The catalog contains 67 learning languages and 12 interface languages.
+An original Flutter foundation for a multilingual learning platform. Version 2.0 introduces Global Academy: six connected learning collections, six A1–C2 course books with 15 chapters each, complete unit explanations, localized objectives, eight-step study sequences, mistake repair, mastery checklists, animated guidance, listening, reference, and assessment centers. The catalog contains 67 learning languages and 12 interface languages.
 
 Content integrity is explicit: 12 core languages include the expanded 84-concept aligned bank (1,008 localized entries and 4,032 generated drills). The remaining 55 languages use their verified starter lexicons and never receive English text disguised as target-language content. Expand them only through reviewed course packs.
 

@@ -31,15 +31,13 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
     super.didChangeDependencies();
     if (_initialized) return;
     final state = AppStateScope.of(context);
-    final interfaceCode =
-        LanguageCatalog.all.any(
-          (language) => language.code == state.locale.languageCode,
-        )
+    final interfaceCode = LanguageCatalog.all.any(
+      (language) => language.code == state.locale.languageCode,
+    )
         ? state.locale.languageCode
         : 'en';
-    _sourceCode = interfaceCode == state.targetLanguageCode
-        ? 'en'
-        : interfaceCode;
+    _sourceCode =
+        interfaceCode == state.targetLanguageCode ? 'en' : interfaceCode;
     _targetCode = state.targetLanguageCode;
     _initialized = true;
   }
@@ -160,9 +158,8 @@ class _TranslatorScreenState extends State<TranslatorScreen> {
                         SizedBox(
                           width: double.infinity,
                           child: FilledButton.icon(
-                            onPressed: _controller.text.trim().isEmpty
-                                ? null
-                                : _run,
+                            onPressed:
+                                _controller.text.trim().isEmpty ? null : _run,
                             icon: const Icon(Icons.auto_awesome_rounded),
                             label: Text(context.text.get('translate_now')),
                           ),

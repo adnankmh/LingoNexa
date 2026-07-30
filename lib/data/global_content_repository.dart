@@ -1053,21 +1053,21 @@ abstract final class GlobalContentRepository {
       },
     ),
     GlobalPhraseConcept(
-      source: 'Is breakfast included?',
+      source: 'Could I have a late check-out?',
       category: 'Hotel',
       translations: {
-        'en': 'Is breakfast included?',
-        'ar': 'هل الإفطار مشمول؟',
-        'es': '¿Está incluido el desayuno?',
-        'fr': 'Le petit-déjeuner est-il compris ?',
-        'de': 'Ist das Frühstück inbegriffen?',
-        'tr': 'Kahvaltı dahil mi?',
-        'pt': 'O pequeno-almoço está incluído?',
-        'it': 'La colazione è inclusa?',
-        'ru': 'Завтрак включён?',
-        'zh': '包含早餐吗？',
-        'ja': '朝食は含まれていますか？',
-        'ko': '조식이 포함되어 있나요?',
+        'en': 'Could I have a late check-out?',
+        'ar': 'هل يمكنني تسجيل المغادرة متأخرًا؟',
+        'es': '¿Podría salir más tarde?',
+        'fr': 'Puis-je avoir un départ tardif ?',
+        'de': 'Kann ich später auschecken?',
+        'tr': 'Geç çıkış yapabilir miyim?',
+        'pt': 'Posso fazer o check-out mais tarde?',
+        'it': 'Posso fare il check-out più tardi?',
+        'ru': 'Могу ли я выехать позже?',
+        'zh': '我可以延迟退房吗？',
+        'ja': 'レイトチェックアウトはできますか？',
+        'ko': '늦게 체크아웃할 수 있을까요?',
       },
     ),
     GlobalPhraseConcept(
@@ -1269,21 +1269,21 @@ abstract final class GlobalContentRepository {
       },
     ),
     GlobalPhraseConcept(
-      source: 'Could you repeat that?',
+      source: 'Could you write that down?',
       category: 'Essentials',
       translations: {
-        'en': 'Could you repeat that?',
-        'ar': 'هل يمكنك تكرار ذلك؟',
-        'es': '¿Podría repetirlo?',
-        'fr': 'Pourriez-vous répéter ?',
-        'de': 'Könnten Sie das wiederholen?',
-        'tr': 'Bunu tekrar edebilir misiniz?',
-        'pt': 'Pode repetir?',
-        'it': 'Potrebbe ripeterlo?',
-        'ru': 'Не могли бы вы повторить?',
-        'zh': '您能再说一遍吗？',
-        'ja': 'もう一度言っていただけますか？',
-        'ko': '다시 말씀해 주시겠어요?',
+        'en': 'Could you write that down?',
+        'ar': 'هل يمكنك كتابة ذلك؟',
+        'es': '¿Podría escribirlo?',
+        'fr': 'Pourriez-vous l’écrire ?',
+        'de': 'Könnten Sie das aufschreiben?',
+        'tr': 'Bunu yazabilir misiniz?',
+        'pt': 'Pode escrever isso?',
+        'it': 'Potrebbe scriverlo?',
+        'ru': 'Не могли бы вы это записать?',
+        'zh': '您能把它写下来吗？',
+        'ja': 'それを書いていただけますか？',
+        'ko': '그것을 적어 주시겠어요?',
       },
     ),
     GlobalPhraseConcept(
@@ -1582,8 +1582,7 @@ abstract final class GlobalContentRepository {
   }) {
     if (!coreLanguageCodes.contains(languageCode)) return const [];
     final code = languageCode;
-    final sourceCode =
-        coreLanguageCodes.contains(sourceLanguageCode) &&
+    final sourceCode = coreLanguageCodes.contains(sourceLanguageCode) &&
             sourceLanguageCode != languageCode
         ? sourceLanguageCode
         : 'en';

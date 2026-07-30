@@ -568,13 +568,12 @@ abstract final class CourseRepository {
     }.where((item) => item != phrase).take(3).toList();
     final shuffled = [...distractors, phrase]
       ..shuffle(Random(lessonIndex + topicIndex));
-    final secondOptions =
-        <String>{
-            ...lexicon.map((item) => item.target),
-            '…',
-          }.where((item) => item != second.target).take(3).toList()
-          ..add(second.target)
-          ..shuffle(Random(100 + lessonIndex + topicIndex));
+    final secondOptions = <String>{
+      ...lexicon.map((item) => item.target),
+      '…',
+    }.where((item) => item != second.target).take(3).toList()
+      ..add(second.target)
+      ..shuffle(Random(100 + lessonIndex + topicIndex));
 
     return Lesson(
       id: '${languageCode}_${level.code}_${topicIndex}_$lessonIndex',
@@ -686,8 +685,7 @@ abstract final class CourseRepository {
     String key, [
     Map<String, String> replacements = const {},
   ]) {
-    var value =
-        _instructionText[languageCode]?[key] ??
+    var value = _instructionText[languageCode]?[key] ??
         _instructionText['en']![key] ??
         key;
     for (final entry in replacements.entries) {
@@ -703,9 +701,8 @@ abstract final class CourseRepository {
     const starterMeanings = ['Hello', 'Thank you', 'Please', 'Goodbye'];
     const starterVisuals = ['👋', '🙏', '🤲', '👋'];
     final starters = starterLexicon[languageCode] ?? starterLexicon['en']!;
-    final sourceCode = meaningLanguageCode == languageCode
-        ? 'en'
-        : meaningLanguageCode;
+    final sourceCode =
+        meaningLanguageCode == languageCode ? 'en' : meaningLanguageCode;
     final localizedStarterMeanings =
         starterLexicon[sourceCode] ?? starterMeanings;
     final result = <_AlignedPhrase>[

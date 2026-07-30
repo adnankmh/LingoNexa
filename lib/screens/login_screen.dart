@@ -49,8 +49,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         ? 'Create your LingoNexa account'
                         : 'Welcome back',
                     style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.w900,
-                    ),
+                          fontWeight: FontWeight.w900,
+                        ),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 6),
@@ -310,18 +310,18 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _socialInfo(String provider) => showDialog<void>(
-    context: context,
-    builder: (context) => AlertDialog(
-      title: Text('$provider sign-in'),
-      content: Text(
-        'The interface is ready. To activate $provider securely, connect Firebase Authentication or your own OAuth backend and add the provider keys outside the source code.',
-      ),
-      actions: [
-        FilledButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Understood'),
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('$provider sign-in'),
+          content: Text(
+            'The interface is ready. To activate $provider securely, connect Firebase Authentication or your own OAuth backend and add the provider keys outside the source code.',
+          ),
+          actions: [
+            FilledButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Understood'),
+            ),
+          ],
         ),
-      ],
-    ),
-  );
+      );
 }

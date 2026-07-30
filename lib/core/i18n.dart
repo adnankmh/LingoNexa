@@ -2758,9 +2758,9 @@ class AppText {
       key;
 
   static InterfaceLocaleOption optionFor(String code) => supported.firstWhere(
-    (item) => item.code == code,
-    orElse: () => supported[1],
-  );
+        (item) => item.code == code,
+        orElse: () => supported[1],
+      );
 }
 
 extension AppTextContext on BuildContext {

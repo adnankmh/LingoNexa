@@ -137,9 +137,8 @@ class _LanguageTile extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        color: expanded
-                            ? scheme.primary
-                            : scheme.onSurfaceVariant,
+                        color:
+                            expanded ? scheme.primary : scheme.onSurfaceVariant,
                         fontSize: 9.5,
                         fontWeight: FontWeight.w900,
                       ),

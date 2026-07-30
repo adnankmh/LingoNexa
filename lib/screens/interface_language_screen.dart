@@ -39,8 +39,8 @@ class InterfaceLanguageScreen extends StatelessWidget {
                 final columns = constraints.maxWidth >= 760
                     ? 3
                     : constraints.maxWidth >= 480
-                    ? 2
-                    : 1;
+                        ? 2
+                        : 1;
                 return GridView.builder(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),

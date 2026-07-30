@@ -141,33 +141,33 @@ class _GrammarScreenState extends State<GrammarScreen> {
   }
 
   String _languageProfile(String code, String script) => switch (code) {
-    'en' =>
-      'English relies on relatively fixed word order, auxiliary verbs, articles, and tense/aspect combinations. Learn patterns inside complete phrases.',
-    'ar' =>
-      'Arabic uses a root-and-pattern system, grammatical gender, agreement, and right-to-left writing. Formal Arabic and spoken varieties should be labelled separately.',
-    'es' =>
-      'Spanish combines noun gender and agreement with rich verb conjugation. Subject pronouns can often be omitted because the verb ending carries information.',
-    'fr' =>
-      'French uses articles, gender, agreement, verb conjugation, liaison, and a major difference between written and naturally spoken forms.',
-    'de' =>
-      'German uses grammatical gender, four cases, separable verbs, and verb-position rules. Learn nouns together with their articles.',
-    'tr' =>
-      'Turkish is agglutinative: clear suffix chains express case, possession, tense, and person. Vowel harmony helps predict many forms.',
-    'pt' =>
-      'Portuguese uses gender, agreement, rich conjugation, and distinct spoken varieties. Pronunciation and pronoun placement vary by region.',
-    'it' =>
-      'Italian uses gender, agreement, articles, and expressive verb conjugation. Double consonants and stress can change meaning.',
-    'ru' =>
-      'Russian uses six cases, grammatical gender, verb aspect, and flexible word order. Endings show the role of each word.',
-    'zh' =>
-      'Mandarin Chinese uses tones, classifiers, particles, and word order rather than verb conjugation. Characters and pronunciation must be learned together.',
-    'ja' =>
-      'Japanese commonly uses subject–object–verb order, particles, counters, and politeness levels. Context often allows subjects to be omitted.',
-    'ko' =>
-      'Korean commonly uses subject–object–verb order, particles, speech levels, and honorifics. Verb endings express social relationship and sentence function.',
-    _ =>
-      'This course uses the $script writing system. Only aligned reviewed phrases are presented as target-language examples; broader grammar notes remain cross-language concepts until a specialist pack is installed.',
-  };
+        'en' =>
+          'English relies on relatively fixed word order, auxiliary verbs, articles, and tense/aspect combinations. Learn patterns inside complete phrases.',
+        'ar' =>
+          'Arabic uses a root-and-pattern system, grammatical gender, agreement, and right-to-left writing. Formal Arabic and spoken varieties should be labelled separately.',
+        'es' =>
+          'Spanish combines noun gender and agreement with rich verb conjugation. Subject pronouns can often be omitted because the verb ending carries information.',
+        'fr' =>
+          'French uses articles, gender, agreement, verb conjugation, liaison, and a major difference between written and naturally spoken forms.',
+        'de' =>
+          'German uses grammatical gender, four cases, separable verbs, and verb-position rules. Learn nouns together with their articles.',
+        'tr' =>
+          'Turkish is agglutinative: clear suffix chains express case, possession, tense, and person. Vowel harmony helps predict many forms.',
+        'pt' =>
+          'Portuguese uses gender, agreement, rich conjugation, and distinct spoken varieties. Pronunciation and pronoun placement vary by region.',
+        'it' =>
+          'Italian uses gender, agreement, articles, and expressive verb conjugation. Double consonants and stress can change meaning.',
+        'ru' =>
+          'Russian uses six cases, grammatical gender, verb aspect, and flexible word order. Endings show the role of each word.',
+        'zh' =>
+          'Mandarin Chinese uses tones, classifiers, particles, and word order rather than verb conjugation. Characters and pronunciation must be learned together.',
+        'ja' =>
+          'Japanese commonly uses subject–object–verb order, particles, counters, and politeness levels. Context often allows subjects to be omitted.',
+        'ko' =>
+          'Korean commonly uses subject–object–verb order, particles, speech levels, and honorifics. Verb endings express social relationship and sentence function.',
+        _ =>
+          'This course uses the $script writing system. Only aligned reviewed phrases are presented as target-language examples; broader grammar notes remain cross-language concepts until a specialist pack is installed.',
+      };
 }
 
 class _GrammarCard extends StatelessWidget {
@@ -574,56 +574,60 @@ class _GrammarDetailScreenState extends State<_GrammarDetailScreen> {
       'MEANING — ${topic.summary}\n\nFORM — Locate the smallest visible or audible change that carries the grammar. It may appear before the main word, after it, inside it, or through word order.\n\nUSE — Ask who is speaking, to whom, for what purpose, and in which setting. A structurally correct sentence can still sound unnatural if its register is wrong.\n\nCONTRAST — Build a pair in which only one feature changes. Explain how that change affects time, certainty, politeness, focus, or relationship.\n\nTRANSFER — Create one spoken example and one written example about your own life, then revisit both after one day.';
 
   List<String> _rulesFor(GrammarTopic topic) => [
-    'For ${topic.title.toLowerCase()}, identify the meaning you want to express before choosing a form.',
-    'Notice the normal word order in the verified examples; do not copy the order of your first language automatically.',
-    'Keep agreement, particles, endings, or helper words attached to the phrase pattern in which you learned them.',
-    'Check whether the situation is formal, neutral, or friendly before speaking.',
-    'Say the complete pattern aloud, then substitute only one element at a time.',
-    'Review the pattern through listening, recognition, controlled production, and a personal sentence.',
-    'Compare a positive, negative, and question version where the language allows that contrast.',
-    'Finish with a context check: who can say it, to whom, and in which register?',
-  ];
+        'For ${topic.title.toLowerCase()}, identify the meaning you want to express before choosing a form.',
+        'Notice the normal word order in the verified examples; do not copy the order of your first language automatically.',
+        'Keep agreement, particles, endings, or helper words attached to the phrase pattern in which you learned them.',
+        'Check whether the situation is formal, neutral, or friendly before speaking.',
+        'Say the complete pattern aloud, then substitute only one element at a time.',
+        'Review the pattern through listening, recognition, controlled production, and a personal sentence.',
+        'Compare a positive, negative, and question version where the language allows that contrast.',
+        'Finish with a context check: who can say it, to whom, and in which register?',
+      ];
 
   List<String> _mistakesFor(GrammarTopic topic) => [
-    'Treating ${topic.title.toLowerCase()} as a word-for-word translation and preserving the source-language order.',
-    'Memorizing an ending or particle without the complete phrase that controls it.',
-    'Using one form for every context without checking politeness or register.',
-    'Recognizing the rule on paper but never producing it aloud.',
-    'Moving to a new topic before correcting the same repeated error.',
-    'Assuming that a grammatically possible form is automatically the most natural form.',
-    'Ignoring regional or spoken variation when the course labels a form as formal or neutral.',
-  ];
+        'Treating ${topic.title.toLowerCase()} as a word-for-word translation and preserving the source-language order.',
+        'Memorizing an ending or particle without the complete phrase that controls it.',
+        'Using one form for every context without checking politeness or register.',
+        'Recognizing the rule on paper but never producing it aloud.',
+        'Moving to a new topic before correcting the same repeated error.',
+        'Assuming that a grammatically possible form is automatically the most natural form.',
+        'Ignoring regional or spoken variation when the course labels a form as formal or neutral.',
+      ];
 
   String _practiceFor(GrammarTopic topic, int index) => switch (index) {
-    0 =>
-      'In a ${topic.title.toLowerCase()} example, underline the part that carries the main grammatical meaning.',
-    1 => 'Change one person, time, quantity, or place in a verified example.',
-    2 => 'Turn one example into a question or a negative form.',
-    3 => 'Say a personal sentence using the same pattern without reading.',
-    4 => 'Create a two-line mini-dialogue that uses this structure naturally.',
-    5 => 'Rewrite one example for a more formal or more friendly situation.',
-    6 => 'Record yourself, wait ten seconds, then correct one detail you hear.',
-    _ => 'Teach the rule in one minute and give an original example.',
-  };
+        0 =>
+          'In a ${topic.title.toLowerCase()} example, underline the part that carries the main grammatical meaning.',
+        1 =>
+          'Change one person, time, quantity, or place in a verified example.',
+        2 => 'Turn one example into a question or a negative form.',
+        3 => 'Say a personal sentence using the same pattern without reading.',
+        4 =>
+          'Create a two-line mini-dialogue that uses this structure naturally.',
+        5 =>
+          'Rewrite one example for a more formal or more friendly situation.',
+        6 =>
+          'Record yourself, wait ten seconds, then correct one detail you hear.',
+        _ => 'Teach the rule in one minute and give an original example.',
+      };
 
   String _answerFor(GrammarTopic topic, int index) => switch (index) {
-    0 =>
-      'Model for ${topic.title.toLowerCase()}: identify the word order plus any ending, particle, or helper word that changes the meaning.',
-    1 =>
-      'Keep the structure stable and replace only one meaningful element; then verify agreement.',
-    2 =>
-      'Use the question or negative strategy described by the target language, not a word-for-word translation.',
-    3 =>
-      'A strong answer is accurate, relevant to your life, and easy to say twice at a natural pace.',
-    4 =>
-      'Line 1 introduces the situation; line 2 responds with the target pattern and an appropriate level of politeness.',
-    5 =>
-      'Keep the core meaning, but adjust pronouns, politeness markers, vocabulary, or sentence length to match the relationship.',
-    6 =>
-      'Listen for one target only: order, ending, helper word, agreement, or rhythm. Correct that target and record again.',
-    _ =>
-      'A successful explanation names the meaning, identifies the form, states when it is used, and includes an original example.',
-  };
+        0 =>
+          'Model for ${topic.title.toLowerCase()}: identify the word order plus any ending, particle, or helper word that changes the meaning.',
+        1 =>
+          'Keep the structure stable and replace only one meaningful element; then verify agreement.',
+        2 =>
+          'Use the question or negative strategy described by the target language, not a word-for-word translation.',
+        3 =>
+          'A strong answer is accurate, relevant to your life, and easy to say twice at a natural pace.',
+        4 =>
+          'Line 1 introduces the situation; line 2 responds with the target pattern and an appropriate level of politeness.',
+        5 =>
+          'Keep the core meaning, but adjust pronouns, politeness markers, vocabulary, or sentence length to match the relationship.',
+        6 =>
+          'Listen for one target only: order, ending, helper word, agreement, or rhythm. Correct that target and record again.',
+        _ =>
+          'A successful explanation names the meaning, identifies the form, states when it is used, and includes an original example.',
+      };
 }
 
 class _LessonSection extends StatelessWidget {
@@ -638,33 +642,33 @@ class _LessonSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Card(
-    margin: const EdgeInsets.only(bottom: 13),
-    child: Padding(
-      padding: const EdgeInsets.all(17),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+        margin: const EdgeInsets.only(bottom: 13),
+        child: Padding(
+          padding: const EdgeInsets.all(17),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(icon, color: Theme.of(context).colorScheme.primary),
-              const SizedBox(width: 9),
-              Expanded(
-                child: Text(
-                  title,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w900,
-                    fontSize: 17,
+              Row(
+                children: [
+                  Icon(icon, color: Theme.of(context).colorScheme.primary),
+                  const SizedBox(width: 9),
+                  Expanded(
+                    child: Text(
+                      title,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w900,
+                        fontSize: 17,
+                      ),
+                    ),
                   ),
-                ),
+                ],
               ),
+              const SizedBox(height: 13),
+              child,
             ],
           ),
-          const SizedBox(height: 13),
-          child,
-        ],
-      ),
-    ),
-  );
+        ),
+      );
 }
 
 class _NumberedLine extends StatelessWidget {
@@ -674,14 +678,14 @@ class _NumberedLine extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.only(bottom: 10),
-    child: Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        CircleAvatar(radius: 12, child: Text('$number')),
-        const SizedBox(width: 10),
-        Expanded(child: Text(text, style: const TextStyle(height: 1.45))),
-      ],
-    ),
-  );
+        padding: const EdgeInsets.only(bottom: 10),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            CircleAvatar(radius: 12, child: Text('$number')),
+            const SizedBox(width: 10),
+            Expanded(child: Text(text, style: const TextStyle(height: 1.45))),
+          ],
+        ),
+      );
 }

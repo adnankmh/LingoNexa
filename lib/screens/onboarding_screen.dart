@@ -228,9 +228,9 @@ class _WelcomeStep extends StatelessWidget {
                     'A world of language, built around you.',
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.w900,
-                      height: 1.15,
-                    ),
+                          fontWeight: FontWeight.w900,
+                          height: 1.15,
+                        ),
                   ),
                   const SizedBox(height: 12),
                   Text(

@@ -66,9 +66,8 @@ class _AchievementsList extends StatelessWidget {
           ),
           itemBuilder: (context, index) {
             final item = achievements[index];
-            final progress = (item.progress / item.goal)
-                .clamp(0.0, 1.0)
-                .toDouble();
+            final progress =
+                (item.progress / item.goal).clamp(0.0, 1.0).toDouble();
             final unlocked = progress >= 1;
             return Card(
               child: Padding(
@@ -166,10 +165,10 @@ class _LeagueTable extends StatelessWidget {
     final leagueName = userScore >= 1000
         ? context.text.get('diamond_league')
         : userScore >= 600
-        ? context.text.get('gold_league')
-        : userScore >= 250
-        ? context.text.get('silver_league')
-        : context.text.get('bronze_league');
+            ? context.text.get('gold_league')
+            : userScore >= 250
+                ? context.text.get('silver_league')
+                : context.text.get('bronze_league');
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 720),

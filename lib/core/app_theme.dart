@@ -77,9 +77,9 @@ abstract final class AppThemes {
   ];
 
   static ThemePreset preset(String id) => presets.firstWhere(
-    (item) => item.id == id,
-    orElse: () => presets.firstWhere((item) => item.id == 'snow'),
-  );
+        (item) => item.id == id,
+        orElse: () => presets.firstWhere((item) => item.id == 'snow'),
+      );
 
   static ThemeData build(String id) {
     final preset = AppThemes.preset(id);
@@ -89,9 +89,8 @@ abstract final class AppThemes {
       surface: preset.background,
     );
     final dark = preset.brightness == Brightness.dark;
-    final borderColor = dark
-        ? Colors.white.withValues(alpha: 0.10)
-        : const Color(0xFFE5E8F2);
+    final borderColor =
+        dark ? Colors.white.withValues(alpha: 0.10) : const Color(0xFFE5E8F2);
 
     return ThemeData(
       useMaterial3: true,

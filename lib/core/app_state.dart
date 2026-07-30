@@ -269,8 +269,8 @@ class AppState extends ChangeNotifier {
     final reward = score >= 90
         ? 180
         : score >= 70
-        ? 120
-        : 35;
+            ? 120
+            : 35;
     xp += reward;
     weeklyXp += reward;
     dailyMinutes += 10;
@@ -372,34 +372,34 @@ class AppState extends ChangeNotifier {
   }
 
   String exportConfiguration() => const JsonEncoder.withIndent('  ').convert({
-    'brandName': brandName,
-    'user': currentUser?.toJson(),
-    'locale': locale.languageCode,
-    'nativeLanguage': nativeLanguageCode,
-    'targetLanguage': targetLanguageCode,
-    'theme': themeId,
-    'level': currentLevel,
-    'dailyGoalMinutes': dailyGoalMinutes,
-    'learningReason': learningReason,
-    'downloadedPacks': downloadedPackCodes.toList(),
-    'completedExams': completedExamIds.toList(),
-    'features': {
-      'aiTutor': aiTutorEnabled,
-      'community': communityEnabled,
-      'voiceRooms': voiceRoomsEnabled,
-      'exams': examsEnabled,
-      'stories': storiesEnabled,
-      'registration': registrationEnabled,
-      'offline': offlineMode,
-      'sprintMode': sprintMode,
-    },
-    'conversation': {
-      'provider': aiProvider,
-      'endpoint': aiEndpoint,
-      'apiKeyStoredInApp': false,
-      'speechRate': speechRate,
-    },
-  });
+        'brandName': brandName,
+        'user': currentUser?.toJson(),
+        'locale': locale.languageCode,
+        'nativeLanguage': nativeLanguageCode,
+        'targetLanguage': targetLanguageCode,
+        'theme': themeId,
+        'level': currentLevel,
+        'dailyGoalMinutes': dailyGoalMinutes,
+        'learningReason': learningReason,
+        'downloadedPacks': downloadedPackCodes.toList(),
+        'completedExams': completedExamIds.toList(),
+        'features': {
+          'aiTutor': aiTutorEnabled,
+          'community': communityEnabled,
+          'voiceRooms': voiceRoomsEnabled,
+          'exams': examsEnabled,
+          'stories': storiesEnabled,
+          'registration': registrationEnabled,
+          'offline': offlineMode,
+          'sprintMode': sprintMode,
+        },
+        'conversation': {
+          'provider': aiProvider,
+          'endpoint': aiEndpoint,
+          'apiKeyStoredInApp': false,
+          'speechRate': speechRate,
+        },
+      });
 }
 
 class AppStateScope extends InheritedNotifier<AppState> {

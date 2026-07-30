@@ -285,9 +285,8 @@ class _TutorScreenState extends State<TutorScreen>
                         child: IconButton.filled(
                           tooltip: context.text.get('tip_record'),
                           style: IconButton.styleFrom(
-                            backgroundColor: _listening
-                                ? Colors.red
-                                : scheme.tertiary,
+                            backgroundColor:
+                                _listening ? Colors.red : scheme.tertiary,
                           ),
                           onPressed: () => _toggleListening(language.code),
                           icon: Icon(
@@ -403,10 +402,8 @@ class _TutorScreenState extends State<TutorScreen>
   }
 
   int _scoreFor(String input) {
-    final words = input
-        .split(RegExp(r'\s+'))
-        .where((item) => item.isNotEmpty)
-        .length;
+    final words =
+        input.split(RegExp(r'\s+')).where((item) => item.isNotEmpty).length;
     final lengthScore = (48 + math.min(words, 12) * 4).clamp(48, 92);
     final speechBonus = (_speechConfidence * 8).round();
     return (lengthScore + speechBonus).clamp(52, 99).toInt();
@@ -480,14 +477,14 @@ class _TutorScreenState extends State<TutorScreen>
   }
 
   void _scrollToEnd() => WidgetsBinding.instance.addPostFrameCallback((_) {
-    if (_scroll.hasClients) {
-      _scroll.animateTo(
-        _scroll.position.maxScrollExtent,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOut,
-      );
-    }
-  });
+        if (_scroll.hasClients) {
+          _scroll.animateTo(
+            _scroll.position.maxScrollExtent,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOut,
+          );
+        }
+      });
 
   Future<void> _showSetup() async {
     await showModalBottomSheet<void>(
@@ -529,8 +526,8 @@ class _TutorScreenState extends State<TutorScreen>
                 Text(
                   'Conversation personality',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w900,
-                  ),
+                        fontWeight: FontWeight.w900,
+                      ),
                 ),
                 const SizedBox(height: 9),
                 RadioGroup<String>(
@@ -721,16 +718,17 @@ class _LiveDot extends StatelessWidget {
   const _LiveDot();
   @override
   Widget build(BuildContext context) => Container(
-    width: 10,
-    height: 10,
-    decoration: BoxDecoration(
-      color: Colors.greenAccent.shade700,
-      shape: BoxShape.circle,
-      boxShadow: [
-        BoxShadow(color: Colors.green.withValues(alpha: .45), blurRadius: 8),
-      ],
-    ),
-  );
+        width: 10,
+        height: 10,
+        decoration: BoxDecoration(
+          color: Colors.greenAccent.shade700,
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+                color: Colors.green.withValues(alpha: .45), blurRadius: 8),
+          ],
+        ),
+      );
 }
 
 class _StatusChip extends StatelessWidget {
@@ -739,26 +737,26 @@ class _StatusChip extends StatelessWidget {
   final IconData icon;
   @override
   Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-    decoration: BoxDecoration(
-      color: Colors.black.withValues(alpha: .18),
-      borderRadius: BorderRadius.circular(20),
-    ),
-    child: Row(
-      children: [
-        Icon(icon, color: Colors.white, size: 14),
-        const SizedBox(width: 5),
-        Text(
-          text,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 10,
-            fontWeight: FontWeight.w900,
-          ),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: Colors.black.withValues(alpha: .18),
+          borderRadius: BorderRadius.circular(20),
         ),
-      ],
-    ),
-  );
+        child: Row(
+          children: [
+            Icon(icon, color: Colors.white, size: 14),
+            const SizedBox(width: 5),
+            Text(
+              text,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 10,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+          ],
+        ),
+      );
 }
 
 class _Waveform extends StatelessWidget {
@@ -767,25 +765,25 @@ class _Waveform extends StatelessWidget {
   final Animation<double> animation;
   @override
   Widget build(BuildContext context) => AnimatedBuilder(
-    animation: animation,
-    builder: (context, _) => Row(
-      children: [
-        for (var i = 0; i < 8; i++)
-          Container(
-            width: 4,
-            height: active
-                ? 8 +
-                      18 *
-                          ((math.sin(animation.value * math.pi * 2 + i) + 1) /
-                              2)
-                : 7 + (i % 3) * 3,
-            margin: const EdgeInsetsDirectional.only(end: 4),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: active ? .95 : .48),
-              borderRadius: BorderRadius.circular(5),
-            ),
-          ),
-      ],
-    ),
-  );
+        animation: animation,
+        builder: (context, _) => Row(
+          children: [
+            for (var i = 0; i < 8; i++)
+              Container(
+                width: 4,
+                height: active
+                    ? 8 +
+                        18 *
+                            ((math.sin(animation.value * math.pi * 2 + i) + 1) /
+                                2)
+                    : 7 + (i % 3) * 3,
+                margin: const EdgeInsetsDirectional.only(end: 4),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: active ? .95 : .48),
+                  borderRadius: BorderRadius.circular(5),
+                ),
+              ),
+          ],
+        ),
+      );
 }

@@ -279,8 +279,8 @@ class ExploreScreen extends StatelessWidget {
               Text(
                 article.title,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w900,
-                ),
+                      fontWeight: FontWeight.w900,
+                    ),
               ),
               const SizedBox(height: 9),
               Text(
@@ -325,52 +325,52 @@ class _StudioTool extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Card(
-    child: InkWell(
-      onTap: () =>
-          Navigator.push(context, MaterialPageRoute(builder: (_) => screen)),
-      borderRadius: BorderRadius.circular(24),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            Container(
-              width: 52,
-              height: 52,
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: .14),
-                borderRadius: BorderRadius.circular(17),
-              ),
-              child: Icon(icon, color: color),
-            ),
-            const SizedBox(width: 13),
-            Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(fontWeight: FontWeight.w900),
+        child: InkWell(
+          onTap: () => Navigator.push(
+              context, MaterialPageRoute(builder: (_) => screen)),
+          borderRadius: BorderRadius.circular(24),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                Container(
+                  width: 52,
+                  height: 52,
+                  decoration: BoxDecoration(
+                    color: color.withValues(alpha: .14),
+                    borderRadius: BorderRadius.circular(17),
                   ),
-                  const SizedBox(height: 5),
-                  Text(
-                    subtitle,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      fontSize: 11.5,
-                    ),
+                  child: Icon(icon, color: color),
+                ),
+                const SizedBox(width: 13),
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: const TextStyle(fontWeight: FontWeight.w900),
+                      ),
+                      const SizedBox(height: 5),
+                      Text(
+                        subtitle,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          fontSize: 11.5,
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+                const Icon(Icons.chevron_right_rounded),
+              ],
             ),
-            const Icon(Icons.chevron_right_rounded),
-          ],
+          ),
         ),
-      ),
-    ),
-  );
+      );
 }
 
 class _HeroCard extends StatelessWidget {

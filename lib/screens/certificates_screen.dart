@@ -33,9 +33,8 @@ class _CertificatesScreenState extends State<CertificatesScreen> {
             ),
           )
           .toList();
-      _certificateLevel = completedLevels.isEmpty
-          ? state.currentLevel
-          : completedLevels.last;
+      _certificateLevel =
+          completedLevels.isEmpty ? state.currentLevel : completedLevels.last;
     }
   }
 
@@ -53,9 +52,8 @@ class _CertificatesScreenState extends State<CertificatesScreen> {
         .map((lesson) => lesson.id)
         .toSet();
     final total = lessonIds.length;
-    final completed = lessonIds
-        .where((id) => state.completedLessonIds.contains(id))
-        .length;
+    final completed =
+        lessonIds.where((id) => state.completedLessonIds.contains(id)).length;
     final examId = '${language.code}_$certificateLevel';
     final examPassed = state.completedExamIds.contains(examId);
     final learningProgress = total == 0 ? 0.0 : completed / total;
@@ -177,13 +175,13 @@ class _CertificatesScreenState extends State<CertificatesScreen> {
                 FilledButton.icon(
                   onPressed: unlocked
                       ? () => _copyCredential(
-                          context,
-                          certificateText,
-                          state.currentUser!.displayName,
-                          language.nativeName,
-                          certificateLevel,
-                          credentialId,
-                        )
+                            context,
+                            certificateText,
+                            state.currentUser!.displayName,
+                            language.nativeName,
+                            certificateLevel,
+                            credentialId,
+                          )
                       : null,
                   icon: const Icon(Icons.copy_all_rounded),
                   label: Text(
@@ -212,9 +210,9 @@ class _CertificatesScreenState extends State<CertificatesScreen> {
 
   static String _credentialId(String user, String language, String level) {
     final value = '$user-$language-$level'.codeUnits.fold<int>(
-      17,
-      (hash, code) => (hash * 31 + code) & 0x7fffffff,
-    );
+          17,
+          (hash, code) => (hash * 31 + code) & 0x7fffffff,
+        );
     return 'LNX-${value.toRadixString(16).toUpperCase().padLeft(8, '0')}';
   }
 
@@ -228,8 +226,7 @@ class _CertificatesScreenState extends State<CertificatesScreen> {
   ) async {
     await Clipboard.setData(
       ClipboardData(
-        text:
-            '${text.get('certificate_title')}\n'
+        text: '${text.get('certificate_title')}\n'
             '${text.get('certificate_awarded_to')} $learner\n'
             '$language · $level\n$id',
       ),
@@ -263,91 +260,92 @@ class _CertificateCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-    padding: const EdgeInsets.all(28),
-    decoration: BoxDecoration(
-      gradient: LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: [
-          Theme.of(context).colorScheme.surface,
-          Theme.of(context).colorScheme.primaryContainer,
-        ],
-      ),
-      borderRadius: BorderRadius.circular(30),
-      border: Border.all(
-        color: unlocked
-            ? const Color(0xFFD6A627)
-            : Theme.of(context).colorScheme.outlineVariant,
-        width: 3,
-      ),
-      boxShadow: [
-        BoxShadow(
-          color: Theme.of(context).colorScheme.primary.withValues(alpha: .12),
-          blurRadius: 34,
-          offset: const Offset(0, 12),
-        ),
-      ],
-    ),
-    child: Stack(
-      children: [
-        Column(
-          children: [
-            Icon(
-              unlocked
-                  ? Icons.workspace_premium_rounded
-                  : Icons.lock_outline_rounded,
-              size: 68,
-              color: unlocked ? const Color(0xFFD6A627) : Colors.grey,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              text.get('certificate_title'),
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.w900,
-                letterSpacing: .4,
-              ),
-            ),
-            const SizedBox(height: 18),
-            Text(text.get('certificate_awarded_to')),
-            const SizedBox(height: 5),
-            Text(
-              learnerName,
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                fontWeight: FontWeight.w900,
-                color: Theme.of(context).colorScheme.primary,
-              ),
-            ),
-            const SizedBox(height: 13),
-            Text(
-              '${text.get('certificate_completed')} $languageFlag $languageName · $level',
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontWeight: FontWeight.w800),
-            ),
-            const SizedBox(height: 20),
-            const Divider(),
-            const SizedBox(height: 6),
-            Text(
-              credentialId,
-              style: const TextStyle(
-                fontFamily: 'monospace',
-                fontWeight: FontWeight.w900,
-                letterSpacing: 1.2,
-              ),
-            ),
-            Text(
-              'LingoNexa · 2026',
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-                fontSize: 11,
-              ),
+        padding: const EdgeInsets.all(28),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Theme.of(context).colorScheme.surface,
+              Theme.of(context).colorScheme.primaryContainer,
+            ],
+          ),
+          borderRadius: BorderRadius.circular(30),
+          border: Border.all(
+            color: unlocked
+                ? const Color(0xFFD6A627)
+                : Theme.of(context).colorScheme.outlineVariant,
+            width: 3,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color:
+                  Theme.of(context).colorScheme.primary.withValues(alpha: .12),
+              blurRadius: 34,
+              offset: const Offset(0, 12),
             ),
           ],
         ),
-      ],
-    ),
-  );
+        child: Stack(
+          children: [
+            Column(
+              children: [
+                Icon(
+                  unlocked
+                      ? Icons.workspace_premium_rounded
+                      : Icons.lock_outline_rounded,
+                  size: 68,
+                  color: unlocked ? const Color(0xFFD6A627) : Colors.grey,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  text.get('certificate_title'),
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: .4,
+                      ),
+                ),
+                const SizedBox(height: 18),
+                Text(text.get('certificate_awarded_to')),
+                const SizedBox(height: 5),
+                Text(
+                  learnerName,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                        fontWeight: FontWeight.w900,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                ),
+                const SizedBox(height: 13),
+                Text(
+                  '${text.get('certificate_completed')} $languageFlag $languageName · $level',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontWeight: FontWeight.w800),
+                ),
+                const SizedBox(height: 20),
+                const Divider(),
+                const SizedBox(height: 6),
+                Text(
+                  credentialId,
+                  style: const TextStyle(
+                    fontFamily: 'monospace',
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 1.2,
+                  ),
+                ),
+                Text(
+                  'LingoNexa · 2026',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    fontSize: 11,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
 }
 
 class _Requirement extends StatelessWidget {
@@ -365,13 +363,14 @@ class _Requirement extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => ListTile(
-    contentPadding: EdgeInsets.zero,
-    leading: CircleAvatar(child: Icon(complete ? Icons.check_rounded : icon)),
-    title: Text(title, style: const TextStyle(fontWeight: FontWeight.w900)),
-    subtitle: Text(subtitle),
-    trailing: Icon(
-      complete ? Icons.verified_rounded : Icons.pending_outlined,
-      color: complete ? Colors.green : null,
-    ),
-  );
+        contentPadding: EdgeInsets.zero,
+        leading:
+            CircleAvatar(child: Icon(complete ? Icons.check_rounded : icon)),
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w900)),
+        subtitle: Text(subtitle),
+        trailing: Icon(
+          complete ? Icons.verified_rounded : Icons.pending_outlined,
+          color: complete ? Colors.green : null,
+        ),
+      );
 }

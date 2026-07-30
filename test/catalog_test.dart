@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lingonexa/data/course_repository.dart';
+import 'package:lingonexa/data/academy_repository.dart';
 import 'package:lingonexa/data/global_content_repository.dart';
 import 'package:lingonexa/data/language_catalog.dart';
 import 'package:lingonexa/data/learning_content_repository.dart';
@@ -51,9 +52,7 @@ void main() {
       isTrue,
     );
     expect(
-      units
-          .expand((unit) => unit.lessons)
-          .every(
+      units.expand((unit) => unit.lessons).every(
             (lesson) =>
                 lesson.steps.map((step) => step.answer).toSet().length >= 3,
           ),
@@ -294,4 +293,77 @@ void main() {
       );
     },
   );
+
+  test('academy provides complete localized teaching guides', () {
+    const academyKeys = [
+      'academy',
+      'academy_subtitle',
+      'deep_lessons',
+      'deep_lessons_subtitle',
+      'course_books',
+      'course_books_subtitle',
+      'motion_lessons',
+      'motion_lessons_subtitle',
+      'listening_studio',
+      'listening_studio_subtitle',
+      'reference_guides',
+      'reference_guides_subtitle',
+      'exam_center',
+      'exam_center_subtitle',
+      'complete_path',
+      'complete_path_subtitle',
+      'content_library',
+      'content_library_subtitle',
+      'coverage_note',
+      'overview',
+      'objectives',
+      'sequence',
+      'mistakes',
+      'checklist',
+    ];
+    final unit = CourseRepository.unitsFor('es').first;
+    for (final locale in AppText.supported) {
+      for (final key in academyKeys) {
+        expect(
+          AcademyRepository.text(locale.code, key),
+          isNot(key),
+          reason: '${locale.code}: $key',
+        );
+      }
+      final guide = AcademyRepository.guideFor(unit, locale.code);
+      expect(guide.topicTitle.trim(), isNotEmpty, reason: locale.code);
+      expect(guide.overview, hasLength(2), reason: locale.code);
+      expect(guide.objectives, hasLength(5), reason: locale.code);
+      expect(guide.learningSequence, hasLength(8), reason: locale.code);
+      expect(guide.commonMistakes, hasLength(4), reason: locale.code);
+      expect(guide.masteryChecklist, hasLength(6), reason: locale.code);
+      expect(
+        [
+          ...guide.overview,
+          ...guide.objectives,
+          ...guide.learningSequence,
+          ...guide.commonMistakes,
+          ...guide.masteryChecklist,
+        ].every((item) => item.trim().isNotEmpty),
+        isTrue,
+        reason: locale.code,
+      );
+    }
+  });
+
+  test('academy exposes books, media, listening, guides, and assessment', () {
+    expect(AcademyRepository.collections, hasLength(6));
+    expect(
+      AcademyRepository.collections.map((item) => item.id).toSet(),
+      containsAll([
+        'deep_lessons',
+        'course_books',
+        'motion',
+        'listening',
+        'reference',
+        'assessment',
+      ]),
+    );
+    expect(AcademyRepository.fullStudioLanguageCodes, hasLength(12));
+  });
 }

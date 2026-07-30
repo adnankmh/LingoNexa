@@ -13,6 +13,9 @@ cp -R "$backup_dir/android/." android/
 cp -R "$backup_dir/web/." web/
 rm -f android/settings.gradle android/build.gradle android/app/build.gradle
 flutter pub get
+dart format lib test tool
+dart format --output=none --set-exit-if-changed lib test tool
+dart run tool/verify_academy.dart
 flutter analyze --no-fatal-infos --no-fatal-warnings
 flutter test
 echo "LingoNexa is ready. Run: flutter run"

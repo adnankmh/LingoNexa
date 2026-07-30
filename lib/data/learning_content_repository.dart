@@ -1386,9 +1386,8 @@ abstract final class LearningContentRepository {
     String languageCode, {
     String sourceLanguageCode = 'en',
   }) {
-    final effectiveSourceCode = sourceLanguageCode == languageCode
-        ? 'en'
-        : sourceLanguageCode;
+    final effectiveSourceCode =
+        sourceLanguageCode == languageCode ? 'en' : sourceLanguageCode;
     // The legacy bundled phrasebooks have English meanings only. They are
     // included only when English is the requested meaning language; otherwise
     // the aligned global/starter records are used so no English meaning is
@@ -1473,62 +1472,63 @@ abstract final class LearningContentRepository {
     required int xp,
     required int streak,
     required int lessons,
-  }) => [
-    Achievement(
-      title: 'First Step',
-      description: 'Complete your first lesson',
-      emoji: '🌱',
-      goal: 1,
-      progress: lessons,
-    ),
-    Achievement(
-      title: 'Focused Learner',
-      description: 'Complete 10 lessons',
-      emoji: '🎯',
-      goal: 10,
-      progress: lessons,
-    ),
-    Achievement(
-      title: 'Course Explorer',
-      description: 'Complete 50 lessons',
-      emoji: '🧭',
-      goal: 50,
-      progress: lessons,
-    ),
-    Achievement(
-      title: 'Seven-Day Flame',
-      description: 'Maintain a 7-day streak',
-      emoji: '🔥',
-      goal: 7,
-      progress: streak,
-    ),
-    Achievement(
-      title: 'Thirty-Day Rhythm',
-      description: 'Maintain a 30-day streak',
-      emoji: '🌋',
-      goal: 30,
-      progress: streak,
-    ),
-    Achievement(
-      title: 'XP Builder',
-      description: 'Earn 1,000 XP',
-      emoji: '⚡',
-      goal: 1000,
-      progress: xp,
-    ),
-    Achievement(
-      title: 'Language Champion',
-      description: 'Earn 5,000 XP',
-      emoji: '🏆',
-      goal: 5000,
-      progress: xp,
-    ),
-    const Achievement(
-      title: 'World Citizen',
-      description: 'Study three different languages',
-      emoji: '🌍',
-      goal: 3,
-      progress: 1,
-    ),
-  ];
+  }) =>
+      [
+        Achievement(
+          title: 'First Step',
+          description: 'Complete your first lesson',
+          emoji: '🌱',
+          goal: 1,
+          progress: lessons,
+        ),
+        Achievement(
+          title: 'Focused Learner',
+          description: 'Complete 10 lessons',
+          emoji: '🎯',
+          goal: 10,
+          progress: lessons,
+        ),
+        Achievement(
+          title: 'Course Explorer',
+          description: 'Complete 50 lessons',
+          emoji: '🧭',
+          goal: 50,
+          progress: lessons,
+        ),
+        Achievement(
+          title: 'Seven-Day Flame',
+          description: 'Maintain a 7-day streak',
+          emoji: '🔥',
+          goal: 7,
+          progress: streak,
+        ),
+        Achievement(
+          title: 'Thirty-Day Rhythm',
+          description: 'Maintain a 30-day streak',
+          emoji: '🌋',
+          goal: 30,
+          progress: streak,
+        ),
+        Achievement(
+          title: 'XP Builder',
+          description: 'Earn 1,000 XP',
+          emoji: '⚡',
+          goal: 1000,
+          progress: xp,
+        ),
+        Achievement(
+          title: 'Language Champion',
+          description: 'Earn 5,000 XP',
+          emoji: '🏆',
+          goal: 5000,
+          progress: xp,
+        ),
+        const Achievement(
+          title: 'World Citizen',
+          description: 'Study three different languages',
+          emoji: '🌍',
+          goal: 3,
+          progress: 1,
+        ),
+      ];
 }

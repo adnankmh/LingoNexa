@@ -36,20 +36,19 @@ class _LevelExamScreenState extends State<LevelExamScreen> {
     if (_questions.isNotEmpty) return;
     final state = AppStateScope.of(context);
     final code = state.targetLanguageCode;
-    _questions =
-        CourseRepository.unitsFor(
-              code,
-              meaningLanguageCode: state.locale.languageCode,
-            )
-            .where((unit) => unit.level == widget.level)
-            .expand((unit) => unit.lessons)
-            .expand((lesson) => lesson.steps)
-            .where(
-              (step) =>
-                  step.type == ExerciseType.choice && step.options.length >= 3,
-            )
-            .take(20)
-            .toList(growable: false);
+    _questions = CourseRepository.unitsFor(
+      code,
+      meaningLanguageCode: state.locale.languageCode,
+    )
+        .where((unit) => unit.level == widget.level)
+        .expand((unit) => unit.lessons)
+        .expand((lesson) => lesson.steps)
+        .where(
+          (step) =>
+              step.type == ExerciseType.choice && step.options.length >= 3,
+        )
+        .take(20)
+        .toList(growable: false);
   }
 
   @override
@@ -111,9 +110,9 @@ class _LevelExamScreenState extends State<LevelExamScreen> {
                     question.prompt,
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.w900,
-                      height: 1.3,
-                    ),
+                          fontWeight: FontWeight.w900,
+                          height: 1.3,
+                        ),
                   ),
                   const SizedBox(height: 26),
                   Expanded(
@@ -233,8 +232,8 @@ class _LevelExamScreenState extends State<LevelExamScreen> {
                         ? context.text.get('level_passed')
                         : context.text.get('keep_building_foundation'),
                     style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.w900,
-                    ),
+                          fontWeight: FontWeight.w900,
+                        ),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 10),

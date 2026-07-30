@@ -27,8 +27,7 @@ class _PlacementTestScreenState extends State<PlacementTestScreen> {
   @override
   Widget build(BuildContext context) {
     final state = AppStateScope.of(context);
-    final lexicon =
-        CourseRepository.starterLexicon[state.targetLanguageCode] ??
+    final lexicon = CourseRepository.starterLexicon[state.targetLanguageCode] ??
         CourseRepository.starterLexicon['en']!;
     final correctIndex = _index % lexicon.length;
     final options = [...lexicon]..shuffle();
@@ -62,8 +61,8 @@ class _PlacementTestScreenState extends State<PlacementTestScreen> {
                   Text(
                     '“${_prompts[_index]}”',
                     style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.w900,
-                    ),
+                          fontWeight: FontWeight.w900,
+                        ),
                   ),
                   const SizedBox(height: 25),
                   Expanded(

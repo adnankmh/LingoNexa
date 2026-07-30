@@ -29,6 +29,7 @@ jobs:
           cache: gradle
       - uses: subosito/flutter-action@v2
         with:
+          flutter-version: '3.44.0'
           channel: stable
           cache: true
       - name: Verify Flutter SDK
@@ -37,6 +38,8 @@ jobs:
         run: bash scripts/ci_prepare.sh
       - name: Format sources
         run: dart format --output=none --set-exit-if-changed lib test tool
+      - name: Verify multilingual academy
+        run: dart run tool/verify_academy.dart
       - name: Verify content and icon guidance contracts
         run: dart run tool/verify_release.dart
       - name: Analyze Flutter project

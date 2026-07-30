@@ -478,7 +478,7 @@ abstract final class LanguageCatalog {
   ];
 
   static LanguageOption byCode(String code) => all.firstWhere(
-    (language) => language.code == code,
-    orElse: () => all.first,
-  );
+        (language) => language.code == code,
+        orElse: () => all.first,
+      );
 }

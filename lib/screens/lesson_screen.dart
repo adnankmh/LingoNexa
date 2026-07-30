@@ -229,12 +229,12 @@ class _LessonScreenState extends State<LessonScreen> {
         _recognizedSpeech.isEmpty ? expected : _normalize(_recognizedSpeech),
       ExerciseType.fillBlank => _normalize(_answerController.text),
       ExerciseType.choice ||
-      ExerciseType.listening => _normalize(_selectedAnswer ?? ''),
+      ExerciseType.listening =>
+        _normalize(_selectedAnswer ?? ''),
     };
     setState(() {
       _checked = true;
-      _correct =
-          submitted == expected ||
+      _correct = submitted == expected ||
           (_step.type == ExerciseType.speaking &&
               _similarity(submitted, expected) >= .55);
     });
@@ -432,9 +432,9 @@ class _StepBody extends StatelessWidget {
         Text(
           step.prompt,
           style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-            fontWeight: FontWeight.w900,
-            height: 1.25,
-          ),
+                fontWeight: FontWeight.w900,
+                height: 1.25,
+              ),
         ),
         if (step.hint.isNotEmpty) ...[
           const SizedBox(height: 8),
@@ -672,14 +672,14 @@ class _StepBody extends StatelessWidget {
   }
 
   String _label(ExerciseType type) => switch (type) {
-    ExerciseType.choice => 'MEANING',
-    ExerciseType.arrange => 'BUILD',
-    ExerciseType.listening => 'LISTEN',
-    ExerciseType.speaking => 'SPEAK',
-    ExerciseType.flashcard => 'DISCOVER',
-    ExerciseType.fillBlank => 'RECALL',
-    ExerciseType.culture => 'CULTURE NOTE',
-  };
+        ExerciseType.choice => 'MEANING',
+        ExerciseType.arrange => 'BUILD',
+        ExerciseType.listening => 'LISTEN',
+        ExerciseType.speaking => 'SPEAK',
+        ExerciseType.flashcard => 'DISCOVER',
+        ExerciseType.fillBlank => 'RECALL',
+        ExerciseType.culture => 'CULTURE NOTE',
+      };
 }
 
 class _AnswerOption extends StatelessWidget {

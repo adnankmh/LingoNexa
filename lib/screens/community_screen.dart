@@ -54,7 +54,9 @@ class _CommunityScreenState extends State<CommunityScreen> {
                   children: [
                     Text(
                       context.text.get('community'),
-                      style: Theme.of(context).textTheme.headlineMedium
+                      style: Theme.of(context)
+                          .textTheme
+                          .headlineMedium
                           ?.copyWith(fontWeight: FontWeight.w900),
                     ),
                     const SizedBox(height: 4),
@@ -705,15 +707,15 @@ class _RoomTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => ListTile(
-    leading: CircleAvatar(
-      backgroundColor: color.withValues(alpha: .15),
-      child: Icon(Icons.graphic_eq_rounded, color: color),
-    ),
-    title: Text(title, style: const TextStyle(fontWeight: FontWeight.w800)),
-    subtitle: Text('$people speaking · $level'),
-    trailing: FilledButton.tonal(
-      onPressed: onJoin,
-      child: Text(context.text.get('join')),
-    ),
-  );
+        leading: CircleAvatar(
+          backgroundColor: color.withValues(alpha: .15),
+          child: Icon(Icons.graphic_eq_rounded, color: color),
+        ),
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w800)),
+        subtitle: Text('$people speaking · $level'),
+        trailing: FilledButton.tonal(
+          onPressed: onJoin,
+          child: Text(context.text.get('join')),
+        ),
+      );
 }

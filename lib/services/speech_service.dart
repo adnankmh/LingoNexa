@@ -80,11 +80,8 @@ class SpeechService {
     }
     if (selected == null) {
       for (final locale in installed) {
-        final candidateLanguage = locale.localeId
-            .replaceAll('_', '-')
-            .toLowerCase()
-            .split('-')
-            .first;
+        final candidateLanguage =
+            locale.localeId.replaceAll('_', '-').toLowerCase().split('-').first;
         if (candidateLanguage == requestedLanguage) {
           selected = locale;
           break;

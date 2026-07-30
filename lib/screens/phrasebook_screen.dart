@@ -36,12 +36,12 @@ class _PhrasebookScreenState extends State<PhrasebookScreen> {
     );
     final availableCategories = <String>{
       for (final phrase in allPhrases) phrase.category,
-    }.toList()..sort();
+    }.toList()
+      ..sort();
     final phrases = allPhrases.where((phrase) {
       final categoryMatch = _category == 'All' || phrase.category == _category;
       final q = _query.toLowerCase().trim();
-      final queryMatch =
-          q.isEmpty ||
+      final queryMatch = q.isEmpty ||
           phrase.source.toLowerCase().contains(q) ||
           phrase.target.toLowerCase().contains(q);
       return categoryMatch && queryMatch;

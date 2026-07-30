@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../core/i18n.dart';
 import '../widgets/ui.dart';
+import 'academy_screen.dart';
 import 'community_screen.dart';
-import 'explore_screen.dart';
 import 'learn_screen.dart';
 import 'practice_screen.dart';
 import 'profile_screen.dart';
@@ -21,7 +21,7 @@ class _ShellScreenState extends State<ShellScreen> {
   static const _pages = [
     LearnScreen(),
     PracticeScreen(),
-    ExploreScreen(),
+    AcademyScreen(),
     CommunityScreen(),
     ProfileScreen(),
   ];

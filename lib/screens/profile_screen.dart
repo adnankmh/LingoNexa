@@ -65,7 +65,9 @@ class ProfileScreen extends StatelessWidget {
                         Flexible(
                           child: Text(
                             user.displayName,
-                            style: Theme.of(context).textTheme.titleLarge
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleLarge
                                 ?.copyWith(fontWeight: FontWeight.w900),
                           ),
                         ),
@@ -475,31 +477,31 @@ class _MiniStat extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-    width: width,
-    padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
-    decoration: BoxDecoration(
-      color: Theme.of(context).cardTheme.color,
-      borderRadius: BorderRadius.circular(19),
-      border: Border.all(color: Theme.of(context).dividerColor),
-    ),
-    child: Column(
-      children: [
-        Icon(icon, color: Theme.of(context).colorScheme.primary, size: 21),
-        const SizedBox(height: 5),
-        Text(
-          value,
-          style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 18),
+        width: width,
+        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardTheme.color,
+          borderRadius: BorderRadius.circular(19),
+          border: Border.all(color: Theme.of(context).dividerColor),
         ),
-        Text(
-          label,
-          style: TextStyle(
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-            fontSize: 10.5,
-          ),
+        child: Column(
+          children: [
+            Icon(icon, color: Theme.of(context).colorScheme.primary, size: 21),
+            const SizedBox(height: 5),
+            Text(
+              value,
+              style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 18),
+            ),
+            Text(
+              label,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                fontSize: 10.5,
+              ),
+            ),
+          ],
         ),
-      ],
-    ),
-  );
+      );
 }
 
 class _ThemeChoice extends StatelessWidget {
@@ -514,46 +516,47 @@ class _ThemeChoice extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => GestureDetector(
-    onTap: onTap,
-    child: Container(
-      width: 92,
-      margin: const EdgeInsetsDirectional.only(end: 9),
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: preset.background,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(
-          color: selected ? preset.seed : Theme.of(context).dividerColor,
-          width: selected ? 3 : 1,
+        onTap: onTap,
+        child: Container(
+          width: 92,
+          margin: const EdgeInsetsDirectional.only(end: 9),
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: preset.background,
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(
+              color: selected ? preset.seed : Theme.of(context).dividerColor,
+              width: selected ? 3 : 1,
+            ),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                width: 25,
+                height: 25,
+                decoration: BoxDecoration(
+                  color: preset.seed,
+                  shape: BoxShape.circle,
+                ),
+                child: selected
+                    ? const Icon(Icons.check_rounded,
+                        size: 16, color: Colors.white)
+                    : null,
+              ),
+              const SizedBox(height: 5),
+              Text(
+                preset.name,
+                style: TextStyle(
+                  color: preset.brightness == Brightness.dark
+                      ? Colors.white
+                      : Colors.black87,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 10.5,
+                ),
+              ),
+            ],
+          ),
         ),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            width: 25,
-            height: 25,
-            decoration: BoxDecoration(
-              color: preset.seed,
-              shape: BoxShape.circle,
-            ),
-            child: selected
-                ? const Icon(Icons.check_rounded, size: 16, color: Colors.white)
-                : null,
-          ),
-          const SizedBox(height: 5),
-          Text(
-            preset.name,
-            style: TextStyle(
-              color: preset.brightness == Brightness.dark
-                  ? Colors.white
-                  : Colors.black87,
-              fontWeight: FontWeight.w800,
-              fontSize: 10.5,
-            ),
-          ),
-        ],
-      ),
-    ),
-  );
+      );
 }

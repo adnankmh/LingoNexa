@@ -142,11 +142,11 @@ class PracticeScreen extends StatelessWidget {
                   badge: 'BETA',
                   onTap: state.aiTutorEnabled
                       ? () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const TutorScreen(),
-                          ),
-                        )
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const TutorScreen(),
+                            ),
+                          )
                       : null,
                 ),
                 FeatureTile(

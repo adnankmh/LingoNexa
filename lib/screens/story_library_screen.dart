@@ -108,9 +108,8 @@ class _StoryLibraryScreenState extends State<StoryLibraryScreen> {
                     itemCount: stories.length,
                     gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
                       maxCrossAxisExtent: 440,
-                      childAspectRatio: MediaQuery.sizeOf(context).width < 500
-                          ? 2.15
-                          : 2.35,
+                      childAspectRatio:
+                          MediaQuery.sizeOf(context).width < 500 ? 2.15 : 2.35,
                       mainAxisSpacing: 10,
                       crossAxisSpacing: 10,
                     ),
@@ -282,116 +281,119 @@ class _StoryReaderState extends State<_StoryReader> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(
-      title: Text('${widget.story.level} · ${widget.story.title}'),
-      actions: [
-        Padding(
-          padding: const EdgeInsetsDirectional.only(end: 54),
-          child: Center(
-            child: Text(
-              widget.language.flag,
-              style: const TextStyle(fontSize: 23),
-            ),
-          ),
-        ),
-      ],
-    ),
-    body: ListView.builder(
-      padding: const EdgeInsets.fromLTRB(18, 12, 18, 35),
-      itemCount: widget.story.lines.length + 1,
-      itemBuilder: (context, index) {
-        if (index == widget.story.lines.length) {
-          return Card(
-            margin: const EdgeInsets.only(top: 8),
-            child: Padding(
-              padding: const EdgeInsets.all(18),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Story comprehension',
-                    style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18),
-                  ),
-                  const SizedBox(height: 10),
-                  for (final prompt in const [
-                    'Who is speaking, and what do they need?',
-                    'Which phrase changes the direction of the conversation?',
-                    'What detail is stated directly, and what must you infer?',
-                    'Choose two expressions and replace one detail in each.',
-                    'Retell the situation in three sentences.',
-                    'Record a new ending using two phrases from the story.',
-                  ])
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: Row(
-                        children: [
-                          const Icon(
-                            Icons.check_circle_outline_rounded,
-                            size: 19,
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(child: Text(prompt)),
-                        ],
-                      ),
-                    ),
-                ],
+        appBar: AppBar(
+          title: Text('${widget.story.level} · ${widget.story.title}'),
+          actions: [
+            Padding(
+              padding: const EdgeInsetsDirectional.only(end: 54),
+              child: Center(
+                child: Text(
+                  widget.language.flag,
+                  style: const TextStyle(fontSize: 23),
+                ),
               ),
             ),
-          );
-        }
-        final line = widget.story.lines[index];
-        return Align(
-          alignment: index.isEven
-              ? AlignmentDirectional.centerStart
-              : AlignmentDirectional.centerEnd,
-          child: Container(
-            constraints: const BoxConstraints(maxWidth: 650),
-            margin: const EdgeInsets.only(bottom: 12),
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: index.isEven
-                  ? Theme.of(context).cardTheme.color
-                  : Theme.of(context).colorScheme.primaryContainer,
-              borderRadius: BorderRadius.circular(22),
-              border: Border.all(color: Theme.of(context).dividerColor),
-            ),
-            child: Row(
-              children: [
-                Text(line.visual, style: const TextStyle(fontSize: 34)),
-                const SizedBox(width: 12),
-                Expanded(
+          ],
+        ),
+        body: ListView.builder(
+          padding: const EdgeInsets.fromLTRB(18, 12, 18, 35),
+          itemCount: widget.story.lines.length + 1,
+          itemBuilder: (context, index) {
+            if (index == widget.story.lines.length) {
+              return Card(
+                margin: const EdgeInsets.only(top: 8),
+                child: Padding(
+                  padding: const EdgeInsets.all(18),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        line.target,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w900,
-                          fontSize: 17,
-                        ),
-                      ),
-                      const SizedBox(height: 5),
-                      Text(
-                        line.source,
+                      const Text(
+                        'Story comprehension',
                         style: TextStyle(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
+                            fontWeight: FontWeight.w900, fontSize: 18),
                       ),
+                      const SizedBox(height: 10),
+                      for (final prompt in const [
+                        'Who is speaking, and what do they need?',
+                        'Which phrase changes the direction of the conversation?',
+                        'What detail is stated directly, and what must you infer?',
+                        'Choose two expressions and replace one detail in each.',
+                        'Retell the situation in three sentences.',
+                        'Record a new ending using two phrases from the story.',
+                      ])
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.check_circle_outline_rounded,
+                                size: 19,
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(child: Text(prompt)),
+                            ],
+                          ),
+                        ),
                     ],
                   ),
                 ),
-                IconButton.filledTonal(
-                  tooltip: context.text.get('tip_speak'),
-                  onPressed: () => _play(line.target),
-                  icon: const Icon(Icons.volume_up_rounded),
+              );
+            }
+            final line = widget.story.lines[index];
+            return Align(
+              alignment: index.isEven
+                  ? AlignmentDirectional.centerStart
+                  : AlignmentDirectional.centerEnd,
+              child: Container(
+                constraints: const BoxConstraints(maxWidth: 650),
+                margin: const EdgeInsets.only(bottom: 12),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: index.isEven
+                      ? Theme.of(context).cardTheme.color
+                      : Theme.of(context).colorScheme.primaryContainer,
+                  borderRadius: BorderRadius.circular(22),
+                  border: Border.all(color: Theme.of(context).dividerColor),
                 ),
-              ],
-            ),
-          ),
-        );
-      },
-    ),
-  );
+                child: Row(
+                  children: [
+                    Text(line.visual, style: const TextStyle(fontSize: 34)),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            line.target,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w900,
+                              fontSize: 17,
+                            ),
+                          ),
+                          const SizedBox(height: 5),
+                          Text(
+                            line.source,
+                            style: TextStyle(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurfaceVariant,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    IconButton.filledTonal(
+                      tooltip: context.text.get('tip_speak'),
+                      onPressed: () => _play(line.target),
+                      icon: const Icon(Icons.volume_up_rounded),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+      );
 
   Future<void> _play(String text) async {
     final spoken = await _speech.speak(

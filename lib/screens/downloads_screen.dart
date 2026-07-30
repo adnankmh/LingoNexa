@@ -144,22 +144,22 @@ class _DownloadsScreenState extends State<DownloadsScreen> {
                                   ),
                                 )
                               : active
-                              ? IconButton(
-                                  tooltip: context.text.get(
-                                    'tip_delete_download',
-                                  ),
-                                  onPressed: () =>
-                                      _toggle(state, language.code),
-                                  icon: const Icon(
-                                    Icons.delete_outline_rounded,
-                                  ),
-                                )
-                              : IconButton.filledTonal(
-                                  tooltip: context.text.get('tip_download'),
-                                  onPressed: () =>
-                                      _toggle(state, language.code),
-                                  icon: const Icon(Icons.download_rounded),
-                                ),
+                                  ? IconButton(
+                                      tooltip: context.text.get(
+                                        'tip_delete_download',
+                                      ),
+                                      onPressed: () =>
+                                          _toggle(state, language.code),
+                                      icon: const Icon(
+                                        Icons.delete_outline_rounded,
+                                      ),
+                                    )
+                                  : IconButton.filledTonal(
+                                      tooltip: context.text.get('tip_download'),
+                                      onPressed: () =>
+                                          _toggle(state, language.code),
+                                      icon: const Icon(Icons.download_rounded),
+                                    ),
                         ),
                       );
                     },
