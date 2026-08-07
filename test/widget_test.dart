@@ -15,14 +15,18 @@ void main() {
     state.onboardingCompleted = true;
 
     await tester.pumpWidget(LingoNexaApp(state: state));
-    await tester.pumpAndSettle();
+    // The learning shell intentionally contains looping Lottie animations, so
+    // advance a bounded frame window instead of waiting for every animation to
+    // settle forever.
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 800));
 
     expect(find.text('Learn'), findsOneWidget);
     expect(find.text('Practice'), findsOneWidget);
     expect(find.text('Explore'), findsOneWidget);
     expect(find.text('Community'), findsOneWidget);
     expect(find.text('Profile'), findsOneWidget);
-    expect(find.text('CEFR Journey'), findsOneWidget);
+    expect(find.text('CEFR journey'), findsOneWidget);
   });
 
   testWidgets('first launch renders onboarding', (tester) async {

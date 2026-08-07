@@ -201,7 +201,7 @@ class _LeagueTable extends StatelessWidget {
                       fontSize: 23,
                     ),
                   ),
-                  SizedBox(height: 5),
+                  const SizedBox(height: 5),
                   Text(
                     context.text.get('weekly_league_subtitle'),
                     style: const TextStyle(color: Colors.white70),

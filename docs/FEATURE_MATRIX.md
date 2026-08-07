@@ -15,9 +15,9 @@ LingoNexa does not reproduce competitor code, artwork, copy, characters, or prop
 | Offline learning and progress | Babbel / Mango | Local accounts, isolated progress, bundled course packs, and device-voice readiness checks |
 | Placement and CEFR organization | Mango / Busuu | Four-step onboarding, starter placement check, and A1–C2 course framework |
 | Goal-specific courses | Babbel / Mango | Eight original travel, business, health, academic, kids, life-abroad, exam, and media pathways |
-| Phrasebook, grammar, and scripts | Broad category pattern | Searchable phrases, A1–C2 grammar atlas, character maps, and handwriting practice |
+| Phrasebook, grammar, and scripts | Babbel Grammar Guide / broad category pattern | Searchable phrases, six A1–C2 grammar books, 54 localized reading chapters, language fingerprints, active recall, character maps, and handwriting practice |
 | Plans, leagues, and records | Broad category pattern | Weekly study plan, achievement milestones, league table, offline packs, and certificate readiness |
-| Correct/incorrect motion feedback | Broad category pattern | Original lightweight Lottie feedback plus system sounds |
+| Correct/incorrect motion feedback | Broad category pattern | Sixteen original lightweight Lottie assets, animated academy cards, answer explanations, and system sounds |
 | Content operations | Broad category pattern | Role-gated admin studio for learning, voice, XP, accounts, modules, and export |
 
 ## Content integrity boundary
@@ -31,8 +31,12 @@ Official feature references used during product planning:
 
 - https://blog.duolingo.com/duolingo-101-how-to-learn-a-language-on-duolingo/
 - https://blog.duolingo.com/ways-to-practice-in-duolingo/
+- https://blog.duolingo.com/guide-to-duolingo-practice-hub/
 - https://help.busuu.com/hc/en-us/articles/16722928943377-How-do-I-send-my-exercises-to-the-Community
 - https://support.babbel.com/hc/en-us/articles/205600228-Vocab-workout-Review
+- https://support.babbel.com/hc/en-us/articles/19260489559058-Grammar-guide
+- https://support.babbel.com/hc/en-us/articles/19188554247186-Guided-Conversations
+- https://support.babbel.com/hc/en-us/articles/19211305815570-Speech-recognition
 - https://www.memrise.com/
 - https://www.hellotalk.com/en/
 - https://www.speaky.com/

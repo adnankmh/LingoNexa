@@ -150,7 +150,7 @@ void main() {
         'report_post',
         'room_preview_note',
       ];
-      final english = AppText(const Locale('en'));
+      const english = AppText(Locale('en'));
       for (final locale in AppText.supported) {
         final text = AppText(Locale(locale.code));
         for (final key in keys) {

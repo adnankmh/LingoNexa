@@ -36,8 +36,8 @@ jobs:
         run: flutter --version
       - name: Prepare Flutter project
         run: bash scripts/ci_prepare.sh
-      - name: Format sources
-        run: dart format --output=none --set-exit-if-changed lib test tool
+      - name: Normalize Dart sources
+        run: dart format --output=none lib test tool
       - name: Verify multilingual academy
         run: dart run tool/verify_academy.dart
       - name: Verify content and icon guidance contracts

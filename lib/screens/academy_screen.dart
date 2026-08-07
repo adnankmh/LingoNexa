@@ -127,14 +127,22 @@ class AcademyScreen extends StatelessWidget {
                     Expanded(child: copyColumn),
                     const SizedBox(width: 20),
                     Container(
-                      width: 164,
+                      width: 174,
                       height: 164,
                       decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: .1),
+                        color: Colors.white.withValues(alpha: .08),
                         shape: BoxShape.circle,
                       ),
-                      child: const Center(
-                        child: Text('🌐', style: TextStyle(fontSize: 92)),
+                      child: Lottie.asset(
+                        'assets/lottie/academy_orbit.json',
+                        fit: BoxFit.contain,
+                        errorBuilder: (_, __, ___) => const Center(
+                          child: Icon(
+                            Icons.public_rounded,
+                            color: Colors.white,
+                            size: 88,
+                          ),
+                        ),
                       ),
                     ),
                   ],
@@ -425,16 +433,21 @@ class _CollectionCard extends StatelessWidget {
               Row(
                 children: [
                   Container(
-                    width: 46,
-                    height: 46,
+                    width: 58,
+                    height: 58,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
                       color: color.withValues(alpha: .11),
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    child: Text(
-                      collection.icon,
-                      style: const TextStyle(fontSize: 24),
+                    child: Lottie.asset(
+                      collection.animationAsset,
+                      repeat: true,
+                      fit: BoxFit.contain,
+                      errorBuilder: (_, __, ___) => Text(
+                        collection.icon,
+                        style: const TextStyle(fontSize: 24),
+                      ),
                     ),
                   ),
                   const Spacer(),

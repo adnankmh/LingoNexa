@@ -1,8 +1,8 @@
 # LingoNexa
 
-Current release: **2.0.0+12 — Global Academy**
+Current release: **2.1.0+13 — Living Language Library**
 
-An original Flutter foundation for a multilingual learning platform. Version 2.0 introduces Global Academy: six connected learning collections, six A1–C2 course books with 15 chapters each, complete unit explanations, localized objectives, eight-step study sequences, mistake repair, mastery checklists, animated guidance, listening, reference, and assessment centers. The catalog contains 67 learning languages and 12 interface languages.
+An original Flutter foundation for a multilingual learning platform. Version 2.1 adds a six-book A1–C2 grammar library with 54 reading chapters, interface-language explanations, target-language examples, language fingerprints, guided active recall, mistake explanations, a fully localized practice center, modern page motion, and 16 lightweight Lottie assets. The catalog contains 67 learning languages and 12 interface languages.
 
 Content integrity is explicit: 12 core languages include the expanded 84-concept aligned bank (1,008 localized entries and 4,032 generated drills). The remaining 55 languages use their verified starter lexicons and never receive English text disguised as target-language content. Expand them only through reviewed course packs.
 

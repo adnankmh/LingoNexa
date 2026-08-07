@@ -134,7 +134,7 @@ class _GlobalThemeButton extends StatelessWidget {
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
-                        'Learning: ${language.nativeName}',
+                        '${context.text.get('learning_language')}: ${language.nativeName}',
                         style: const TextStyle(fontWeight: FontWeight.w800),
                       ),
                     ),

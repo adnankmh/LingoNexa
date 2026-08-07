@@ -307,7 +307,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                 title: context.text.get('room_english_confidence'),
                 people: 18,
                 level: 'A2–B1',
-                color: Color(0xFF6C63FF),
+                color: const Color(0xFF6C63FF),
                 onJoin: () =>
                     _openRoom(context.text.get('room_english_confidence')),
               ),
@@ -315,7 +315,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                 title: context.text.get('room_arabic_exchange'),
                 people: 9,
                 level: context.text.get('all_levels'),
-                color: Color(0xFF20C997),
+                color: const Color(0xFF20C997),
                 onJoin: () =>
                     _openRoom(context.text.get('room_arabic_exchange')),
               ),
@@ -323,7 +323,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                 title: context.text.get('room_spanish_stories'),
                 people: 12,
                 level: 'B1',
-                color: Color(0xFFFFA94D),
+                color: const Color(0xFFFFA94D),
                 onJoin: () =>
                     _openRoom(context.text.get('room_spanish_stories')),
               ),

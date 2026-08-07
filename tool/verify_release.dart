@@ -1,9 +1,9 @@
 import 'dart:io';
 
-import 'package:lingonexa/core/i18n.dart';
 import 'package:lingonexa/data/academy_repository.dart';
 import 'package:lingonexa/data/course_repository.dart';
 import 'package:lingonexa/data/global_content_repository.dart';
+import 'package:lingonexa/data/grammar_book_repository.dart';
 import 'package:lingonexa/data/learning_content_repository.dart';
 
 Never _fail(String message) => throw StateError(message);
@@ -85,15 +85,29 @@ void main() {
     'The academy collection contract is incomplete.',
   );
   final sampleUnit = CourseRepository.unitsFor('es').first;
-  for (final locale in AppText.supported) {
-    final guide = AcademyRepository.guideFor(sampleUnit, locale.code);
+  const interfaceLocales = [
+    'ar',
+    'en',
+    'es',
+    'fr',
+    'de',
+    'tr',
+    'pt',
+    'it',
+    'ru',
+    'zh',
+    'ja',
+    'ko',
+  ];
+  for (final locale in interfaceLocales) {
+    final guide = AcademyRepository.guideFor(sampleUnit, locale);
     _require(
       guide.overview.length == 2 &&
           guide.objectives.length == 5 &&
           guide.learningSequence.length == 8 &&
           guide.commonMistakes.length == 4 &&
           guide.masteryChecklist.length == 6,
-      'Incomplete academy guide for ${locale.code}.',
+      'Incomplete academy guide for $locale.',
     );
     for (final key in const [
       'academy',
@@ -107,11 +121,28 @@ void main() {
       'coverage_note',
     ]) {
       _require(
-        AcademyRepository.text(locale.code, key) != key,
-        'Missing academy localization for ${locale.code}: $key',
+        AcademyRepository.text(locale, key) != key,
+        'Missing academy localization for $locale: $key',
       );
     }
+    final grammarCopy = GrammarBookRepository.copy(locale);
+    _require(
+      grammarCopy.ruleSteps.length == 8 &&
+          grammarCopy.practiceSteps.length == 8 &&
+          grammarCopy.answerSteps.length == 8,
+      'Incomplete grammar book localization for $locale.',
+    );
   }
+
+  final lottieFiles = Directory('assets/lottie')
+      .listSync()
+      .whereType<File>()
+      .where((file) => file.path.endsWith('.json'))
+      .toList();
+  _require(
+    lottieFiles.length >= 15,
+    'The motion library must include at least 15 Lottie assets.',
+  );
 
   final screenSource = Directory('lib/screens')
       .listSync(recursive: true)

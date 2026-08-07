@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 
 import '../core/app_state.dart';
+import '../data/grammar_book_repository.dart';
 import '../data/language_catalog.dart';
 import '../data/learning_content_repository.dart';
 import '../models/models.dart';
@@ -14,26 +16,59 @@ class GrammarScreen extends StatefulWidget {
 
 class _GrammarScreenState extends State<GrammarScreen> {
   String _level = 'All';
+  String _query = '';
+  final Set<int> _readChapters = {};
+  final TextEditingController _searchController = TextEditingController();
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final state = AppStateScope.of(context);
+    final locale = state.locale.languageCode;
+    final copy = GrammarBookRepository.copy(locale);
     final language = LanguageCatalog.byCode(state.targetLanguageCode);
     final verified = LearningContentRepository.phrasesFor(
       language.code,
-      sourceLanguageCode: state.locale.languageCode,
+      sourceLanguageCode: locale,
     );
-    final topics = LearningContentRepository.grammarTopics
-        .where((topic) => _level == 'All' || topic.level == _level)
-        .toList();
+    final indexedTopics = LearningContentRepository.grammarTopics.indexed
+        .where((entry) => _level == 'All' || entry.$2.level == _level)
+        .where((entry) {
+      if (_query.trim().isEmpty) return true;
+      final title = GrammarBookRepository.localizedTopicTitle(
+        locale,
+        entry.$1,
+        entry.$2.title,
+      );
+      return '$title ${entry.$2.level}'
+          .toLowerCase()
+          .contains(_query.trim().toLowerCase());
+    }).toList();
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Grammar Atlas'),
+        title: Text(copy.title),
         actions: [
           Padding(
-            padding: const EdgeInsetsDirectional.only(end: 54),
+            padding: const EdgeInsetsDirectional.only(end: 20),
             child: Center(
-              child: Text(language.flag, style: const TextStyle(fontSize: 23)),
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.primaryContainer,
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: Text(
+                  '${language.flag} ${language.nativeName}',
+                  style: const TextStyle(fontWeight: FontWeight.w900),
+                ),
+              ),
             ),
           ),
         ],
@@ -42,94 +77,148 @@ class _GrammarScreenState extends State<GrammarScreen> {
         top: false,
         child: Center(
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 900),
-            child: Column(
-              children: [
-                Container(
-                  width: double.infinity,
-                  margin: const EdgeInsets.fromLTRB(18, 10, 18, 4),
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.primaryContainer.withValues(alpha: .55),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '${language.flag} ${language.englishName} grammar profile',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w900,
-                          fontSize: 17,
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        _languageProfile(language.code, language.script),
-                        style: const TextStyle(height: 1.5),
-                      ),
-                      const SizedBox(height: 7),
-                      Text(
-                        'Writing system: ${language.script} · ${verified.length} aligned examples currently available',
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                          fontSize: 11.5,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(
-                  height: 58,
-                  child: ListView(
-                    scrollDirection: Axis.horizontal,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 18,
-                      vertical: 8,
-                    ),
-                    children: [
-                      for (final level in const [
-                        'All',
-                        'A1',
-                        'A2',
-                        'B1',
-                        'B2',
-                        'C1',
-                        'C2',
-                      ])
-                        Padding(
-                          padding: const EdgeInsetsDirectional.only(end: 7),
-                          child: ChoiceChip(
-                            selected: _level == level,
-                            onSelected: (_) => setState(() => _level = level),
-                            label: Text(level),
-                            labelStyle: const TextStyle(
-                              fontWeight: FontWeight.w900,
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: ListView.builder(
-                    padding: const EdgeInsets.fromLTRB(18, 8, 18, 30),
-                    itemCount: topics.length,
-                    itemBuilder: (context, index) => _GrammarCard(
-                      topic: topics[index],
+            constraints: const BoxConstraints(maxWidth: 1080),
+            child: CustomScrollView(
+              slivers: [
+                SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(18, 8, 18, 0),
+                  sliver: SliverToBoxAdapter(
+                    child: _GrammarHero(
+                      copy: copy,
                       language: language,
-                      languageProfile: _languageProfile(
-                        language.code,
-                        language.script,
-                      ),
-                      examples: [
-                        for (var i = 0; i < 3; i++)
-                          verified[(index * 3 + i) % verified.length],
-                      ],
+                      exampleCount: verified.length,
                     ),
+                  ),
+                ),
+                SliverToBoxAdapter(
+                  child: SizedBox(
+                    height: 178,
+                    child: ListView.separated(
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.fromLTRB(18, 18, 18, 12),
+                      itemCount: 6,
+                      separatorBuilder: (_, __) => const SizedBox(width: 10),
+                      itemBuilder: (context, index) {
+                        final level =
+                            const ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'][index];
+                        final total = LearningContentRepository.grammarTopics
+                            .where((topic) => topic.level == level)
+                            .length;
+                        final read = LearningContentRepository
+                            .grammarTopics.indexed
+                            .where((entry) => entry.$2.level == level)
+                            .where((entry) => _readChapters.contains(entry.$1))
+                            .length;
+                        return _BookCover(
+                          level: level,
+                          bookLabel: copy.book,
+                          chaptersLabel: copy.chapters,
+                          chapters: total,
+                          progress: total == 0 ? 0 : read / total,
+                          selected: _level == level,
+                          color: _bookColors[index],
+                          onTap: () => setState(
+                            () => _level = _level == level ? 'All' : level,
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+                SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(18, 2, 18, 10),
+                  sliver: SliverToBoxAdapter(
+                    child: TextField(
+                      controller: _searchController,
+                      onChanged: (value) => setState(() => _query = value),
+                      decoration: InputDecoration(
+                        hintText: copy.searchHint,
+                        prefixIcon: const Icon(Icons.search_rounded),
+                        suffixIcon: _query.isEmpty
+                            ? null
+                            : IconButton(
+                                tooltip: copy.allLevels,
+                                onPressed: () {
+                                  _searchController.clear();
+                                  setState(() => _query = '');
+                                },
+                                icon: const Icon(Icons.close_rounded),
+                              ),
+                      ),
+                    ),
+                  ),
+                ),
+                SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(18, 4, 18, 34),
+                  sliver: SliverLayoutBuilder(
+                    builder: (context, constraints) {
+                      final columns =
+                          constraints.crossAxisExtent >= 760 ? 2 : 1;
+                      return SliverGrid(
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: columns,
+                          mainAxisSpacing: 12,
+                          crossAxisSpacing: 12,
+                          childAspectRatio: columns == 1 ? 1.9 : 1.5,
+                        ),
+                        delegate: SliverChildBuilderDelegate(
+                          (context, index) {
+                            final entry = indexedTopics[index];
+                            final chapterTitle =
+                                GrammarBookRepository.localizedTopicTitle(
+                              locale,
+                              entry.$1,
+                              entry.$2.title,
+                            );
+                            final examples = _examplesFor(
+                              verified,
+                              entry.$1,
+                              3,
+                            );
+                            return TweenAnimationBuilder<double>(
+                              tween: Tween(begin: 0, end: 1),
+                              duration: Duration(
+                                milliseconds: 260 + (index % 6) * 45,
+                              ),
+                              curve: Curves.easeOutCubic,
+                              builder: (context, value, child) =>
+                                  Transform.translate(
+                                offset: Offset(0, 18 * (1 - value)),
+                                child: Opacity(opacity: value, child: child),
+                              ),
+                              child: _ChapterCard(
+                                chapterNumber: entry.$1 + 1,
+                                title: chapterTitle,
+                                topic: entry.$2,
+                                copy: copy,
+                                color: _bookColors[_levelIndex(entry.$2.level)],
+                                complete: _readChapters.contains(entry.$1),
+                                onOpen: (practice) async {
+                                  await Navigator.push<void>(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => _GrammarChapterScreen(
+                                        chapterNumber: entry.$1 + 1,
+                                        topic: entry.$2,
+                                        title: chapterTitle,
+                                        examples: examples,
+                                        language: language,
+                                        locale: locale,
+                                        startWithPractice: practice,
+                                      ),
+                                    ),
+                                  );
+                                  if (mounted) {
+                                    setState(() => _readChapters.add(entry.$1));
+                                  }
+                                },
+                              ),
+                            );
+                          },
+                          childCount: indexedTopics.length,
+                        ),
+                      );
+                    },
                   ),
                 ),
               ],
@@ -140,177 +229,367 @@ class _GrammarScreenState extends State<GrammarScreen> {
     );
   }
 
-  String _languageProfile(String code, String script) => switch (code) {
-        'en' =>
-          'English relies on relatively fixed word order, auxiliary verbs, articles, and tense/aspect combinations. Learn patterns inside complete phrases.',
-        'ar' =>
-          'Arabic uses a root-and-pattern system, grammatical gender, agreement, and right-to-left writing. Formal Arabic and spoken varieties should be labelled separately.',
-        'es' =>
-          'Spanish combines noun gender and agreement with rich verb conjugation. Subject pronouns can often be omitted because the verb ending carries information.',
-        'fr' =>
-          'French uses articles, gender, agreement, verb conjugation, liaison, and a major difference between written and naturally spoken forms.',
-        'de' =>
-          'German uses grammatical gender, four cases, separable verbs, and verb-position rules. Learn nouns together with their articles.',
-        'tr' =>
-          'Turkish is agglutinative: clear suffix chains express case, possession, tense, and person. Vowel harmony helps predict many forms.',
-        'pt' =>
-          'Portuguese uses gender, agreement, rich conjugation, and distinct spoken varieties. Pronunciation and pronoun placement vary by region.',
-        'it' =>
-          'Italian uses gender, agreement, articles, and expressive verb conjugation. Double consonants and stress can change meaning.',
-        'ru' =>
-          'Russian uses six cases, grammatical gender, verb aspect, and flexible word order. Endings show the role of each word.',
-        'zh' =>
-          'Mandarin Chinese uses tones, classifiers, particles, and word order rather than verb conjugation. Characters and pronunciation must be learned together.',
-        'ja' =>
-          'Japanese commonly uses subject–object–verb order, particles, counters, and politeness levels. Context often allows subjects to be omitted.',
-        'ko' =>
-          'Korean commonly uses subject–object–verb order, particles, speech levels, and honorifics. Verb endings express social relationship and sentence function.',
-        _ =>
-          'This course uses the $script writing system. Only aligned reviewed phrases are presented as target-language examples; broader grammar notes remain cross-language concepts until a specialist pack is installed.',
-      };
+  static List<PhraseEntry> _examplesFor(
+    List<PhraseEntry> phrases,
+    int offset,
+    int count,
+  ) {
+    if (phrases.isEmpty) return const [];
+    return [
+      for (var index = 0; index < count; index++)
+        phrases[(offset * count + index) % phrases.length],
+    ];
+  }
+
+  static int _levelIndex(String level) => const [
+        'A1',
+        'A2',
+        'B1',
+        'B2',
+        'C1',
+        'C2'
+      ].indexOf(level).clamp(0, 5).toInt();
+
+  static const _bookColors = [
+    Color(0xFF4E72E8),
+    Color(0xFF0A9A7C),
+    Color(0xFFE7783D),
+    Color(0xFF9B55D3),
+    Color(0xFFDB4F7A),
+    Color(0xFFB27A15),
+  ];
 }
 
-class _GrammarCard extends StatelessWidget {
-  const _GrammarCard({
-    required this.topic,
-    required this.examples,
+class _GrammarHero extends StatelessWidget {
+  const _GrammarHero({
+    required this.copy,
     required this.language,
-    required this.languageProfile,
+    required this.exampleCount,
   });
-  final GrammarTopic topic;
-  final List<PhraseEntry> examples;
+
+  final GrammarBookCopy copy;
   final LanguageOption language;
-  final String languageProfile;
+  final int exampleCount;
 
   @override
-  Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 11),
-      child: ExpansionTile(
-        tilePadding: const EdgeInsets.symmetric(horizontal: 17, vertical: 6),
-        childrenPadding: const EdgeInsets.fromLTRB(18, 0, 18, 18),
-        leading: CircleAvatar(child: Text(topic.emoji)),
-        title: Text(
-          topic.title,
-          style: const TextStyle(fontWeight: FontWeight.w900),
-        ),
-        subtitle: Text('${topic.level} · Concept lesson'),
-        children: [
-          Align(
-            alignment: AlignmentDirectional.centerStart,
-            child: Text(topic.summary, style: const TextStyle(height: 1.55)),
+  Widget build(BuildContext context) => Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(22),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFF172D63), Color(0xFF694FE7)],
           ),
-          const SizedBox(height: 12),
-          Align(
-            alignment: AlignmentDirectional.centerStart,
-            child: Text(
-              'Verified target-language examples',
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.primary,
-                fontWeight: FontWeight.w900,
+          borderRadius: BorderRadius.circular(30),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF5B4CF0).withValues(alpha: .22),
+              blurRadius: 32,
+              offset: const Offset(0, 14),
+            ),
+          ],
+        ),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final details = Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  copy.title,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 28,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  copy.subtitle,
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: .82),
+                    height: 1.5,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    _HeroPill(
+                        icon: Icons.library_books_rounded,
+                        text: '6 ${copy.book}'),
+                    _HeroPill(
+                        icon: Icons.auto_stories_rounded,
+                        text: '54 ${copy.chapters}'),
+                    _HeroPill(
+                        icon: Icons.translate_rounded,
+                        text: '$exampleCount ${copy.alignedExamples}'),
+                  ],
+                ),
+              ],
+            );
+            if (constraints.maxWidth < 650) return details;
+            return Row(
+              children: [
+                Expanded(child: details),
+                SizedBox(
+                  width: 170,
+                  height: 150,
+                  child: Lottie.asset(
+                    'assets/lottie/grammar_book.json',
+                    fit: BoxFit.contain,
+                    errorBuilder: (_, __, ___) => const Center(
+                      child: Icon(Icons.menu_book_rounded,
+                          color: Colors.white, size: 92),
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
+      );
+}
+
+class _HeroPill extends StatelessWidget {
+  const _HeroPill({required this.icon, required this.text});
+  final IconData icon;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: .12),
+          borderRadius: BorderRadius.circular(30),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 16, color: Colors.white),
+            const SizedBox(width: 6),
+            Text(text,
+                style: const TextStyle(
+                    color: Colors.white, fontWeight: FontWeight.w800)),
+          ],
+        ),
+      );
+}
+
+class _BookCover extends StatelessWidget {
+  const _BookCover({
+    required this.level,
+    required this.bookLabel,
+    required this.chaptersLabel,
+    required this.chapters,
+    required this.progress,
+    required this.selected,
+    required this.color,
+    required this.onTap,
+  });
+
+  final String level;
+  final String bookLabel;
+  final String chaptersLabel;
+  final int chapters;
+  final double progress;
+  final bool selected;
+  final Color color;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(20),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 220),
+            width: 142,
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [color, Color.lerp(color, Colors.black, .24)!],
               ),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: selected ? Colors.white : color.withValues(alpha: .7),
+                width: selected ? 3 : 1,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: color.withValues(alpha: selected ? .34 : .17),
+                  blurRadius: selected ? 20 : 10,
+                  offset: const Offset(0, 8),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Icon(Icons.auto_stories_rounded,
+                    color: Colors.white, size: 24),
+                const Spacer(),
+                Text('$bookLabel $level',
+                    style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w900)),
+                const SizedBox(height: 3),
+                Text('$chapters $chaptersLabel',
+                    style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 11.5,
+                        fontWeight: FontWeight.w700)),
+                const SizedBox(height: 9),
+                LinearProgressIndicator(
+                  value: progress,
+                  minHeight: 5,
+                  borderRadius: BorderRadius.circular(10),
+                  backgroundColor: Colors.white24,
+                  color: Colors.white,
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: 8),
-          for (final example in examples)
-            Container(
-              width: double.infinity,
-              margin: const EdgeInsets.only(bottom: 7),
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Theme.of(
-                  context,
-                ).colorScheme.primaryContainer.withValues(alpha: .45),
-                borderRadius: BorderRadius.circular(14),
+        ),
+      );
+}
+
+class _ChapterCard extends StatelessWidget {
+  const _ChapterCard({
+    required this.chapterNumber,
+    required this.title,
+    required this.topic,
+    required this.copy,
+    required this.color,
+    required this.complete,
+    required this.onOpen,
+  });
+
+  final int chapterNumber;
+  final String title;
+  final GrammarTopic topic;
+  final GrammarBookCopy copy;
+  final Color color;
+  final bool complete;
+  final ValueChanged<bool> onOpen;
+
+  @override
+  Widget build(BuildContext context) => Card(
+        margin: EdgeInsets.zero,
+        clipBehavior: Clip.antiAlias,
+        child: Stack(
+          children: [
+            PositionedDirectional(
+              top: -34,
+              end: -24,
+              child: Container(
+                width: 120,
+                height: 120,
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: .10),
+                  shape: BoxShape.circle,
+                ),
               ),
-              child: Row(
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(example.visual, style: const TextStyle(fontSize: 24)),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          example.target,
-                          style: const TextStyle(fontWeight: FontWeight.w900),
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 9, vertical: 5),
+                        decoration: BoxDecoration(
+                          color: color.withValues(alpha: .12),
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                        Text(
-                          example.source,
+                        child: Text('${copy.chapter} $chapterNumber',
+                            style: TextStyle(
+                                color: color,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w900)),
+                      ),
+                      const Spacer(),
+                      Text(topic.level,
                           style: TextStyle(
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onSurfaceVariant,
-                            fontSize: 11.5,
-                          ),
-                        ),
+                              color: color, fontWeight: FontWeight.w900)),
+                      if (complete) ...[
+                        const SizedBox(width: 6),
+                        const Icon(Icons.check_circle_rounded,
+                            color: Color(0xFF0A9A7C), size: 19),
                       ],
-                    ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Text(title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                          fontSize: 17, fontWeight: FontWeight.w900)),
+                  const SizedBox(height: 5),
+                  Text('8 ${copy.minutes} · ${topic.emoji}',
+                      style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          fontSize: 11.5,
+                          fontWeight: FontWeight.w700)),
+                  const Spacer(),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: () => onOpen(false),
+                          icon: const Icon(Icons.menu_book_rounded, size: 18),
+                          label: Text(copy.fullExplanation,
+                              maxLines: 1, overflow: TextOverflow.ellipsis),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      IconButton.filledTonal(
+                        tooltip: copy.practice,
+                        onPressed: () => onOpen(true),
+                        icon: const Icon(Icons.bolt_rounded),
+                      ),
+                    ],
                   ),
                 ],
               ),
             ),
-          const SizedBox(height: 4),
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: () => _openDetail(context),
-                  icon: const Icon(Icons.menu_book_rounded),
-                  label: const Text('Full explanation'),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: FilledButton.tonalIcon(
-                  onPressed: () => _openDetail(context, practice: true),
-                  icon: const Icon(Icons.fitness_center_rounded),
-                  label: const Text('Practice'),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _openDetail(BuildContext context, {bool practice = false}) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => _GrammarDetailScreen(
-          topic: topic,
-          examples: examples,
-          language: language,
-          languageProfile: languageProfile,
-          startWithPractice: practice,
+          ],
         ),
-      ),
-    );
-  }
+      );
 }
 
-class _GrammarDetailScreen extends StatefulWidget {
-  const _GrammarDetailScreen({
+class _GrammarChapterScreen extends StatefulWidget {
+  const _GrammarChapterScreen({
+    required this.chapterNumber,
     required this.topic,
+    required this.title,
     required this.examples,
     required this.language,
-    required this.languageProfile,
+    required this.locale,
     required this.startWithPractice,
   });
 
+  final int chapterNumber;
   final GrammarTopic topic;
+  final String title;
   final List<PhraseEntry> examples;
   final LanguageOption language;
-  final String languageProfile;
+  final String locale;
   final bool startWithPractice;
 
   @override
-  State<_GrammarDetailScreen> createState() => _GrammarDetailScreenState();
+  State<_GrammarChapterScreen> createState() => _GrammarChapterScreenState();
 }
 
-class _GrammarDetailScreenState extends State<_GrammarDetailScreen> {
+class _GrammarChapterScreenState extends State<_GrammarChapterScreen> {
   late bool _showAnswers;
   final Set<int> _completed = {};
 
@@ -322,181 +601,101 @@ class _GrammarDetailScreenState extends State<_GrammarDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final topic = widget.topic;
-    final rules = _rulesFor(topic);
-    final mistakes = _mistakesFor(topic);
+    final copy = GrammarBookRepository.copy(widget.locale);
+    final paragraphs = GrammarBookRepository.explanationFor(
+      widget.locale,
+      topic: widget.title,
+      language: widget.language.nativeName,
+      level: widget.topic.level,
+    );
     return Scaffold(
-      appBar: AppBar(title: Text('${topic.level} · ${topic.title}')),
+      appBar: AppBar(
+        title: Text('${copy.chapter} ${widget.chapterNumber}'),
+      ),
       body: Center(
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 850),
+          constraints: const BoxConstraints(maxWidth: 900),
           child: ListView(
-            padding: const EdgeInsets.fromLTRB(18, 10, 18, 36),
+            padding: const EdgeInsets.fromLTRB(18, 8, 18, 40),
             children: [
-              Container(
-                padding: const EdgeInsets.all(22),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      Theme.of(context).colorScheme.primary,
-                      Theme.of(context).colorScheme.tertiary,
-                    ],
-                  ),
-                  borderRadius: BorderRadius.circular(28),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(topic.emoji, style: const TextStyle(fontSize: 50)),
-                    const SizedBox(height: 10),
-                    Text(
-                      topic.title,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 26,
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      '${widget.language.flag} ${widget.language.englishName} · ${topic.level}',
-                      style: const TextStyle(
-                        color: Colors.white70,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      topic.summary,
-                      style: const TextStyle(color: Colors.white, height: 1.55),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 18),
+              _ChapterHero(widget: widget, copy: copy),
+              const SizedBox(height: 16),
               _LessonSection(
                 icon: Icons.language_rounded,
-                title: 'How this language works',
+                title: copy.languageWorks,
                 child: Text(
-                  widget.languageProfile,
+                  GrammarBookRepository.profileFor(
+                      widget.locale, widget.language),
                   style: const TextStyle(height: 1.65),
                 ),
               ),
               _LessonSection(
                 icon: Icons.menu_book_rounded,
-                title: 'Complete explanation',
-                child: Text(
-                  _explanationFor(topic),
-                  style: const TextStyle(height: 1.7),
-                ),
-              ),
-              _LessonSection(
-                icon: Icons.account_tree_rounded,
-                title: 'Meaning, form, and use',
-                child: Text(
-                  _conceptLensFor(topic),
-                  style: const TextStyle(height: 1.7),
-                ),
-              ),
-              _LessonSection(
-                icon: Icons.pattern_rounded,
-                title: 'Pattern bank',
+                title: copy.completeExplanation,
                 child: Column(
                   children: [
-                    for (var index = 0; index < topic.examples.length; index++)
-                      _NumberedLine(
-                        number: index + 1,
-                        text:
-                            '${topic.examples[index]} — change one detail, preserve the structure, then say the new version aloud.',
+                    for (final paragraph in paragraphs)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: Align(
+                          alignment: AlignmentDirectional.centerStart,
+                          child: Text(paragraph,
+                              style: const TextStyle(height: 1.72)),
+                        ),
                       ),
                   ],
                 ),
               ),
               _LessonSection(
-                icon: Icons.rule_rounded,
-                title: 'Rules and decision steps',
+                icon: Icons.account_tree_rounded,
+                title: copy.meaningFormUse,
                 child: Column(
                   children: [
-                    for (var index = 0; index < rules.length; index++)
-                      _NumberedLine(number: index + 1, text: rules[index]),
+                    for (var index = 0; index < copy.lensLabels.length; index++)
+                      _NumberedLine(
+                          number: index + 1, text: copy.lensLabels[index]),
                   ],
                 ),
               ),
               _LessonSection(
                 icon: Icons.translate_rounded,
                 title:
-                    'Aligned practice phrases in ${widget.language.englishName}',
+                    '${copy.practicePhrases} · ${widget.language.nativeName}',
                 child: Column(
                   children: [
                     for (final example in widget.examples)
-                      Container(
-                        width: double.infinity,
-                        margin: const EdgeInsets.only(bottom: 9),
-                        padding: const EdgeInsets.all(13),
-                        decoration: BoxDecoration(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.primaryContainer.withValues(alpha: .45),
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Row(
-                          children: [
-                            Text(
-                              example.visual,
-                              style: const TextStyle(fontSize: 28),
-                            ),
-                            const SizedBox(width: 11),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    example.target,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.w900,
-                                      fontSize: 17,
-                                    ),
-                                  ),
-                                  Text(
-                                    example.source,
-                                    style: TextStyle(
-                                      color: Theme.of(
-                                        context,
-                                      ).colorScheme.onSurfaceVariant,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                      _PhrasePanel(example: example),
+                  ],
+                ),
+              ),
+              _LessonSection(
+                icon: Icons.rule_rounded,
+                title: copy.rulesSteps,
+                child: Column(
+                  children: [
+                    for (var index = 0; index < copy.ruleSteps.length; index++)
+                      _NumberedLine(
+                          number: index + 1, text: copy.ruleSteps[index]),
                   ],
                 ),
               ),
               _LessonSection(
                 icon: Icons.warning_amber_rounded,
-                title: 'Common mistakes to avoid',
+                title: copy.commonMistakes,
                 child: Column(
                   children: [
-                    for (final mistake in mistakes)
+                    for (final mistake in copy.mistakeSteps)
                       Padding(
-                        padding: const EdgeInsets.only(bottom: 9),
+                        padding: const EdgeInsets.only(bottom: 10),
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Icon(
-                              Icons.close_rounded,
-                              color: Colors.redAccent,
-                              size: 20,
-                            ),
+                            const Icon(Icons.close_rounded,
+                                color: Colors.redAccent, size: 20),
                             const SizedBox(width: 9),
                             Expanded(
-                              child: Text(
-                                mistake,
-                                style: const TextStyle(height: 1.45),
-                              ),
-                            ),
+                                child: Text(mistake,
+                                    style: const TextStyle(height: 1.5))),
                           ],
                         ),
                       ),
@@ -504,27 +703,25 @@ class _GrammarDetailScreenState extends State<_GrammarDetailScreen> {
                 ),
               ),
               _LessonSection(
-                icon: Icons.fitness_center_rounded,
-                title: 'Guided practice',
+                icon: Icons.psychology_alt_rounded,
+                title: copy.guidedPractice,
                 child: Column(
                   children: [
-                    for (var index = 0; index < 8; index++)
+                    for (var index = 0;
+                        index < copy.practiceSteps.length;
+                        index++)
                       CheckboxListTile(
                         value: _completed.contains(index),
-                        onChanged: (value) => setState(
-                          () => value == true
-                              ? _completed.add(index)
-                              : _completed.remove(index),
-                        ),
+                        onChanged: (value) => setState(() => value == true
+                            ? _completed.add(index)
+                            : _completed.remove(index)),
                         controlAffinity: ListTileControlAffinity.leading,
                         contentPadding: EdgeInsets.zero,
-                        title: Text(
-                          _practiceFor(topic, index),
-                          style: const TextStyle(fontWeight: FontWeight.w700),
-                        ),
-                        subtitle: _showAnswers
-                            ? Text(_answerFor(topic, index))
-                            : null,
+                        title: Text(copy.practiceSteps[index],
+                            style:
+                                const TextStyle(fontWeight: FontWeight.w700)),
+                        subtitle:
+                            _showAnswers ? Text(copy.answerSteps[index]) : null,
                       ),
                     const SizedBox(height: 8),
                     SizedBox(
@@ -532,32 +729,36 @@ class _GrammarDetailScreenState extends State<_GrammarDetailScreen> {
                       child: FilledButton.icon(
                         onPressed: () =>
                             setState(() => _showAnswers = !_showAnswers),
-                        icon: Icon(
-                          _showAnswers
-                              ? Icons.visibility_off_rounded
-                              : Icons.visibility_rounded,
-                        ),
+                        icon: Icon(_showAnswers
+                            ? Icons.visibility_off_rounded
+                            : Icons.visibility_rounded),
                         label: Text(
-                          _showAnswers
-                              ? 'Hide model answers'
-                              : 'Check model answers',
-                        ),
+                            _showAnswers ? copy.hideAnswers : copy.showAnswers),
                       ),
                     ),
                   ],
                 ),
               ),
               Container(
-                padding: const EdgeInsets.all(15),
+                padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.secondaryContainer.withValues(alpha: .55),
-                  borderRadius: BorderRadius.circular(18),
+                  color: Theme.of(context)
+                      .colorScheme
+                      .secondaryContainer
+                      .withValues(alpha: .62),
+                  borderRadius: BorderRadius.circular(20),
                 ),
-                child: const Text(
-                  'Mastery tip: understand the pattern, notice it in three real phrases, produce your own example, then review it after one day and one week.',
-                  style: TextStyle(fontWeight: FontWeight.w800, height: 1.5),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Icon(Icons.lightbulb_rounded),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(copy.masteryTip,
+                          style: const TextStyle(
+                              fontWeight: FontWeight.w800, height: 1.5)),
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -566,68 +767,108 @@ class _GrammarDetailScreenState extends State<_GrammarDetailScreen> {
       ),
     );
   }
+}
 
-  String _explanationFor(GrammarTopic topic) =>
-      '${topic.summary}\n\nStart with the communicative goal: decide exactly what the listener must understand. Then identify which part of the pattern carries that meaning—word order, an ending, a helper word, a particle, agreement, or context. In ${widget.language.englishName}, compare complete phrases instead of translating isolated words.\n\nWork in four passes: notice the pattern, explain the contrast, produce a controlled variation, and use it in a personal message. At ${topic.level}, accuracy comes first; speed, flexibility, and natural register are added only after the pattern stays stable.';
+class _ChapterHero extends StatelessWidget {
+  const _ChapterHero({required this.widget, required this.copy});
+  final _GrammarChapterScreen widget;
+  final GrammarBookCopy copy;
 
-  String _conceptLensFor(GrammarTopic topic) =>
-      'MEANING — ${topic.summary}\n\nFORM — Locate the smallest visible or audible change that carries the grammar. It may appear before the main word, after it, inside it, or through word order.\n\nUSE — Ask who is speaking, to whom, for what purpose, and in which setting. A structurally correct sentence can still sound unnatural if its register is wrong.\n\nCONTRAST — Build a pair in which only one feature changes. Explain how that change affects time, certainty, politeness, focus, or relationship.\n\nTRANSFER — Create one spoken example and one written example about your own life, then revisit both after one day.';
+  @override
+  Widget build(BuildContext context) => Container(
+        padding: const EdgeInsets.all(22),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [Color(0xFF3D55C6), Color(0xFF8A4BC1)],
+          ),
+          borderRadius: BorderRadius.circular(28),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 68,
+              height: 82,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: .16),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Center(
+                child: Text(widget.topic.emoji,
+                    style: const TextStyle(fontSize: 38)),
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '${copy.chapter} ${widget.chapterNumber} · ${widget.topic.level}',
+                    style: const TextStyle(
+                        color: Colors.white70, fontWeight: FontWeight.w800),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(widget.title,
+                      style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 23,
+                          fontWeight: FontWeight.w900)),
+                  const SizedBox(height: 8),
+                  Text(
+                    '${widget.language.flag} ${widget.language.nativeName} · 8 ${copy.minutes}',
+                    style: const TextStyle(
+                        color: Colors.white, fontWeight: FontWeight.w700),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+}
 
-  List<String> _rulesFor(GrammarTopic topic) => [
-        'For ${topic.title.toLowerCase()}, identify the meaning you want to express before choosing a form.',
-        'Notice the normal word order in the verified examples; do not copy the order of your first language automatically.',
-        'Keep agreement, particles, endings, or helper words attached to the phrase pattern in which you learned them.',
-        'Check whether the situation is formal, neutral, or friendly before speaking.',
-        'Say the complete pattern aloud, then substitute only one element at a time.',
-        'Review the pattern through listening, recognition, controlled production, and a personal sentence.',
-        'Compare a positive, negative, and question version where the language allows that contrast.',
-        'Finish with a context check: who can say it, to whom, and in which register?',
-      ];
+class _PhrasePanel extends StatelessWidget {
+  const _PhrasePanel({required this.example});
+  final PhraseEntry example;
 
-  List<String> _mistakesFor(GrammarTopic topic) => [
-        'Treating ${topic.title.toLowerCase()} as a word-for-word translation and preserving the source-language order.',
-        'Memorizing an ending or particle without the complete phrase that controls it.',
-        'Using one form for every context without checking politeness or register.',
-        'Recognizing the rule on paper but never producing it aloud.',
-        'Moving to a new topic before correcting the same repeated error.',
-        'Assuming that a grammatically possible form is automatically the most natural form.',
-        'Ignoring regional or spoken variation when the course labels a form as formal or neutral.',
-      ];
-
-  String _practiceFor(GrammarTopic topic, int index) => switch (index) {
-        0 =>
-          'In a ${topic.title.toLowerCase()} example, underline the part that carries the main grammatical meaning.',
-        1 =>
-          'Change one person, time, quantity, or place in a verified example.',
-        2 => 'Turn one example into a question or a negative form.',
-        3 => 'Say a personal sentence using the same pattern without reading.',
-        4 =>
-          'Create a two-line mini-dialogue that uses this structure naturally.',
-        5 =>
-          'Rewrite one example for a more formal or more friendly situation.',
-        6 =>
-          'Record yourself, wait ten seconds, then correct one detail you hear.',
-        _ => 'Teach the rule in one minute and give an original example.',
-      };
-
-  String _answerFor(GrammarTopic topic, int index) => switch (index) {
-        0 =>
-          'Model for ${topic.title.toLowerCase()}: identify the word order plus any ending, particle, or helper word that changes the meaning.',
-        1 =>
-          'Keep the structure stable and replace only one meaningful element; then verify agreement.',
-        2 =>
-          'Use the question or negative strategy described by the target language, not a word-for-word translation.',
-        3 =>
-          'A strong answer is accurate, relevant to your life, and easy to say twice at a natural pace.',
-        4 =>
-          'Line 1 introduces the situation; line 2 responds with the target pattern and an appropriate level of politeness.',
-        5 =>
-          'Keep the core meaning, but adjust pronouns, politeness markers, vocabulary, or sentence length to match the relationship.',
-        6 =>
-          'Listen for one target only: order, ending, helper word, agreement, or rhythm. Correct that target and record again.',
-        _ =>
-          'A successful explanation names the meaning, identifies the form, states when it is used, and includes an original example.',
-      };
+  @override
+  Widget build(BuildContext context) => Container(
+        width: double.infinity,
+        margin: const EdgeInsets.only(bottom: 9),
+        padding: const EdgeInsets.all(13),
+        decoration: BoxDecoration(
+          color: Theme.of(context)
+              .colorScheme
+              .primaryContainer
+              .withValues(alpha: .42),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
+          children: [
+            Text(example.visual, style: const TextStyle(fontSize: 27)),
+            const SizedBox(width: 11),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(example.target,
+                      style: const TextStyle(
+                          fontSize: 17, fontWeight: FontWeight.w900)),
+                  const SizedBox(height: 2),
+                  Text(example.source,
+                      style: TextStyle(
+                          color:
+                              Theme.of(context).colorScheme.onSurfaceVariant)),
+                  if (example.pronunciation.isNotEmpty)
+                    Text(example.pronunciation,
+                        style: const TextStyle(
+                            fontSize: 11.5, fontStyle: FontStyle.italic)),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
 }
 
 class _LessonSection extends StatelessWidget {
@@ -650,20 +891,28 @@ class _LessonSection extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Icon(icon, color: Theme.of(context).colorScheme.primary),
-                  const SizedBox(width: 9),
-                  Expanded(
-                    child: Text(
-                      title,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w900,
-                        fontSize: 17,
-                      ),
+                  Container(
+                    width: 38,
+                    height: 38,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context)
+                          .colorScheme
+                          .primaryContainer
+                          .withValues(alpha: .7),
+                      borderRadius: BorderRadius.circular(12),
                     ),
+                    child: Icon(icon,
+                        color: Theme.of(context).colorScheme.primary, size: 20),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(title,
+                        style: const TextStyle(
+                            fontWeight: FontWeight.w900, fontSize: 17)),
                   ),
                 ],
               ),
-              const SizedBox(height: 13),
+              const SizedBox(height: 14),
               child,
             ],
           ),
@@ -684,7 +933,7 @@ class _NumberedLine extends StatelessWidget {
           children: [
             CircleAvatar(radius: 12, child: Text('$number')),
             const SizedBox(width: 10),
-            Expanded(child: Text(text, style: const TextStyle(height: 1.45))),
+            Expanded(child: Text(text, style: const TextStyle(height: 1.5))),
           ],
         ),
       );

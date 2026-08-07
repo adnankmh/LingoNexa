@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class ThemePreset {
@@ -99,6 +100,17 @@ abstract final class AppThemes {
       scaffoldBackgroundColor: preset.background,
       fontFamily: 'sans-serif',
       visualDensity: VisualDensity.standard,
+      pageTransitionsTheme: const PageTransitionsTheme(
+        builders: {
+          TargetPlatform.android: ZoomPageTransitionsBuilder(
+            allowSnapshotting: true,
+          ),
+          TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.windows: FadeForwardsPageTransitionsBuilder(),
+          TargetPlatform.linux: FadeForwardsPageTransitionsBuilder(),
+        },
+      ),
       tooltipTheme: TooltipThemeData(
         waitDuration: const Duration(milliseconds: 350),
         showDuration: const Duration(seconds: 4),

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../core/app_state.dart';
 import '../core/i18n.dart';
 import '../data/course_repository.dart';
+import '../data/practice_copy_repository.dart';
 import '../widgets/ui.dart';
 import 'lesson_screen.dart';
 import 'sentence_lab_screen.dart';
@@ -23,6 +24,8 @@ class PracticeScreen extends StatelessWidget {
         .toList();
     final sample = due.isNotEmpty ? due.first : allLessons.first;
     final scheme = Theme.of(context).colorScheme;
+    final locale = state.locale.languageCode;
+    String copy(String key) => PracticeCopyRepository.text(locale, key);
 
     return ResponsivePage(
       child: Column(
@@ -36,29 +39,32 @@ class PracticeScreen extends StatelessWidget {
           ),
           const SizedBox(height: 5),
           Text(
-            'Personalized drills based on memory strength and recent mistakes.',
+            copy('subtitle'),
             style: TextStyle(color: scheme.onSurfaceVariant),
           ),
           const SizedBox(height: 22),
           GradientPanel(
             child: Row(
               children: [
-                const Expanded(
+                Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Today’s memory workout',
-                        style: TextStyle(
+                        copy('workout'),
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 21,
                           fontWeight: FontWeight.w900,
                         ),
                       ),
-                      SizedBox(height: 6),
+                      const SizedBox(height: 6),
                       Text(
-                        '8 items are ready at the best moment for recall.',
-                        style: TextStyle(color: Colors.white70, height: 1.4),
+                        copy('ready').replaceAll('{count}', '8'),
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          height: 1.4,
+                        ),
                       ),
                     ],
                   ),
@@ -89,7 +95,7 @@ class PracticeScreen extends StatelessWidget {
                   icon: Icons.autorenew_rounded,
                   title: context.text.get('review'),
                   subtitle:
-                      '${due.length + 8} phrases due · spaced recall queue',
+                      copy('due').replaceAll('{count}', '${due.length + 8}'),
                   color: const Color(0xFF6C63FF),
                   onTap: () => Navigator.push(
                     context,
@@ -101,7 +107,7 @@ class PracticeScreen extends StatelessWidget {
                 FeatureTile(
                   icon: Icons.error_outline_rounded,
                   title: context.text.get('mistakes'),
-                  subtitle: 'Rebuild answers you missed recently',
+                  subtitle: copy('mistakes_sub'),
                   color: const Color(0xFFFF6B6B),
                   onTap: () => Navigator.push(
                     context,
@@ -113,7 +119,7 @@ class PracticeScreen extends StatelessWidget {
                 FeatureTile(
                   icon: Icons.graphic_eq_rounded,
                   title: context.text.get('pronunciation'),
-                  subtitle: 'Listen, record, and compare your speech',
+                  subtitle: copy('pronunciation_sub'),
                   color: const Color(0xFF20C997),
                   onTap: () => Navigator.push(
                     context,
@@ -125,7 +131,7 @@ class PracticeScreen extends StatelessWidget {
                 FeatureTile(
                   icon: Icons.auto_stories_rounded,
                   title: context.text.get('stories'),
-                  subtitle: 'Read and listen in meaningful context',
+                  subtitle: copy('stories_sub'),
                   color: const Color(0xFFFFA94D),
                   onTap: () => Navigator.push(
                     context,
@@ -137,9 +143,9 @@ class PracticeScreen extends StatelessWidget {
                 FeatureTile(
                   icon: Icons.psychology_alt_rounded,
                   title: context.text.get('tutor'),
-                  subtitle: 'Practice realistic role-play with feedback',
+                  subtitle: copy('tutor_sub'),
                   color: const Color(0xFF4DABF7),
-                  badge: 'BETA',
+                  badge: copy('beta'),
                   onTap: state.aiTutorEnabled
                       ? () => Navigator.push(
                             context,
@@ -151,8 +157,8 @@ class PracticeScreen extends StatelessWidget {
                 ),
                 FeatureTile(
                   icon: Icons.flash_on_rounded,
-                  title: 'Speed round',
-                  subtitle: '60 seconds of fast active recall',
+                  title: copy('speed'),
+                  subtitle: copy('speed_sub'),
                   color: const Color(0xFFF06595),
                   onTap: () => Navigator.push(
                     context,
@@ -164,9 +170,9 @@ class PracticeScreen extends StatelessWidget {
                 FeatureTile(
                   icon: Icons.hub_rounded,
                   title: context.text.get('sentence_lab'),
-                  subtitle: 'Hundreds of speaking and active-recall missions',
+                  subtitle: copy('sentence_sub'),
                   color: const Color(0xFF0757B8),
-                  badge: 'NEW',
+                  badge: copy('new'),
                   onTap: () => Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -188,35 +194,35 @@ class PracticeScreen extends StatelessWidget {
             },
           ),
           const SizedBox(height: 22),
-          const SectionHeading(
-            title: 'Skill balance',
-            subtitle: 'A simple diagnostic of your active course',
+          SectionHeading(
+            title: copy('balance'),
+            subtitle: copy('balance_sub'),
           ),
           const SizedBox(height: 12),
-          const Card(
+          Card(
             child: Padding(
-              padding: EdgeInsets.all(19),
+              padding: const EdgeInsets.all(19),
               child: Column(
                 children: [
                   _SkillBar(
-                    label: 'Vocabulary',
+                    label: copy('vocabulary'),
                     value: .72,
-                    color: Color(0xFF6C63FF),
+                    color: const Color(0xFF6C63FF),
                   ),
                   _SkillBar(
-                    label: 'Listening',
+                    label: copy('listening'),
                     value: .58,
-                    color: Color(0xFF4DABF7),
+                    color: const Color(0xFF4DABF7),
                   ),
                   _SkillBar(
-                    label: 'Speaking',
+                    label: copy('speaking'),
                     value: .44,
-                    color: Color(0xFF20C997),
+                    color: const Color(0xFF20C997),
                   ),
                   _SkillBar(
-                    label: 'Grammar',
+                    label: copy('grammar'),
                     value: .63,
-                    color: Color(0xFFFFA94D),
+                    color: const Color(0xFFFFA94D),
                   ),
                 ],
               ),

@@ -143,7 +143,8 @@ class _LessonScreenState extends State<LessonScreen> {
                     ),
                   ),
                   if (_checked) ...[
-                    Container(
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 260),
                       width: double.infinity,
                       margin: const EdgeInsets.only(bottom: 10),
                       padding: const EdgeInsets.all(14),
@@ -152,29 +153,62 @@ class _LessonScreenState extends State<LessonScreen> {
                             .withValues(alpha: .12),
                         borderRadius: BorderRadius.circular(18),
                       ),
-                      child: Row(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          SizedBox(
-                            width: 54,
-                            height: 54,
-                            child: Lottie.asset(
-                              _correct
-                                  ? 'assets/lottie/celebration.json'
-                                  : 'assets/lottie/error.json',
-                              repeat: true,
-                            ),
+                          Row(
+                            children: [
+                              SizedBox(
+                                width: 54,
+                                height: 54,
+                                child: Lottie.asset(
+                                  _correct
+                                      ? 'assets/lottie/celebration.json'
+                                      : 'assets/lottie/error.json',
+                                  repeat: true,
+                                ),
+                              ),
+                              const SizedBox(width: 9),
+                              Expanded(
+                                child: Text(
+                                  _correct
+                                      ? context.text.get('correct')
+                                      : '${context.text.get('try_again')} · ${_step.answer}',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w900,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                          const SizedBox(width: 9),
-                          Expanded(
-                            child: Text(
-                              _correct
-                                  ? context.text.get('correct')
-                                  : '${context.text.get('try_again')} · ${_step.answer}',
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w800,
+                          if (!_correct && _step.hint.isNotEmpty) ...[
+                            const Divider(height: 18),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Icon(Icons.lightbulb_rounded, size: 20),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    _step.hint,
+                                    style: const TextStyle(height: 1.45),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                          if (!_correct && _step.translation.isNotEmpty) ...[
+                            const SizedBox(height: 9),
+                            Text(
+                              '${context.text.get('translation')}: ${_step.translation}',
+                              style: TextStyle(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSurfaceVariant,
+                                fontWeight: FontWeight.w700,
                               ),
                             ),
-                          ),
+                          ],
                         ],
                       ),
                     ),

@@ -22,6 +22,7 @@ class AcademyCollection {
   const AcademyCollection({
     required this.id,
     required this.icon,
+    required this.animationAsset,
     required this.colorValue,
     required this.titleKey,
     required this.subtitleKey,
@@ -30,6 +31,7 @@ class AcademyCollection {
 
   final String id;
   final String icon;
+  final String animationAsset;
   final int colorValue;
   final String titleKey;
   final String subtitleKey;
@@ -61,6 +63,7 @@ abstract final class AcademyRepository {
     AcademyCollection(
       id: 'deep_lessons',
       icon: '🧠',
+      animationAsset: 'assets/lottie/grammar_book.json',
       colorValue: 0xFF5B4CF0,
       titleKey: 'deep_lessons',
       subtitleKey: 'deep_lessons_subtitle',
@@ -69,6 +72,7 @@ abstract final class AcademyRepository {
     AcademyCollection(
       id: 'course_books',
       icon: '📚',
+      animationAsset: 'assets/lottie/flashcards.json',
       colorValue: 0xFF0A8F78,
       titleKey: 'course_books',
       subtitleKey: 'course_books_subtitle',
@@ -77,6 +81,7 @@ abstract final class AcademyRepository {
     AcademyCollection(
       id: 'motion',
       icon: '🎬',
+      animationAsset: 'assets/lottie/video_lesson.json',
       colorValue: 0xFFE5683E,
       titleKey: 'motion_lessons',
       subtitleKey: 'motion_lessons_subtitle',
@@ -85,6 +90,7 @@ abstract final class AcademyRepository {
     AcademyCollection(
       id: 'listening',
       icon: '🎧',
+      animationAsset: 'assets/lottie/listening.json',
       colorValue: 0xFF1675D1,
       titleKey: 'listening_studio',
       subtitleKey: 'listening_studio_subtitle',
@@ -93,6 +99,7 @@ abstract final class AcademyRepository {
     AcademyCollection(
       id: 'reference',
       icon: '🧭',
+      animationAsset: 'assets/lottie/culture_world.json',
       colorValue: 0xFFB347C7,
       titleKey: 'reference_guides',
       subtitleKey: 'reference_guides_subtitle',
@@ -101,6 +108,7 @@ abstract final class AcademyRepository {
     AcademyCollection(
       id: 'assessment',
       icon: '🏅',
+      animationAsset: 'assets/lottie/learning_goal.json',
       colorValue: 0xFFF09A28,
       titleKey: 'exam_center',
       subtitleKey: 'exam_center_subtitle',

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 
 import '../core/app_state.dart';
 import '../core/i18n.dart';
@@ -170,7 +171,19 @@ class _LearnScreenState extends State<LearnScreen> {
                   ),
                 ),
                 if (MediaQuery.sizeOf(context).width > 560)
-                  const Text('🗣️', style: TextStyle(fontSize: 84)),
+                  SizedBox(
+                    width: 105,
+                    height: 105,
+                    child: Lottie.asset(
+                      'assets/lottie/conversation.json',
+                      fit: BoxFit.contain,
+                      errorBuilder: (_, __, ___) => const Icon(
+                        Icons.record_voice_over_rounded,
+                        color: Colors.white,
+                        size: 76,
+                      ),
+                    ),
+                  ),
               ],
             ),
           ),
@@ -187,6 +200,7 @@ class _LearnScreenState extends State<LearnScreen> {
               final actions = [
                 _HomeAction(
                   icon: Icons.menu_book_rounded,
+                  animationAsset: 'assets/lottie/grammar_book.json',
                   title: context.text.get('full_explanation'),
                   subtitle: context.text.get('full_explanation_short'),
                   color: const Color(0xFF6C63FF),
@@ -194,6 +208,7 @@ class _LearnScreenState extends State<LearnScreen> {
                 ),
                 _HomeAction(
                   icon: Icons.text_fields_rounded,
+                  animationAsset: 'assets/lottie/flashcards.json',
                   title: context.text.get('words_examples'),
                   subtitle: context.text.get('words_examples_short'),
                   color: const Color(0xFFEC8B20),
@@ -204,6 +219,7 @@ class _LearnScreenState extends State<LearnScreen> {
                 ),
                 _HomeAction(
                   icon: Icons.account_tree_rounded,
+                  animationAsset: 'assets/lottie/review_loop.json',
                   title: context.text.get('grammar'),
                   subtitle: context.text.get('grammar_short'),
                   color: const Color(0xFFB14FCE),
@@ -214,6 +230,7 @@ class _LearnScreenState extends State<LearnScreen> {
                 ),
                 _HomeAction(
                   icon: Icons.fact_check_rounded,
+                  animationAsset: 'assets/lottie/learning_goal.json',
                   title: context.text.get('exams'),
                   subtitle: context.text.get('exams_short'),
                   color: const Color(0xFF0E9F79),
@@ -226,6 +243,7 @@ class _LearnScreenState extends State<LearnScreen> {
                 ),
                 _HomeAction(
                   icon: Icons.auto_stories_rounded,
+                  animationAsset: 'assets/lottie/culture_world.json',
                   title: context.text.get('stories'),
                   subtitle: context.text.get('stories_short'),
                   color: const Color(0xFFE04F78),
@@ -238,6 +256,7 @@ class _LearnScreenState extends State<LearnScreen> {
                 ),
                 _HomeAction(
                   icon: Icons.g_translate_rounded,
+                  animationAsset: 'assets/lottie/writing_lab.json',
                   title: context.text.get('translator'),
                   subtitle: context.text.get('translator_short'),
                   color: const Color(0xFF1675D1),
@@ -457,6 +476,7 @@ class _UnitCard extends StatelessWidget {
 class _HomeAction extends StatelessWidget {
   const _HomeAction({
     required this.icon,
+    required this.animationAsset,
     required this.title,
     required this.subtitle,
     required this.color,
@@ -464,6 +484,7 @@ class _HomeAction extends StatelessWidget {
   });
 
   final IconData icon;
+  final String animationAsset;
   final String title;
   final String subtitle;
   final Color color;
@@ -479,9 +500,20 @@ class _HomeAction extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                CircleAvatar(
-                  backgroundColor: color.withValues(alpha: .14),
-                  child: Icon(icon, color: color),
+                Container(
+                  width: 50,
+                  height: 50,
+                  padding: const EdgeInsets.all(5),
+                  decoration: BoxDecoration(
+                    color: color.withValues(alpha: .12),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Lottie.asset(
+                    animationAsset,
+                    repeat: true,
+                    fit: BoxFit.contain,
+                    errorBuilder: (_, __, ___) => Icon(icon, color: color),
+                  ),
                 ),
                 const Spacer(),
                 Text(
