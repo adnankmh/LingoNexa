@@ -44,6 +44,7 @@ class AppState extends ChangeNotifier {
   String aiProvider = 'Local practice engine';
   String aiEndpoint = '';
   String learningReason = 'Travel';
+  String countryCode = 'PS';
   AppUser? currentUser;
   bool authBusy = false;
   String? authError;
@@ -103,10 +104,15 @@ class AppState extends ChangeNotifier {
   bool get isAuthenticated => currentUser != null;
   bool get isAdmin => currentUser?.isAdmin ?? false;
   int get registeredAccountCount => _auth.accountCount;
+  bool get remoteBackendEnabled => _auth.remoteEnabled;
+  String get apiBaseUrl => _auth.apiBaseUrl;
 
   String _userKey(String key) => 'user_${currentUser?.id ?? 'guest'}_$key';
 
   Future<void> _loadUserProgress() async {
+    final userLocale = await _storage.readString(_userKey('interface_locale'));
+    if (userLocale != null && userLocale.isNotEmpty) locale = Locale(userLocale);
+    themeId = await _storage.readString(_userKey('theme')) ?? themeId;
     onboardingCompleted =
         await _storage.readBool(_userKey('onboarding_complete')) ?? false;
     targetLanguageCode =
@@ -118,6 +124,7 @@ class AppState extends ChangeNotifier {
     dailyGoalMinutes = await _storage.readInt(_userKey('daily_goal')) ?? 15;
     learningReason =
         await _storage.readString(_userKey('learning_reason')) ?? 'Travel';
+    countryCode = await _storage.readString(_userKey('country_code')) ?? 'PS';
     sprintMode = await _storage.readBool(_userKey('sprint_mode')) ?? true;
     downloadedPackCodes
       ..clear()
@@ -172,6 +179,124 @@ class AppState extends ChangeNotifier {
       } catch (_) {
         // Ignore a damaged local preference and let the device choose a voice.
       }
+    }
+    if (_auth.remoteEnabled && currentUser?.role != UserRole.guest) {
+      try {
+        final remote = await _auth.loadRemoteProgress();
+        if (remote.isNotEmpty) {
+          _applyRemoteProgress(remote);
+          await _persistProgressSnapshot();
+        }
+      } catch (_) {
+        // Keep the local snapshot available if the server is temporarily offline.
+      }
+    }
+  }
+
+  Map<String, Object?> _progressSnapshot() => {
+        'interfaceLocale': locale.languageCode,
+        'themeId': themeId,
+        'onboardingCompleted': onboardingCompleted,
+        'targetLanguageCode': targetLanguageCode,
+        'currentLevel': currentLevel,
+        'xp': xp,
+        'streak': streak,
+        'dailyMinutes': dailyMinutes,
+        'dailyGoalMinutes': dailyGoalMinutes,
+        'learningReason': learningReason,
+        'countryCode': countryCode,
+        'sprintMode': sprintMode,
+        'downloadedPackCodes': downloadedPackCodes.toList(),
+        'completedLessonIds': completedLessonIds.toList(),
+        'reviewLessonIds': reviewLessonIds.toList(),
+        'completedExamIds': completedExamIds.toList(),
+        'weeklyXp': weeklyXp,
+        'skillMastery': skillMastery,
+        'adaptiveReviews': AdaptiveLearningEngine.encode(reviewRecords),
+      };
+
+  void _applyRemoteProgress(Map<String, Object?> value) {
+    String stringValue(String key, String fallback) =>
+        value[key]?.toString() ?? fallback;
+    int intValue(String key, int fallback) =>
+        value[key] is num ? (value[key] as num).round() : fallback;
+    bool boolValue(String key, bool fallback) =>
+        value[key] is bool ? value[key] as bool : fallback;
+    List<String> strings(String key) {
+      final raw = value[key];
+      return raw is List ? raw.map((item) => item.toString()).toList() : const [];
+    }
+
+    final remoteLocale = stringValue('interfaceLocale', locale.languageCode);
+    if (remoteLocale.isNotEmpty) locale = Locale(remoteLocale);
+    themeId = stringValue('themeId', themeId);
+    onboardingCompleted = boolValue('onboardingCompleted', onboardingCompleted);
+    targetLanguageCode = stringValue('targetLanguageCode', targetLanguageCode);
+    currentLevel = stringValue('currentLevel', currentLevel);
+    xp = intValue('xp', xp);
+    streak = intValue('streak', streak);
+    dailyMinutes = intValue('dailyMinutes', dailyMinutes);
+    dailyGoalMinutes = intValue('dailyGoalMinutes', dailyGoalMinutes);
+    learningReason = stringValue('learningReason', learningReason);
+    countryCode = stringValue('countryCode', countryCode);
+    sprintMode = boolValue('sprintMode', sprintMode);
+    weeklyXp = intValue('weeklyXp', weeklyXp);
+    downloadedPackCodes
+      ..clear()
+      ..addAll(strings('downloadedPackCodes'));
+    completedLessonIds
+      ..clear()
+      ..addAll(strings('completedLessonIds'));
+    reviewLessonIds
+      ..clear()
+      ..addAll(strings('reviewLessonIds'));
+    completedExamIds
+      ..clear()
+      ..addAll(strings('completedExamIds'));
+    final remoteMastery = value['skillMastery'];
+    if (remoteMastery is Map) {
+      for (final key in skillMastery.keys.toList()) {
+        final item = remoteMastery[key];
+        if (item is num) skillMastery[key] = item.round().clamp(0, 100);
+      }
+    }
+    final adaptive = value['adaptiveReviews']?.toString();
+    if (adaptive != null && adaptive.isNotEmpty) {
+      reviewRecords
+        ..clear()
+        ..addAll(AdaptiveLearningEngine.decode(adaptive));
+    }
+  }
+
+  Future<void> _persistProgressSnapshot() async {
+    await _storage.writeString(_userKey('interface_locale'), locale.languageCode);
+    await _storage.writeString(_userKey('theme'), themeId);
+    await _storage.writeString('locale', locale.languageCode);
+    await _storage.writeString('theme', themeId);
+    await _storage.writeBool(_userKey('onboarding_complete'), onboardingCompleted);
+    await _storage.writeString(_userKey('target_language'), targetLanguageCode);
+    await _storage.writeString(_userKey('level'), currentLevel);
+    await _storage.writeInt(_userKey('xp'), xp);
+    await _storage.writeInt(_userKey('streak'), streak);
+    await _storage.writeInt(_userKey('daily_minutes'), dailyMinutes);
+    await _storage.writeInt(_userKey('daily_goal'), dailyGoalMinutes);
+    await _storage.writeString(_userKey('learning_reason'), learningReason);
+    await _storage.writeString(_userKey('country_code'), countryCode);
+    await _storage.writeBool(_userKey('sprint_mode'), sprintMode);
+    await _storage.writeStrings(_userKey('downloaded_packs'), downloadedPackCodes.toList());
+    await _storage.writeStrings(_userKey('completed'), completedLessonIds.toList());
+    await _storage.writeStrings(_userKey('review'), reviewLessonIds.toList());
+    await _storage.writeStrings(_userKey('completed_exams'), completedExamIds.toList());
+    await _storage.writeInt(_userKey('weekly_xp'), weeklyXp);
+    await _persistAdaptiveProgress();
+  }
+
+  Future<void> _syncRemoteProgress() async {
+    if (!_auth.remoteEnabled || currentUser?.role == UserRole.guest) return;
+    try {
+      await _auth.saveRemoteProgress(_progressSnapshot());
+    } catch (_) {
+      // Local progress remains authoritative until the next successful sync.
     }
   }
 
@@ -239,9 +364,18 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> setApiBaseUrl(String value) async {
+    await _auth.setApiBaseUrl(value);
+    notifyListeners();
+  }
+
   Future<void> setLocale(String code) async {
     locale = Locale(code);
     await _storage.writeString('locale', code);
+    if (currentUser != null) {
+      await _storage.writeString(_userKey('interface_locale'), code);
+      await _syncRemoteProgress();
+    }
     notifyListeners();
   }
 
@@ -250,6 +384,7 @@ class AppState extends ChangeNotifier {
     currentLevel = 'A1';
     await _storage.writeString(_userKey('target_language'), code);
     await _storage.writeString(_userKey('level'), currentLevel);
+    await _syncRemoteProgress();
     notifyListeners();
   }
 
@@ -266,12 +401,21 @@ class AppState extends ChangeNotifier {
     await _storage.writeInt(_userKey('daily_goal'), dailyGoalMinutes);
     await _storage.writeString(_userKey('learning_reason'), reason);
     await _storage.writeBool(_userKey('onboarding_complete'), true);
+    await _syncRemoteProgress();
     notifyListeners();
   }
 
   Future<void> setCurrentLevel(String level) async {
     currentLevel = level;
     await _storage.writeString(_userKey('level'), level);
+    await _syncRemoteProgress();
+    notifyListeners();
+  }
+
+  Future<void> setCountryCode(String code) async {
+    countryCode = code.toUpperCase();
+    await _storage.writeString(_userKey('country_code'), countryCode);
+    await _syncRemoteProgress();
     notifyListeners();
   }
 
@@ -287,12 +431,17 @@ class AppState extends ChangeNotifier {
       _userKey('downloaded_packs'),
       downloadedPackCodes.toList(),
     );
+    await _syncRemoteProgress();
     notifyListeners();
   }
 
   Future<void> setTheme(String id) async {
     themeId = id;
     await _storage.writeString('theme', id);
+    if (currentUser != null) {
+      await _storage.writeString(_userKey('theme'), id);
+      await _syncRemoteProgress();
+    }
     notifyListeners();
   }
 
@@ -317,6 +466,7 @@ class AppState extends ChangeNotifier {
     await _storage.writeInt(_userKey('weekly_xp'), weeklyXp);
     await _storage.writeInt(_userKey('daily_minutes'), dailyMinutes);
     await _persistAdaptiveProgress();
+    await _syncRemoteProgress();
     notifyListeners();
   }
 
@@ -350,6 +500,7 @@ class AppState extends ChangeNotifier {
     reviewRecords[lessonId] = AdaptiveLearningEngine.grade(current, quality);
     if (quality >= 3) _raiseMasteryFor(lessonId, amount: quality - 1);
     await _persistAdaptiveProgress();
+    await _syncRemoteProgress();
     notifyListeners();
   }
 
@@ -364,6 +515,7 @@ class AppState extends ChangeNotifier {
     dailyMinutes += 3;
     await _storage.writeInt(_userKey('daily_minutes'), dailyMinutes);
     await _persistAdaptiveProgress();
+    await _syncRemoteProgress();
     notifyListeners();
   }
 
@@ -417,6 +569,7 @@ class AppState extends ChangeNotifier {
     await _storage.writeInt(_userKey('weekly_xp'), weeklyXp);
     await _storage.writeInt(_userKey('daily_minutes'), dailyMinutes);
     await _storage.writeString(_userKey('level'), currentLevel);
+    await _syncRemoteProgress();
     notifyListeners();
   }
 
@@ -496,6 +649,7 @@ class AppState extends ChangeNotifier {
   Future<void> setSprintMode(bool value) async {
     sprintMode = value;
     await _storage.writeBool(_userKey('sprint_mode'), value);
+    await _syncRemoteProgress();
     notifyListeners();
   }
 

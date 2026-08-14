@@ -75,6 +75,34 @@ abstract final class AppThemes {
       background: Color(0xFF1C1715),
       brightness: Brightness.dark,
     ),
+    ThemePreset(
+      id: 'aurora',
+      name: 'Aurora',
+      seed: Color(0xFF5168F4),
+      background: Color(0xFFF3F7FF),
+      brightness: Brightness.light,
+    ),
+    ThemePreset(
+      id: 'lavender',
+      name: 'Lavender',
+      seed: Color(0xFF8A52C7),
+      background: Color(0xFFFBF7FF),
+      brightness: Brightness.light,
+    ),
+    ThemePreset(
+      id: 'desert',
+      name: 'Desert',
+      seed: Color(0xFFC46E3B),
+      background: Color(0xFFFFF8EF),
+      brightness: Brightness.light,
+    ),
+    ThemePreset(
+      id: 'graphite',
+      name: 'Graphite',
+      seed: Color(0xFF78A8FF),
+      background: Color(0xFF10141C),
+      brightness: Brightness.dark,
+    ),
   ];
 
   static ThemePreset preset(String id) => presets.firstWhere(

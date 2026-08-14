@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
 
 import 'storage_service.dart';
+import 'api_service.dart';
 
 enum UserRole { administrator, learner, guest }
 
@@ -91,9 +92,10 @@ class _StoredAccount {
 /// social-provider secrets. Production builds should replace this adapter with
 /// Firebase Auth, Supabase Auth, or another server-verified identity provider.
 class AuthService {
-  AuthService(this._storage);
+  AuthService(this._storage) : _api = ApiService(_storage);
 
   final StorageService _storage;
+  final ApiService _api;
   static const _accountsKey = 'auth_accounts_v1';
   static const _sessionKey = 'auth_session_v1';
   static const _sessionStartedKey = 'auth_session_started_v2';
@@ -103,8 +105,11 @@ class AuthService {
   final Map<String, int> _failedAttempts = {};
   final Map<String, DateTime> _blockedUntil = {};
   int get accountCount => _accounts.length;
+  bool get remoteEnabled => _api.enabled;
+  String get apiBaseUrl => _api.baseUrl;
 
   Future<void> initialize() async {
+    await _api.initialize();
     final encoded = await _storage.readString(_accountsKey);
     if (encoded == null) {
       _accounts = _seedAccounts();
@@ -127,6 +132,10 @@ class AuthService {
   }
 
   Future<AppUser?> restoreSession({Duration? sessionLifetime}) async {
+    if (_api.enabled) {
+      final payload = await _api.restoreRemoteSession();
+      return payload == null ? null : _remoteUser(payload);
+    }
     final id = await _storage.readString(_sessionKey);
     if (id == null) return null;
     final startedValue = await _storage.readString(_sessionStartedKey);
@@ -144,6 +153,14 @@ class AuthService {
   }
 
   Future<AuthResult> signIn(String identifier, String password) async {
+    if (_api.enabled) {
+      try {
+        final payload = await _api.login(identifier.trim(), password);
+        return AuthResult(user: _remoteUser(payload));
+      } on ApiException catch (error) {
+        return AuthResult(error: error.message);
+      }
+    }
     final normalized = identifier.trim().toLowerCase();
     final blocked = _blockedUntil[normalized];
     if (blocked != null && blocked.isAfter(DateTime.now())) {
@@ -186,6 +203,19 @@ class AuthService {
     required String email,
     required String password,
   }) async {
+    if (_api.enabled) {
+      try {
+        final payload = await _api.register(
+          displayName: displayName.trim(),
+          username: username.trim(),
+          email: email.trim(),
+          password: password,
+        );
+        return AuthResult(user: _remoteUser(payload));
+      } on ApiException catch (error) {
+        return AuthResult(error: error.message);
+      }
+    }
     final cleanUsername = username.trim();
     final cleanEmail = email.trim().toLowerCase();
     if (displayName.trim().length < 2 || cleanUsername.length < 3) {
@@ -236,9 +266,30 @@ class AuthService {
   }
 
   Future<void> signOut() async {
+    if (_api.enabled) await _api.logout();
     await _storage.remove(_sessionKey);
     await _storage.remove(_sessionStartedKey);
   }
+
+  Future<Map<String, Object?>> loadRemoteProgress() async =>
+      _api.loadProgress();
+
+  Future<void> saveRemoteProgress(Map<String, Object?> progress) async =>
+      _api.saveProgress(progress);
+
+  Future<void> setApiBaseUrl(String value) async => _api.setBaseUrl(value);
+
+  AppUser _remoteUser(Map<String, Object?> json) => AppUser(
+        id: json['id']?.toString() ?? '',
+        username: json['username']?.toString() ?? '',
+        email: json['email']?.toString() ?? '',
+        displayName:
+            json['displayName']?.toString() ?? json['name']?.toString() ?? 'Learner',
+        role: json['role']?.toString() == 'administrator'
+            ? UserRole.administrator
+            : UserRole.learner,
+        provider: json['provider']?.toString() ?? 'password',
+      );
 
   static const guestUser = AppUser(
     id: 'guest',

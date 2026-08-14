@@ -5,12 +5,14 @@ import '../core/app_state.dart';
 import '../core/i18n.dart';
 import '../data/course_repository.dart';
 import '../data/language_catalog.dart';
+import '../data/modern_learning_repository.dart';
 import '../data/product_copy_repository.dart';
 import '../models/models.dart';
 import '../widgets/ui.dart';
 import 'language_picker_screen.dart';
 import 'lesson_screen.dart';
 import 'level_exam_screen.dart';
+import 'learning_labs_screen.dart';
 import 'grammar_screen.dart';
 import 'phrasebook_screen.dart';
 import 'story_library_screen.dart';
@@ -320,6 +322,19 @@ class _LearnScreenState extends State<LearnScreen> {
                     context,
                     MaterialPageRoute(
                       builder: (_) => const ProgressInsightsScreen(),
+                    ),
+                  ),
+                ),
+                _HomeAction(
+                  icon: Icons.psychology_alt_rounded,
+                  animationAsset: 'assets/lottie/brain_pulse.json',
+                  title: ModernLearningRepository.copy(locale).hubTitle,
+                  subtitle: ModernLearningRepository.copy(locale).hubSubtitle,
+                  color: const Color(0xFF5B4CF0),
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const LearningLabsScreen(),
                     ),
                   ),
                 ),

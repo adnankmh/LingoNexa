@@ -210,55 +210,65 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Divider(color: Theme.of(context).dividerColor),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(13),
+                    decoration: BoxDecoration(
+                      color: (state.remoteBackendEnabled
+                              ? Colors.green
+                              : Theme.of(context).colorScheme.primary)
+                          .withValues(alpha: .08),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: (state.remoteBackendEnabled
+                                ? Colors.green
+                                : Theme.of(context).colorScheme.primary)
+                            .withValues(alpha: .22),
                       ),
-                      const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 12),
-                        child: Text('or continue with'),
-                      ),
-                      Expanded(
-                        child: Divider(color: Theme.of(context).dividerColor),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          onPressed: () => _socialInfo('Google'),
-                          icon: const Text(
-                            'G',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w900,
-                              fontSize: 18,
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          state.remoteBackendEnabled
+                              ? Icons.cloud_done_rounded
+                              : Icons.offline_bolt_rounded,
+                        ),
+                        const SizedBox(width: 9),
+                        Expanded(
+                          child: Text(
+                            state.remoteBackendEnabled
+                                ? 'Secure cloud account & progress sync enabled'
+                                : 'Offline-first account mode',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w800,
+                              fontSize: 12.5,
                             ),
                           ),
-                          label: const Text('Google'),
                         ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          onPressed: () => _socialInfo('Facebook'),
-                          icon: const Icon(Icons.facebook_rounded),
-                          label: const Text('Facebook'),
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 8),
+                  TextButton.icon(
+                    onPressed: () => _configureServer(state),
+                    icon: const Icon(Icons.dns_rounded),
+                    label: Text(
+                      state.remoteBackendEnabled
+                          ? 'Server: ${state.apiBaseUrl}'
+                          : 'Connect Laravel server',
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
                   TextButton.icon(
                     onPressed: state.signInAsGuest,
                     icon: const Icon(Icons.explore_outlined),
                     label: const Text('Continue as guest'),
                   ),
-                  const SizedBox(height: 18),
-                  Container(
-                    width: double.infinity,
+                  if (!state.remoteBackendEnabled) ...[
+                    const SizedBox(height: 18),
+                    Container(
+                      width: double.infinity,
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
                       color: Theme.of(
@@ -286,6 +296,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ],
                     ),
                   ),
+                  ],
                 ],
               ),
             ),
@@ -293,6 +304,54 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _configureServer(AppState state) async {
+    final controller = TextEditingController(text: state.apiBaseUrl);
+    final result = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('LingoNexa server'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Enter the Laravel base URL. Android emulator example: http://10.0.2.2:8000. For a phone, use the computer LAN address or your HTTPS domain.',
+              style: TextStyle(fontSize: 12.5, height: 1.45),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: controller,
+              keyboardType: TextInputType.url,
+              decoration: const InputDecoration(
+                labelText: 'Server URL',
+                hintText: 'https://learn.example.com',
+                prefixIcon: Icon(Icons.link_rounded),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Cancel'),
+          ),
+          if (state.remoteBackendEnabled)
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext, ''),
+              child: const Text('Use offline mode'),
+            ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogContext, controller.text.trim()),
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+    controller.dispose();
+    if (result == null) return;
+    await state.setApiBaseUrl(result);
   }
 
   Future<void> _submit() async {
@@ -309,19 +368,4 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  void _socialInfo(String provider) => showDialog<void>(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text('$provider sign-in'),
-          content: Text(
-            'The interface is ready. To activate $provider securely, connect Firebase Authentication or your own OAuth backend and add the provider keys outside the source code.',
-          ),
-          actions: [
-            FilledButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Understood'),
-            ),
-          ],
-        ),
-      );
 }

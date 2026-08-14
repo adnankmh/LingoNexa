@@ -4,12 +4,14 @@ import '../core/app_state.dart';
 import '../core/app_theme.dart';
 import '../core/i18n.dart';
 import '../data/language_catalog.dart';
+import '../data/country_catalog.dart';
 import '../data/product_copy_repository.dart';
 import '../widgets/ui.dart';
 import '../widgets/speech_control_panel.dart';
 import 'achievements_screen.dart';
 import 'admin_screen.dart';
 import 'certificates_screen.dart';
+import 'country_picker_screen.dart';
 import 'downloads_screen.dart';
 import 'language_picker_screen.dart';
 import 'interface_language_screen.dart';
@@ -322,6 +324,25 @@ class ProfileScreen extends StatelessWidget {
           Card(
             child: Column(
               children: [
+                ListTile(
+                  leading: Text(
+                    CountryCatalog.byCode(state.countryCode).flag,
+                    style: const TextStyle(fontSize: 25),
+                  ),
+                  title: const Text(
+                    'Country & flag',
+                    style: TextStyle(fontWeight: FontWeight.w800),
+                  ),
+                  subtitle: Text(CountryCatalog.byCode(state.countryCode).name),
+                  trailing: const Icon(Icons.chevron_right_rounded),
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const CountryPickerScreen(),
+                    ),
+                  ),
+                ),
+                const Divider(height: 1),
                 ListTile(
                   leading: const Icon(Icons.translate_rounded),
                   title: Text(

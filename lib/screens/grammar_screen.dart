@@ -5,6 +5,7 @@ import '../core/app_state.dart';
 import '../data/grammar_book_repository.dart';
 import '../data/language_catalog.dart';
 import '../data/learning_content_repository.dart';
+import '../data/textbook_grammar_repository.dart';
 import '../models/models.dart';
 
 class GrammarScreen extends StatefulWidget {
@@ -173,7 +174,7 @@ class _GrammarScreenState extends State<GrammarScreen> {
                             final examples = _examplesFor(
                               verified,
                               entry.$1,
-                              3,
+                              12,
                             );
                             return TweenAnimationBuilder<double>(
                               tween: Tween(begin: 0, end: 1),
@@ -193,7 +194,7 @@ class _GrammarScreenState extends State<GrammarScreen> {
                                 copy: copy,
                                 color: _bookColors[_levelIndex(entry.$2.level)],
                                 complete: _readChapters.contains(entry.$1),
-                                onOpen: (practice) async {
+                                onOpen: () async {
                                   await Navigator.push<void>(
                                     context,
                                     MaterialPageRoute(
@@ -204,7 +205,6 @@ class _GrammarScreenState extends State<GrammarScreen> {
                                         examples: examples,
                                         language: language,
                                         locale: locale,
-                                        startWithPractice: practice,
                                       ),
                                     ),
                                   );
@@ -476,7 +476,7 @@ class _ChapterCard extends StatelessWidget {
   final GrammarBookCopy copy;
   final Color color;
   final bool complete;
-  final ValueChanged<bool> onOpen;
+  final VoidCallback onOpen;
 
   @override
   Widget build(BuildContext context) => Card(
@@ -540,23 +540,14 @@ class _ChapterCard extends StatelessWidget {
                           fontSize: 11.5,
                           fontWeight: FontWeight.w700)),
                   const Spacer(),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          onPressed: () => onOpen(false),
-                          icon: const Icon(Icons.menu_book_rounded, size: 18),
-                          label: Text(copy.fullExplanation,
-                              maxLines: 1, overflow: TextOverflow.ellipsis),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      IconButton.filledTonal(
-                        tooltip: copy.practice,
-                        onPressed: () => onOpen(true),
-                        icon: const Icon(Icons.bolt_rounded),
-                      ),
-                    ],
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: onOpen,
+                      icon: const Icon(Icons.menu_book_rounded, size: 18),
+                      label: Text(copy.fullExplanation,
+                          maxLines: 1, overflow: TextOverflow.ellipsis),
+                    ),
                   ),
                 ],
               ),
@@ -574,7 +565,6 @@ class _GrammarChapterScreen extends StatefulWidget {
     required this.examples,
     required this.language,
     required this.locale,
-    required this.startWithPractice,
   });
 
   final int chapterNumber;
@@ -583,30 +573,20 @@ class _GrammarChapterScreen extends StatefulWidget {
   final List<PhraseEntry> examples;
   final LanguageOption language;
   final String locale;
-  final bool startWithPractice;
 
   @override
   State<_GrammarChapterScreen> createState() => _GrammarChapterScreenState();
 }
 
 class _GrammarChapterScreenState extends State<_GrammarChapterScreen> {
-  late bool _showAnswers;
-  final Set<int> _completed = {};
-
-  @override
-  void initState() {
-    super.initState();
-    _showAnswers = widget.startWithPractice;
-  }
-
   @override
   Widget build(BuildContext context) {
     final copy = GrammarBookRepository.copy(widget.locale);
-    final paragraphs = GrammarBookRepository.explanationFor(
-      widget.locale,
+    final chapter = TextbookGrammarRepository.chapter(
+      locale: widget.locale,
       topic: widget.title,
-      language: widget.language.nativeName,
       level: widget.topic.level,
+      language: widget.language,
     );
     return Scaffold(
       appBar: AppBar(
@@ -621,121 +601,62 @@ class _GrammarChapterScreenState extends State<_GrammarChapterScreen> {
               _ChapterHero(widget: widget, copy: copy),
               const SizedBox(height: 16),
               _LessonSection(
-                icon: Icons.language_rounded,
-                title: copy.languageWorks,
-                child: Text(
-                  GrammarBookRepository.profileFor(
-                      widget.locale, widget.language),
-                  style: const TextStyle(height: 1.65),
-                ),
-              ),
-              _LessonSection(
-                icon: Icons.menu_book_rounded,
-                title: copy.completeExplanation,
+                icon: Icons.auto_stories_rounded,
+                title: chapter.readingTitle,
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    for (final paragraph in paragraphs)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
-                        child: Align(
-                          alignment: AlignmentDirectional.centerStart,
-                          child: Text(paragraph,
-                              style: const TextStyle(height: 1.72)),
+                    Container(
+                      width: double.infinity,
+                      margin: const EdgeInsets.only(bottom: 18),
+                      padding: const EdgeInsets.all(15),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .secondaryContainer
+                            .withValues(alpha: .48),
+                        borderRadius: BorderRadius.circular(18),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Icon(Icons.bookmark_added_rounded),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              chapter.readerNote,
+                              style: const TextStyle(
+                                height: 1.55,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    for (var index = 0;
+                        index < chapter.paragraphs.length;
+                        index++) ...[
+                      Text(
+                        chapter.paragraphs[index],
+                        style: const TextStyle(
+                          height: 1.84,
+                          fontSize: 16.2,
                         ),
                       ),
-                  ],
-                ),
-              ),
-              _LessonSection(
-                icon: Icons.account_tree_rounded,
-                title: copy.meaningFormUse,
-                child: Column(
-                  children: [
-                    for (var index = 0; index < copy.lensLabels.length; index++)
-                      _NumberedLine(
-                          number: index + 1, text: copy.lensLabels[index]),
+                      if (index != chapter.paragraphs.length - 1)
+                        const SizedBox(height: 16),
+                    ],
                   ],
                 ),
               ),
               _LessonSection(
                 icon: Icons.translate_rounded,
-                title:
-                    '${copy.practicePhrases} · ${widget.language.nativeName}',
+                title: chapter.examplesTitle,
                 child: Column(
                   children: [
                     for (final example in widget.examples)
                       _PhrasePanel(example: example),
-                  ],
-                ),
-              ),
-              _LessonSection(
-                icon: Icons.rule_rounded,
-                title: copy.rulesSteps,
-                child: Column(
-                  children: [
-                    for (var index = 0; index < copy.ruleSteps.length; index++)
-                      _NumberedLine(
-                          number: index + 1, text: copy.ruleSteps[index]),
-                  ],
-                ),
-              ),
-              _LessonSection(
-                icon: Icons.warning_amber_rounded,
-                title: copy.commonMistakes,
-                child: Column(
-                  children: [
-                    for (final mistake in copy.mistakeSteps)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 10),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Icon(Icons.close_rounded,
-                                color: Colors.redAccent, size: 20),
-                            const SizedBox(width: 9),
-                            Expanded(
-                                child: Text(mistake,
-                                    style: const TextStyle(height: 1.5))),
-                          ],
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-              _LessonSection(
-                icon: Icons.psychology_alt_rounded,
-                title: copy.guidedPractice,
-                child: Column(
-                  children: [
-                    for (var index = 0;
-                        index < copy.practiceSteps.length;
-                        index++)
-                      CheckboxListTile(
-                        value: _completed.contains(index),
-                        onChanged: (value) => setState(() => value == true
-                            ? _completed.add(index)
-                            : _completed.remove(index)),
-                        controlAffinity: ListTileControlAffinity.leading,
-                        contentPadding: EdgeInsets.zero,
-                        title: Text(copy.practiceSteps[index],
-                            style:
-                                const TextStyle(fontWeight: FontWeight.w700)),
-                        subtitle:
-                            _showAnswers ? Text(copy.answerSteps[index]) : null,
-                      ),
-                    const SizedBox(height: 8),
-                    SizedBox(
-                      width: double.infinity,
-                      child: FilledButton.icon(
-                        onPressed: () =>
-                            setState(() => _showAnswers = !_showAnswers),
-                        icon: Icon(_showAnswers
-                            ? Icons.visibility_off_rounded
-                            : Icons.visibility_rounded),
-                        label: Text(
-                            _showAnswers ? copy.hideAnswers : copy.showAnswers),
-                      ),
-                    ),
                   ],
                 ),
               ),
@@ -744,19 +665,23 @@ class _GrammarChapterScreenState extends State<_GrammarChapterScreen> {
                 decoration: BoxDecoration(
                   color: Theme.of(context)
                       .colorScheme
-                      .secondaryContainer
-                      .withValues(alpha: .62),
+                      .primaryContainer
+                      .withValues(alpha: .52),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Icon(Icons.lightbulb_rounded),
+                    const Icon(Icons.school_rounded),
                     const SizedBox(width: 10),
                     Expanded(
-                      child: Text(copy.masteryTip,
-                          style: const TextStyle(
-                              fontWeight: FontWeight.w800, height: 1.5)),
+                      child: Text(
+                        chapter.readerNote,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w800,
+                          height: 1.5,
+                        ),
+                      ),
                     ),
                   ],
                 ),

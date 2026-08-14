@@ -1,0 +1,326 @@
+[
+  {
+    "title": "Word order foundations",
+    "level": "A1",
+    "emoji": "🧱",
+    "summary": "Recognize the usual position of subject, verb, object, questions, and negatives."
+  },
+  {
+    "title": "Nouns, gender, and articles",
+    "level": "A1",
+    "emoji": "📦",
+    "summary": "Learn how nouns interact with articles, number, gender, and definiteness."
+  },
+  {
+    "title": "Present time",
+    "level": "A1",
+    "emoji": "⏱️",
+    "summary": "Describe identity, routine, repeated actions, and what is happening now."
+  },
+  {
+    "title": "Pronouns and reference",
+    "level": "A1",
+    "emoji": "👥",
+    "summary": "Track who or what a sentence refers to without repeating every noun."
+  },
+  {
+    "title": "Negation essentials",
+    "level": "A1",
+    "emoji": "🚫",
+    "summary": "Make clear negative statements, commands, and short answers."
+  },
+  {
+    "title": "Numbers, time, and dates",
+    "level": "A1",
+    "emoji": "🔢",
+    "summary": "Use numbers with age, prices, clock time, dates, and quantities."
+  },
+  {
+    "title": "Questions that unlock conversation",
+    "level": "A2",
+    "emoji": "❓",
+    "summary": "Build open and closed questions for people, places, time, reason, and method."
+  },
+  {
+    "title": "Past experiences",
+    "level": "A2",
+    "emoji": "🕰️",
+    "summary": "Tell what happened, describe background, and connect events in a clear sequence."
+  },
+  {
+    "title": "Plans and predictions",
+    "level": "A2",
+    "emoji": "🔭",
+    "summary": "Express intention, arrangements, promises, probability, and future conditions."
+  },
+  {
+    "title": "Possession and belonging",
+    "level": "A2",
+    "emoji": "🔑",
+    "summary": "Show ownership, relationships, parts, and association naturally."
+  },
+  {
+    "title": "Requests, commands, and permission",
+    "level": "A2",
+    "emoji": "🧭",
+    "summary": "Ask for action, give directions, and request permission at the right level of politeness."
+  },
+  {
+    "title": "Place, movement, and prepositions",
+    "level": "A2",
+    "emoji": "📍",
+    "summary": "Describe location, direction, origin, destination, and movement through space."
+  },
+  {
+    "title": "Comparison and degree",
+    "level": "B1",
+    "emoji": "⚖️",
+    "summary": "Compare people and ideas, soften claims, and express meaningful differences."
+  },
+  {
+    "title": "Modality and politeness",
+    "level": "B1",
+    "emoji": "🤝",
+    "summary": "Use ability, permission, advice, obligation, probability, and polite distance."
+  },
+  {
+    "title": "Habit, duration, and frequency",
+    "level": "B1",
+    "emoji": "🔁",
+    "summary": "Explain how often, how long, and since when an action happens."
+  },
+  {
+    "title": "Relative information",
+    "level": "B1",
+    "emoji": "🧩",
+    "summary": "Add identifying or descriptive information about people, things, places, and times."
+  },
+  {
+    "title": "Reason, result, and purpose",
+    "level": "B1",
+    "emoji": "🎯",
+    "summary": "Connect events by explaining why something happened and what it was intended to achieve."
+  },
+  {
+    "title": "Complex sentences",
+    "level": "B2",
+    "emoji": "🔗",
+    "summary": "Connect cause, contrast, purpose, result, concession, and condition."
+  },
+  {
+    "title": "Reported language",
+    "level": "B2",
+    "emoji": "💬",
+    "summary": "Report speech, thought, questions, and claims while preserving meaning and stance."
+  },
+  {
+    "title": "Conditional meaning",
+    "level": "B2",
+    "emoji": "🔀",
+    "summary": "Discuss real possibilities, imagined situations, regret, and mixed conditions."
+  },
+  {
+    "title": "Passive and impersonal structures",
+    "level": "B2",
+    "emoji": "⚙️",
+    "summary": "Focus on an action, process, or result when the actor is unknown or less important."
+  },
+  {
+    "title": "Aspect and viewpoint",
+    "level": "B2",
+    "emoji": "🎥",
+    "summary": "Choose whether to present an action as complete, ongoing, repeated, or relevant now."
+  },
+  {
+    "title": "Style and emphasis",
+    "level": "C1",
+    "emoji": "🎯",
+    "summary": "Control information flow, focus, register, rhythm, and rhetorical impact."
+  },
+  {
+    "title": "Cohesion across paragraphs",
+    "level": "C1",
+    "emoji": "🧵",
+    "summary": "Guide readers and listeners through reference, substitution, connectors, and thematic progression."
+  },
+  {
+    "title": "Formal, neutral, and informal register",
+    "level": "C1",
+    "emoji": "🎚️",
+    "summary": "Adapt grammar and vocabulary to professional, academic, friendly, and intimate contexts."
+  },
+  {
+    "title": "Information structure and focus",
+    "level": "C1",
+    "emoji": "🔦",
+    "summary": "Place known and new information strategically and highlight the element that matters."
+  },
+  {
+    "title": "Precision and nuance",
+    "level": "C2",
+    "emoji": "💎",
+    "summary": "Choose forms for subtle certainty, implication, diplomacy, and voice."
+  },
+  {
+    "title": "Inference, stance, and evidentiality",
+    "level": "C2",
+    "emoji": "🔍",
+    "summary": "Signal evidence, confidence, distance, surprise, and responsibility for a claim."
+  },
+  {
+    "title": "Idiomatic grammar and fixed patterns",
+    "level": "C2",
+    "emoji": "🧬",
+    "summary": "Recognize structures whose natural meaning cannot be assembled word by word."
+  },
+  {
+    "title": "Editing for native-like control",
+    "level": "C2",
+    "emoji": "✍️",
+    "summary": "Revise ambiguity, repetition, rhythm, agreement, reference, and register with expert precision."
+  },
+  {
+    "title": "Agreement inside the phrase",
+    "level": "A1",
+    "emoji": "🧲",
+    "summary": "Keep articles, nouns, adjectives, pronouns, and verbs consistent where the language marks number, gender, or person."
+  },
+  {
+    "title": "Building useful noun phrases",
+    "level": "A1",
+    "emoji": "🧰",
+    "summary": "Combine quantity, description, ownership, and location into compact phrases you can reuse in real situations."
+  },
+  {
+    "title": "Connecting everyday ideas",
+    "level": "A2",
+    "emoji": "🔗",
+    "summary": "Link short messages with addition, contrast, choice, reason, result, and simple sequence."
+  },
+  {
+    "title": "Quantity and measurement",
+    "level": "A2",
+    "emoji": "🧮",
+    "summary": "Talk accurately about countable items, amounts, portions, distance, weight, and approximate quantity."
+  },
+  {
+    "title": "Narrative sequence and interruption",
+    "level": "B1",
+    "emoji": "📖",
+    "summary": "Organize a story by separating background, main events, interruptions, and the final result."
+  },
+  {
+    "title": "Verbs with complements",
+    "level": "B1",
+    "emoji": "🧩",
+    "summary": "Choose the natural structure after common verbs: a noun, infinitive, clause, participle, or language-specific complement."
+  },
+  {
+    "title": "Focus through clause choice",
+    "level": "B2",
+    "emoji": "🎬",
+    "summary": "Choose active, passive, existential, and cleft-like structures according to what the listener already knows."
+  },
+  {
+    "title": "Managing distance and certainty",
+    "level": "B2",
+    "emoji": "🌡️",
+    "summary": "Calibrate claims with probability, evidence, hedging, approximation, and polite distance."
+  },
+  {
+    "title": "Nominalisation and information density",
+    "level": "C1",
+    "emoji": "🗜️",
+    "summary": "Package actions and qualities as noun phrases when formal or academic writing needs compact, connected information."
+  },
+  {
+    "title": "Parallelism and rhetorical balance",
+    "level": "C1",
+    "emoji": "⚖️",
+    "summary": "Coordinate matching grammatical forms to make complex speech and writing clearer, more memorable, and more persuasive."
+  },
+  {
+    "title": "Strategic ambiguity and implication",
+    "level": "C2",
+    "emoji": "🌫️",
+    "summary": "Recognize when grammar leaves agency, commitment, time, or evaluation implicit—and decide whether that effect is useful or misleading."
+  },
+  {
+    "title": "Grammar across dialect and genre",
+    "level": "C2",
+    "emoji": "🗺️",
+    "summary": "Compare how conversation, journalism, academic prose, literature, and regional varieties reshape the same underlying message."
+  },
+  {
+    "title": "Core sentence order",
+    "level": "A1",
+    "emoji": "🧱",
+    "summary": "Build a dependable sentence frame and learn where the subject, action, object, time, and place normally appear."
+  },
+  {
+    "title": "Negatives and short answers",
+    "level": "A1",
+    "emoji": "🚫",
+    "summary": "Say no accurately, answer yes/no questions naturally, and avoid double-negation errors across languages."
+  },
+  {
+    "title": "Everyday prepositions and particles",
+    "level": "A2",
+    "emoji": "📍",
+    "summary": "Choose natural markers for place, direction, time, transport, accompaniment, and purpose."
+  },
+  {
+    "title": "Requests, permission, and obligation",
+    "level": "A2",
+    "emoji": "🤲",
+    "summary": "Ask politely, give permission, express necessity, and distinguish strong rules from friendly advice."
+  },
+  {
+    "title": "Reported speech and viewpoint",
+    "level": "B1",
+    "emoji": "🗨️",
+    "summary": "Report what someone said, asked, promised, or believed while keeping time and viewpoint clear."
+  },
+  {
+    "title": "Relative clauses for useful detail",
+    "level": "B1",
+    "emoji": "🧷",
+    "summary": "Identify people and things, add extra information, and avoid repeating short sentences."
+  },
+  {
+    "title": "Advanced conditionals and alternatives",
+    "level": "B2",
+    "emoji": "🔀",
+    "summary": "Discuss real possibilities, imagined situations, past regrets, mixed time, and alternatives to if."
+  },
+  {
+    "title": "Cohesion across a full paragraph",
+    "level": "B2",
+    "emoji": "🧵",
+    "summary": "Guide the reader through contrast, cause, reference, repetition, and topic development without sounding mechanical."
+  },
+  {
+    "title": "Stance in academic and professional writing",
+    "level": "C1",
+    "emoji": "🔬",
+    "summary": "Express confidence, caution, limitation, evaluation, and responsibility with precise grammatical choices."
+  },
+  {
+    "title": "Fronting, inversion, and marked emphasis",
+    "level": "C1",
+    "emoji": "🎯",
+    "summary": "Reshape normal word order to control emphasis, contrast, drama, and formal style without losing clarity."
+  },
+  {
+    "title": "Pragmatic grammar and implied meaning",
+    "level": "C2",
+    "emoji": "🎭",
+    "summary": "Interpret how grammar communicates politeness, irony, criticism, solidarity, hesitation, and meanings left unsaid."
+  },
+  {
+    "title": "Editing for native-like precision",
+    "level": "C2",
+    "emoji": "💎",
+    "summary": "Diagnose subtle problems in agreement, information flow, idiomatic complementation, register, and rhythm."
+  }
+]

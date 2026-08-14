@@ -7,10 +7,12 @@ import '../core/i18n.dart';
 import '../data/academy_repository.dart';
 import '../data/course_repository.dart';
 import '../data/language_catalog.dart';
+import '../data/modern_learning_repository.dart';
 import '../models/models.dart';
 import '../widgets/ui.dart';
 import 'grammar_screen.dart';
 import 'level_exam_screen.dart';
+import 'learning_labs_screen.dart';
 import 'story_library_screen.dart';
 import 'unit_hub_screen.dart';
 
@@ -205,6 +207,15 @@ class AcademyScreen extends StatelessWidget {
               );
             },
           ),
+          const SizedBox(height: 22),
+          _LearningLabsBanner(
+            title: ModernLearningRepository.copy(locale).hubTitle,
+            subtitle: ModernLearningRepository.copy(locale).hubSubtitle,
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const LearningLabsScreen()),
+            ),
+          ),
           const SizedBox(height: 30),
           SectionHeading(
             title: context.text.get('continue'),
@@ -242,6 +253,70 @@ class AcademyScreen extends StatelessWidget {
     };
     Navigator.push(context, MaterialPageRoute(builder: (_) => screen));
   }
+}
+
+class _LearningLabsBanner extends StatelessWidget {
+  const _LearningLabsBanner({
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
+
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => Card(
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          child: Container(
+            padding: const EdgeInsets.all(18),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Theme.of(context).colorScheme.primaryContainer,
+                  Theme.of(context).colorScheme.tertiaryContainer,
+                ],
+              ),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 58,
+                  height: 58,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surface,
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+                  child: const Text('🧠', style: TextStyle(fontSize: 31)),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(subtitle, style: const TextStyle(height: 1.4)),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 10),
+                const Icon(Icons.arrow_forward_rounded),
+              ],
+            ),
+          ),
+        ),
+      );
 }
 
 class _HeaderMetric extends StatelessWidget {

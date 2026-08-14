@@ -1,38 +1,42 @@
 # LingoNexa
 
-Current release: **3.0.0+14 — Human-Crafted Learning OS**
+Current release: **3.1.0+15 — Full-Stack Learning Edition**
 
-An original Flutter foundation for a multilingual learning platform. Version 3.0 adds an adaptive spaced-repetition scheduler, six-skill mastery analytics, a working speech shadowing studio, privacy and content-trust centers, a four-stage daily quest, hardened local demo authentication, floating responsive navigation, and 24 lightweight Lottie assets. The six-book A1–C2 grammar library, 54 reading chapters, 67 learning languages, and 12 interface languages remain fully integrated.
+LingoNexa is a Flutter + Laravel multilingual learning platform built from the existing 3.0 learning OS. The release keeps the 67-language catalog, 12 interface languages, A1–C2 path, exams, stories, speech tools, community foundation, and existing learning features, while adding a real account/backend path and a responsive Laravel web product.
 
-Content integrity is explicit: 12 core languages include the expanded 84-concept aligned bank (1,008 localized entries and 4,032 generated drills). The remaining 55 languages use their verified starter lexicons and never receive English text disguised as target-language content. Expand them only through reviewed course packs.
+## What changed in 3.1
 
-Local demonstration accounts:
+- Grammar chapters are now deliberately clean: **complete connected explanation + extended examples**. The old chapter panels for “how the language works”, meaning/form/use, rule-choice steps, common mistakes, and guided recall are no longer displayed in chapter reading.
+- Original textbook-style explanations are available in all 12 interface languages. Target-language profiles cover all 67 catalog languages.
+- Nexa Learning Labs adds 12 learning modes: active retrieval, spaced review, interleaving, dictation, chunking, shadowing, comprehensible input, conversation missions, pronunciation focus, memory decks, error repair, and fluency sprints.
+- 12 visual themes, expanded Lottie motion assets, 249 country/territory flags, and account country selection.
+- Laravel 12 web/API source under `laravel-web/` with session-based web auth, Sanctum mobile tokens, account progress, responsive pages, and shared course/grammar data.
+- Flutter can connect to Laravel from the login screen or through `--dart-define=LINGONEXA_API_URL=...`.
+- Remote auth tokens use secure encrypted platform storage rather than ordinary preferences.
 
-- Administrator: `admin` or `admin@lingonexa.local` / `LingoNexa!2026`
-- Learners: `demo1` / `Demo-Learner!2026`, `demo2` / `Demo-Learner!2026`
-
-These are offline demo credentials, not production authentication. Local passwords use salted PBKDF2-HMAC-SHA256, constant-time comparison, attempt throttling, and expiring sessions. Public deployment still requires a server-verified identity provider and platform secure storage. Google/Facebook buttons are integration-ready UI and require a configured OAuth backend before release.
-
-Quick start:
+## Flutter quick start
 
 ```bash
-flutter create --platforms=android,web --org com.lingonexa .
 flutter pub get
 flutter analyze
 flutter test
 flutter run
 ```
 
-Build:
+Production build with backend:
 
 ```bash
-flutter build apk --release
-flutter build appbundle --release
-flutter build web --release
+flutter build apk --release --dart-define=LINGONEXA_API_URL=https://your-domain.example
+flutter build appbundle --release --dart-define=LINGONEXA_API_URL=https://your-domain.example
+flutter build web --release --dart-define=LINGONEXA_API_URL=https://your-domain.example
 ```
 
-See [README_AR.md](README_AR.md) for the full Arabic setup guide and production requirements.
+## Laravel web/API
 
-GitHub Actions are separated into `Flutter CI`, `APK`, `AAB`, `Web`, and `Deploy GitHub Pages`. APK, AAB, and Web now build independently on every push to `main`; a failed quality check no longer marks the other workflows as skipped. See [REPLACE_INSTRUCTIONS_AR.md](REPLACE_INSTRUCTIONS_AR.md) for the GitHub Desktop replacement and one-time Pages setup steps.
+Read `laravel-web/README_AR.md`. On Windows, run `laravel-web/SETUP_WINDOWS.bat` once, then `laravel-web/START_WINDOWS.bat`.
 
-This repository contains a production-oriented application foundation and starter curriculum. A commercial language product still requires expert-reviewed course packs, licensed native audio, secure server-side authentication, moderation, privacy/legal work, and store signing.
+## Content integrity
+
+The 12 core languages retain the large aligned content bank. The remaining 55 languages retain verified starter content and language-specific grammar profiles; the system does not fabricate English text as target-language material. New teaching prose is original and textbook-like, not copied from copyrighted commercial books.
+
+See `RELEASE_MANIFEST_3.1.0_AR.md` and `README_AR.md` for more detail.
