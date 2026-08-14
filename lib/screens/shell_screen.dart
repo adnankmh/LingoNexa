@@ -106,12 +106,32 @@ class _ShellScreenState extends State<ShellScreen> {
           ),
         ),
       ),
+      extendBody: !wide,
       bottomNavigationBar: wide
           ? null
-          : NavigationBar(
-              selectedIndex: _index,
-              onDestinationSelected: (value) => setState(() => _index = value),
-              destinations: destinations,
+          : SafeArea(
+              minimum: const EdgeInsets.fromLTRB(10, 0, 10, 9),
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(25),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: .12),
+                      blurRadius: 28,
+                      offset: const Offset(0, 10),
+                    ),
+                  ],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(25),
+                  child: NavigationBar(
+                    selectedIndex: _index,
+                    onDestinationSelected: (value) =>
+                        setState(() => _index = value),
+                    destinations: destinations,
+                  ),
+                ),
+              ),
             ),
     );
   }

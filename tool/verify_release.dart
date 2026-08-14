@@ -5,6 +5,8 @@ import 'package:lingonexa/data/course_repository.dart';
 import 'package:lingonexa/data/global_content_repository.dart';
 import 'package:lingonexa/data/grammar_book_repository.dart';
 import 'package:lingonexa/data/learning_content_repository.dart';
+import 'package:lingonexa/data/adaptive_learning_engine.dart';
+import 'package:lingonexa/data/product_copy_repository.dart';
 
 Never _fail(String message) => throw StateError(message);
 
@@ -100,6 +102,19 @@ void main() {
     'ko',
   ];
   for (final locale in interfaceLocales) {
+    for (final key in ProductCopyRepository.keys) {
+      final value = ProductCopyRepository.text(locale, key);
+      _require(
+        value.trim().isNotEmpty && value != key,
+        'Missing modern product localization for $locale: $key',
+      );
+      if (locale != 'en') {
+        _require(
+          value != ProductCopyRepository.text('en', key),
+          'Modern product copy leaked from English for $locale: $key',
+        );
+      }
+    }
     final guide = AcademyRepository.guideFor(sampleUnit, locale);
     _require(
       guide.overview.length == 2 &&
@@ -140,8 +155,26 @@ void main() {
       .where((file) => file.path.endsWith('.json'))
       .toList();
   _require(
-    lottieFiles.length >= 15,
-    'The motion library must include at least 15 Lottie assets.',
+    lottieFiles.length >= 24,
+    'The motion library must include at least 24 Lottie assets.',
+  );
+
+  var review = AdaptiveLearningEngine.firstReview(
+    'verification',
+    now: DateTime(2026, 8, 10),
+  );
+  final intervals = <int>[];
+  for (var index = 0; index < 6; index++) {
+    review = AdaptiveLearningEngine.grade(
+      review,
+      5,
+      now: DateTime(2026, 8, 10),
+    );
+    intervals.add(review.intervalDays);
+  }
+  _require(
+    intervals.join(',') == '1,3,7,14,30,60',
+    'Adaptive review interval contract failed.',
   );
 
   final screenSource = Directory('lib/screens')
@@ -168,6 +201,7 @@ void main() {
     '${LearningContentRepository.grammarTopics.length} grammar lessons, '
     '${LearningContentRepository.specializedPaths.length} scenario paths, '
     '${AcademyRepository.collections.length} academy collections, '
+    '${lottieFiles.length} motion assets, '
     '$iconButtons described icon buttons.',
   );
 }

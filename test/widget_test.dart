@@ -21,8 +21,8 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 800));
 
-    expect(find.text('Learn'), findsOneWidget);
-    expect(find.text('Practice'), findsOneWidget);
+    expect(find.text('Learn'), findsWidgets);
+    expect(find.text('Practice'), findsWidgets);
     expect(find.text('Explore'), findsOneWidget);
     expect(find.text('Community'), findsOneWidget);
     expect(find.text('Profile'), findsOneWidget);

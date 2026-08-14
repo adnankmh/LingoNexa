@@ -9,6 +9,11 @@ LingoNexa does not reproduce competitor code, artwork, copy, characters, or prop
 | AI role-play and answer guidance | Duolingo Max / Busuu Conversations / Memrise | Nexa Coach scenario shell and secure endpoint boundary |
 | Native speech and pronunciation work | Babbel / Mango / Memrise | Explicit locale per language, installed-reader and dialect picker, speech-rate control, and no English fallback |
 | Spaced recall | Mango / Babbel / Memrise | Local review queue and review-ready lesson IDs |
+| Explainable adaptive recall | Babbel Review / modern practice hubs | Offline SM-2-inspired scheduler with quality grades, lapses, due dates, and 1–180 day intervals |
+| Progress by real language skills | Memrise My Journey / CEFR dashboards | Six-skill mastery profile, strongest/weakest skill detection, weekly activity view, and next-action guidance |
+| Guided speaking confidence | Duolingo guided calls / Busuu Conversations | Working Shadowing Studio with strict target-language voices, device recognition, transcript comparison, and pronunciation score |
+| Human editorial trust | Expert-authored course workflows | Visible author, linguist, native-review, learning-QA, rights, and release gates; starter packs cannot masquerade as reviewed packs |
+| Privacy controls | Modern privacy-first mobile products | Device-first mode, analytics and voice-storage opt-ins, session timeout, local history deletion, and explicit production security boundary |
 | Native-speaker community corrections | Busuu | Publishable practice posts, comments, correction prompts, saves, likes, and moderation controls |
 | Partner matching, text/voice, rooms | HelloTalk / Speaky | Partner rail, posts, voice-room prototype, moderation actions |
 | Culture integrated with language | Mango | Culture notes inside lessons plus articles |
@@ -17,7 +22,7 @@ LingoNexa does not reproduce competitor code, artwork, copy, characters, or prop
 | Goal-specific courses | Babbel / Mango | Eight original travel, business, health, academic, kids, life-abroad, exam, and media pathways |
 | Phrasebook, grammar, and scripts | Babbel Grammar Guide / broad category pattern | Searchable phrases, six A1–C2 grammar books, 54 localized reading chapters, language fingerprints, active recall, character maps, and handwriting practice |
 | Plans, leagues, and records | Broad category pattern | Weekly study plan, achievement milestones, league table, offline packs, and certificate readiness |
-| Correct/incorrect motion feedback | Broad category pattern | Sixteen original lightweight Lottie assets, animated academy cards, answer explanations, and system sounds |
+| Correct/incorrect motion feedback | Broad category pattern | Twenty-four original lightweight Lottie assets, animated academy cards, answer explanations, privacy/trust motion, and system sounds |
 | Content operations | Broad category pattern | Role-gated admin studio for learning, voice, XP, accounts, modules, and export |
 
 ## Content integrity boundary

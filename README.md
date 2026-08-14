@@ -1,17 +1,17 @@
 # LingoNexa
 
-Current release: **2.1.0+13 — Living Language Library**
+Current release: **3.0.0+14 — Human-Crafted Learning OS**
 
-An original Flutter foundation for a multilingual learning platform. Version 2.1 adds a six-book A1–C2 grammar library with 54 reading chapters, interface-language explanations, target-language examples, language fingerprints, guided active recall, mistake explanations, a fully localized practice center, modern page motion, and 16 lightweight Lottie assets. The catalog contains 67 learning languages and 12 interface languages.
+An original Flutter foundation for a multilingual learning platform. Version 3.0 adds an adaptive spaced-repetition scheduler, six-skill mastery analytics, a working speech shadowing studio, privacy and content-trust centers, a four-stage daily quest, hardened local demo authentication, floating responsive navigation, and 24 lightweight Lottie assets. The six-book A1–C2 grammar library, 54 reading chapters, 67 learning languages, and 12 interface languages remain fully integrated.
 
 Content integrity is explicit: 12 core languages include the expanded 84-concept aligned bank (1,008 localized entries and 4,032 generated drills). The remaining 55 languages use their verified starter lexicons and never receive English text disguised as target-language content. Expand them only through reviewed course packs.
 
 Local demonstration accounts:
 
-- Administrator: `Adnan` or `adnanasd63@gmail.com` / `Adnan123`
-- Learners: `demo1` / `Demo123`, `demo2` / `Demo123`
+- Administrator: `admin` or `admin@lingonexa.local` / `LingoNexa!2026`
+- Learners: `demo1` / `Demo-Learner!2026`, `demo2` / `Demo-Learner!2026`
 
-These are offline demo credentials, not production authentication. Google/Facebook buttons are integration-ready UI and require a configured Firebase/Auth backend before release.
+These are offline demo credentials, not production authentication. Local passwords use salted PBKDF2-HMAC-SHA256, constant-time comparison, attempt throttling, and expiring sessions. Public deployment still requires a server-verified identity provider and platform secure storage. Google/Facebook buttons are integration-ready UI and require a configured OAuth backend before release.
 
 Quick start:
 

@@ -5,6 +5,7 @@ import '../core/app_state.dart';
 import '../core/i18n.dart';
 import '../data/course_repository.dart';
 import '../data/language_catalog.dart';
+import '../data/product_copy_repository.dart';
 import '../models/models.dart';
 import '../widgets/ui.dart';
 import 'language_picker_screen.dart';
@@ -15,6 +16,8 @@ import 'phrasebook_screen.dart';
 import 'story_library_screen.dart';
 import 'translator_screen.dart';
 import 'unit_hub_screen.dart';
+import 'progress_insights_screen.dart';
+import 'shadowing_lab_screen.dart';
 
 class LearnScreen extends StatefulWidget {
   const LearnScreen({super.key});
@@ -37,6 +40,8 @@ class _LearnScreenState extends State<LearnScreen> {
     final progress = (state.dailyMinutes / state.dailyGoalMinutes)
         .clamp(0.0, 1.0)
         .toDouble();
+    final locale = state.locale.languageCode;
+    String productCopy(String key) => ProductCopyRepository.text(locale, key);
 
     return ResponsivePage(
       child: Column(
@@ -122,6 +127,21 @@ class _LearnScreenState extends State<LearnScreen> {
                 value: _selectedLevel,
                 label: context.text.get('level'),
               ),
+              InkWell(
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const ProgressInsightsScreen(),
+                  ),
+                ),
+                borderRadius: BorderRadius.circular(16),
+                child: StatPill(
+                  icon: Icons.insights_rounded,
+                  value: '${state.masteryScore}%',
+                  label: productCopy('mastery'),
+                  color: const Color(0xFF008F79),
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 18),
@@ -138,7 +158,7 @@ class _LearnScreenState extends State<LearnScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        context.text.get('continue'),
+                        productCopy('next_move'),
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 22,
@@ -147,7 +167,7 @@ class _LearnScreenState extends State<LearnScreen> {
                       ),
                       const SizedBox(height: 5),
                       Text(
-                        '${context.text.get('daily_goal')} · ${state.dailyGoalMinutes} ${context.text.get('minutes')}',
+                        productCopy('next_move_sub'),
                         style: TextStyle(
                           color: Colors.white.withValues(alpha: .78),
                           fontWeight: FontWeight.w600,
@@ -187,9 +207,21 @@ class _LearnScreenState extends State<LearnScreen> {
               ],
             ),
           ),
+          const SizedBox(height: 16),
+          _DailyQuest(
+            title: productCopy('daily_quest'),
+            subtitle: productCopy('daily_quest_sub'),
+            completedLessons: state.completedLessonIds.length,
+            dueReviews: state.dueReviews().length,
+            minutes: state.dailyMinutes,
+            learnLabel: context.text.get('learn'),
+            recallLabel: context.text.get('review'),
+            speakLabel: context.text.get('speaking'),
+            useLabel: context.text.get('practice'),
+          ),
           const SizedBox(height: 28),
           SectionHeading(
-            title: context.text.get('learning_center'),
+            title: productCopy('quick_labs'),
             subtitle: context.text.get('learning_center_subtitle'),
           ),
           const SizedBox(height: 11),
@@ -263,6 +295,32 @@ class _LearnScreenState extends State<LearnScreen> {
                   onTap: () => Navigator.push(
                     context,
                     MaterialPageRoute(builder: (_) => const TranslatorScreen()),
+                  ),
+                ),
+                _HomeAction(
+                  icon: Icons.multitrack_audio_rounded,
+                  animationAsset: 'assets/lottie/speaking.json',
+                  title: productCopy('shadowing'),
+                  subtitle: productCopy('shadowing_sub'),
+                  color: const Color(0xFF7452D6),
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const ShadowingLabScreen(),
+                    ),
+                  ),
+                ),
+                _HomeAction(
+                  icon: Icons.insights_rounded,
+                  animationAsset: 'assets/lottie/learning_goal.json',
+                  title: productCopy('insights'),
+                  subtitle: productCopy('progress_sub'),
+                  color: const Color(0xFF008F79),
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const ProgressInsightsScreen(),
+                    ),
                   ),
                 ),
               ];
@@ -380,6 +438,151 @@ class _LearnScreenState extends State<LearnScreen> {
       MaterialPageRoute(builder: (_) => UnitHubScreen(unit: unit)),
     );
   }
+}
+
+class _DailyQuest extends StatelessWidget {
+  const _DailyQuest({
+    required this.title,
+    required this.subtitle,
+    required this.completedLessons,
+    required this.dueReviews,
+    required this.minutes,
+    required this.learnLabel,
+    required this.recallLabel,
+    required this.speakLabel,
+    required this.useLabel,
+  });
+
+  final String title;
+  final String subtitle;
+  final int completedLessons;
+  final int dueReviews;
+  final int minutes;
+  final String learnLabel;
+  final String recallLabel;
+  final String speakLabel;
+  final String useLabel;
+
+  @override
+  Widget build(BuildContext context) => Card(
+        child: Padding(
+          padding: const EdgeInsets.all(17),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 42,
+                    height: 42,
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFFFFB54A), Color(0xFFF36B45)],
+                      ),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(4),
+                      child: Lottie.asset(
+                        'assets/lottie/daily_quest.json',
+                        errorBuilder: (_, __, ___) => const Icon(
+                          Icons.auto_awesome_rounded,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(title,
+                            style: const TextStyle(
+                                fontWeight: FontWeight.w900, fontSize: 16)),
+                        Text(
+                          subtitle,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurfaceVariant,
+                              fontSize: 11.5),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 14),
+              Row(
+                children: [
+                  _QuestStep(
+                      icon: Icons.school_outlined,
+                      done: completedLessons > 0,
+                      label: learnLabel),
+                  _QuestLine(done: dueReviews == 0),
+                  _QuestStep(
+                      icon: Icons.autorenew_rounded,
+                      done: dueReviews == 0,
+                      label: recallLabel),
+                  _QuestLine(done: minutes >= 10),
+                  _QuestStep(
+                      icon: Icons.mic_none_rounded,
+                      done: minutes >= 10,
+                      label: speakLabel),
+                  _QuestLine(done: minutes >= 15),
+                  _QuestStep(
+                      icon: Icons.forum_outlined,
+                      done: minutes >= 15,
+                      label: useLabel),
+                ],
+              ),
+            ],
+          ),
+        ),
+      );
+}
+
+class _QuestStep extends StatelessWidget {
+  const _QuestStep(
+      {required this.icon, required this.done, required this.label});
+  final IconData icon;
+  final bool done;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) => Column(
+        children: [
+          CircleAvatar(
+            radius: 17,
+            backgroundColor: done
+                ? const Color(0xFF0E9F79)
+                : Theme.of(context).colorScheme.surfaceContainerHighest,
+            child: Icon(done ? Icons.check_rounded : icon,
+                color: done ? Colors.white : null, size: 18),
+          ),
+          const SizedBox(height: 4),
+          Text(label,
+              style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w800)),
+        ],
+      );
+}
+
+class _QuestLine extends StatelessWidget {
+  const _QuestLine({required this.done});
+  final bool done;
+
+  @override
+  Widget build(BuildContext context) => Expanded(
+        child: Container(
+          height: 3,
+          margin: const EdgeInsets.only(bottom: 17),
+          color:
+              done ? const Color(0xFF0E9F79) : Theme.of(context).dividerColor,
+        ),
+      );
 }
 
 class _UnitCard extends StatelessWidget {

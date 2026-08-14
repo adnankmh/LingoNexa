@@ -18,6 +18,8 @@ REQUIRED = [
     "lib/data/course_repository.dart",
     "lib/data/academy_repository.dart",
     "lib/data/global_content_repository.dart",
+    "lib/data/adaptive_learning_engine.dart",
+    "lib/data/product_copy_repository.dart",
     "lib/core/i18n.dart",
     "lib/screens/interface_language_screen.dart",
     "lib/screens/sentence_lab_screen.dart",
@@ -40,6 +42,10 @@ REQUIRED = [
     "lib/screens/translator_screen.dart",
     "lib/screens/unit_hub_screen.dart",
     "lib/screens/academy_screen.dart",
+    "lib/screens/progress_insights_screen.dart",
+    "lib/screens/security_center_screen.dart",
+    "lib/screens/content_trust_screen.dart",
+    "lib/screens/shadowing_lab_screen.dart",
     "lib/widgets/speech_control_panel.dart",
     ".github/workflows/flutter_ci.yml",
     ".github/workflows/apk.yml",
@@ -58,6 +64,14 @@ REQUIRED = [
     "assets/lottie/speaking.json",
     "assets/lottie/streak.json",
     "assets/lottie/download.json",
+    "assets/lottie/shield_lock.json",
+    "assets/lottie/insights_wave.json",
+    "assets/lottie/daily_quest.json",
+    "assets/lottie/human_review.json",
+    "assets/lottie/memory_clock.json",
+    "assets/lottie/shadowing_wave.json",
+    "assets/lottie/privacy_device.json",
+    "assets/lottie/content_check.json",
     "web/icons/Icon-512.png",
     "android/settings.gradle.kts",
     "android/gradle/wrapper/gradle-wrapper.properties",
@@ -167,6 +181,20 @@ if "Locale locale = const Locale('en')" not in state_source or "String themeId =
 auth_source = (ROOT / "lib/services/auth_service.dart").read_text(encoding="utf-8")
 if "Adnan123" in auth_source:
     fail("administrator password must not be stored as plaintext source")
+if "adnanasd63@gmail.com" in auth_source:
+    fail("personal administrator identity must not be embedded in source")
+for security_marker in ("PBKDF2-HMAC-SHA256", "_constantTimeEquals", "_blockedUntil", "_maximumSessionLifetime"):
+    if security_marker not in auth_source:
+        fail(f"missing local authentication hardening: {security_marker}")
+
+adaptive = (ROOT / "lib/data/adaptive_learning_engine.dart").read_text(encoding="utf-8")
+for interval in ("1 => 1", "2 => 3", "3 => 7", "4 => 14", "5 => 30", "6 => 60"):
+    if interval not in adaptive:
+        fail(f"adaptive review interval missing: {interval}")
+
+lottie_count = len(list((ROOT / "assets/lottie").glob("*.json")))
+if lottie_count < 24:
+    fail(f"only {lottie_count} Lottie motion assets found")
 
 for relative in ("assets/branding/lingonexa_logo.png", "assets/branding/lingonexa_icon.png", "web/icons/Icon-512.png"):
     if (ROOT / relative).stat().st_size > 100_000:

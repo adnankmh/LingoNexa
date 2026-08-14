@@ -4,10 +4,13 @@ import '../core/app_state.dart';
 import '../core/i18n.dart';
 import '../data/course_repository.dart';
 import '../data/practice_copy_repository.dart';
+import '../data/product_copy_repository.dart';
 import '../widgets/ui.dart';
 import 'lesson_screen.dart';
 import 'sentence_lab_screen.dart';
 import 'tutor_screen.dart';
+import 'shadowing_lab_screen.dart';
+import 'progress_insights_screen.dart';
 
 class PracticeScreen extends StatelessWidget {
   const PracticeScreen({super.key});
@@ -20,12 +23,24 @@ class PracticeScreen extends StatelessWidget {
       meaningLanguageCode: state.locale.languageCode,
     ).expand((unit) => unit.lessons).toList();
     final due = allLessons
+        .where(
+          (lesson) => state.dueReviews().any(
+                (record) => record.lessonId == lesson.id,
+              ),
+        )
+        .toList();
+    final scheduled = allLessons
         .where((lesson) => state.reviewLessonIds.contains(lesson.id))
         .toList();
-    final sample = due.isNotEmpty ? due.first : allLessons.first;
+    final sample = due.isNotEmpty
+        ? due.first
+        : scheduled.isNotEmpty
+            ? scheduled.first
+            : allLessons.first;
     final scheme = Theme.of(context).colorScheme;
     final locale = state.locale.languageCode;
     String copy(String key) => PracticeCopyRepository.text(locale, key);
+    String productCopy(String key) => ProductCopyRepository.text(locale, key);
 
     return ResponsivePage(
       child: Column(
@@ -60,7 +75,10 @@ class PracticeScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        copy('ready').replaceAll('{count}', '8'),
+                        copy('ready').replaceAll(
+                          '{count}',
+                          '${due.isEmpty ? 1 : due.length}',
+                        ),
                         style: const TextStyle(
                           color: Colors.white70,
                           height: 1.4,
@@ -74,7 +92,10 @@ class PracticeScreen extends StatelessWidget {
                   onPressed: () => Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => LessonScreen(lesson: sample),
+                      builder: (_) => LessonScreen(
+                        lesson: sample,
+                        reviewMode: true,
+                      ),
                     ),
                   ),
                   style: FilledButton.styleFrom(
@@ -94,13 +115,18 @@ class PracticeScreen extends StatelessWidget {
                 FeatureTile(
                   icon: Icons.autorenew_rounded,
                   title: context.text.get('review'),
-                  subtitle:
-                      copy('due').replaceAll('{count}', '${due.length + 8}'),
+                  subtitle: copy('due').replaceAll(
+                    '{count}',
+                    '${due.isEmpty ? 1 : due.length}',
+                  ),
                   color: const Color(0xFF6C63FF),
                   onTap: () => Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => LessonScreen(lesson: sample),
+                      builder: (_) => LessonScreen(
+                        lesson: sample,
+                        reviewMode: true,
+                      ),
                     ),
                   ),
                 ),
@@ -180,6 +206,31 @@ class PracticeScreen extends StatelessWidget {
                     ),
                   ),
                 ),
+                FeatureTile(
+                  icon: Icons.multitrack_audio_rounded,
+                  title: productCopy('shadowing'),
+                  subtitle: productCopy('shadowing_sub'),
+                  color: const Color(0xFF7452D6),
+                  badge: copy('new'),
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const ShadowingLabScreen(),
+                    ),
+                  ),
+                ),
+                FeatureTile(
+                  icon: Icons.insights_rounded,
+                  title: productCopy('insights'),
+                  subtitle: productCopy('progress_sub'),
+                  color: const Color(0xFF008F79),
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const ProgressInsightsScreen(),
+                    ),
+                  ),
+                ),
               ];
               if (!twoColumns) return Column(children: items);
               return GridView.count(
@@ -206,22 +257,22 @@ class PracticeScreen extends StatelessWidget {
                 children: [
                   _SkillBar(
                     label: copy('vocabulary'),
-                    value: .72,
+                    value: (state.skillMastery['vocabulary'] ?? 0) / 100,
                     color: const Color(0xFF6C63FF),
                   ),
                   _SkillBar(
                     label: copy('listening'),
-                    value: .58,
+                    value: (state.skillMastery['listening'] ?? 0) / 100,
                     color: const Color(0xFF4DABF7),
                   ),
                   _SkillBar(
                     label: copy('speaking'),
-                    value: .44,
+                    value: (state.skillMastery['speaking'] ?? 0) / 100,
                     color: const Color(0xFF20C997),
                   ),
                   _SkillBar(
                     label: copy('grammar'),
-                    value: .63,
+                    value: (state.skillMastery['grammar'] ?? 0) / 100,
                     color: const Color(0xFFFFA94D),
                   ),
                 ],

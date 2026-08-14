@@ -11,9 +11,14 @@ import '../models/models.dart';
 import '../services/speech_service.dart';
 
 class LessonScreen extends StatefulWidget {
-  const LessonScreen({required this.lesson, super.key});
+  const LessonScreen({
+    required this.lesson,
+    this.reviewMode = false,
+    super.key,
+  });
 
   final Lesson lesson;
+  final bool reviewMode;
 
   @override
   State<LessonScreen> createState() => _LessonScreenState();
@@ -31,6 +36,7 @@ class _LessonScreenState extends State<LessonScreen> {
   bool _listening = false;
   String _recognizedSpeech = '';
   List<LessonStep> _steps = const [];
+  int _correctAnswers = 0;
 
   LessonStep get _step => _steps[_stepIndex];
 
@@ -271,13 +277,26 @@ class _LessonScreenState extends State<LessonScreen> {
       _correct = submitted == expected ||
           (_step.type == ExerciseType.speaking &&
               _similarity(submitted, expected) >= .55);
+      if (_correct) _correctAnswers++;
     });
     SystemSound.play(_correct ? SystemSoundType.click : SystemSoundType.alert);
   }
 
   Future<void> _next() async {
     if (_stepIndex == _steps.length - 1) {
-      await AppStateScope.of(context).completeLesson(widget.lesson.id);
+      final state = AppStateScope.of(context);
+      await state.completeLesson(widget.lesson.id);
+      if (widget.reviewMode) {
+        final ratio = _correctAnswers / _steps.length;
+        final quality = ratio >= .9
+            ? 5
+            : ratio >= .75
+                ? 4
+                : ratio >= .55
+                    ? 3
+                    : 2;
+        await state.recordReview(widget.lesson.id, quality);
+      }
       if (mounted) await _showCompletion();
       return;
     }

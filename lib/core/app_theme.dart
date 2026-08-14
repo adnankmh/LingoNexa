@@ -156,6 +156,27 @@ abstract final class AppThemes {
           side: BorderSide(color: borderColor),
         ),
       ),
+      chipTheme: ChipThemeData(
+        side: BorderSide(color: borderColor),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        labelStyle: const TextStyle(fontWeight: FontWeight.w800),
+        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+      ),
+      listTileTheme: ListTileThemeData(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 17, vertical: 4),
+        iconColor: scheme.primary,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+      ),
+      segmentedButtonTheme: SegmentedButtonThemeData(
+        style: ButtonStyle(
+          shape: WidgetStatePropertyAll(
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          ),
+          textStyle: const WidgetStatePropertyAll(
+            TextStyle(fontWeight: FontWeight.w800),
+          ),
+        ),
+      ),
       navigationBarTheme: NavigationBarThemeData(
         height: 74,
         elevation: 0,

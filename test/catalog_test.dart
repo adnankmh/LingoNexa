@@ -9,6 +9,7 @@ import 'package:lingonexa/data/language_catalog.dart';
 import 'package:lingonexa/data/learning_content_repository.dart';
 import 'package:lingonexa/core/i18n.dart';
 import 'package:lingonexa/services/speech_service.dart';
+import 'package:lingonexa/data/product_copy_repository.dart';
 
 void main() {
   test('catalog includes more than fifty distinct languages', () {
@@ -17,6 +18,28 @@ void main() {
       LanguageCatalog.all.map((item) => item.code).toSet().length,
       LanguageCatalog.all.length,
     );
+  });
+
+  test('modern product surfaces are localized in every interface language', () {
+    expect(ProductCopyRepository.locales, hasLength(AppText.supported.length));
+    final english = {
+      for (final key in ProductCopyRepository.keys)
+        key: ProductCopyRepository.text('en', key),
+    };
+    for (final locale in AppText.supported) {
+      for (final key in ProductCopyRepository.keys) {
+        final value = ProductCopyRepository.text(locale.code, key);
+        expect(value.trim(), isNotEmpty, reason: '${locale.code}: $key');
+        expect(value, isNot(key), reason: '${locale.code}: $key');
+        if (locale.code != 'en') {
+          expect(
+            value,
+            isNot(english[key]),
+            reason: '${locale.code} falls back to English for $key',
+          );
+        }
+      }
+    }
   });
 
   test('every catalog language has a starter lexicon', () {

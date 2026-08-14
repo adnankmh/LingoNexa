@@ -4,6 +4,7 @@ import '../core/app_state.dart';
 import '../core/app_theme.dart';
 import '../core/i18n.dart';
 import '../data/language_catalog.dart';
+import '../data/product_copy_repository.dart';
 import '../widgets/ui.dart';
 import '../widgets/speech_control_panel.dart';
 import 'achievements_screen.dart';
@@ -13,6 +14,8 @@ import 'downloads_screen.dart';
 import 'language_picker_screen.dart';
 import 'interface_language_screen.dart';
 import 'learning_plan_screen.dart';
+import 'progress_insights_screen.dart';
+import 'security_center_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -21,6 +24,8 @@ class ProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final state = AppStateScope.of(context);
     final target = LanguageCatalog.byCode(state.targetLanguageCode);
+    final locale = state.locale.languageCode;
+    String productCopy(String key) => ProductCopyRepository.text(locale, key);
     final user = state.currentUser!;
     final nextXp = ((state.xp ~/ 500) + 1) * 500;
     final xpFloor = nextXp - 500;
@@ -192,6 +197,22 @@ class ProfileScreen extends StatelessWidget {
             child: Column(
               children: [
                 ListTile(
+                  leading: const Icon(Icons.insights_rounded),
+                  title: Text(
+                    productCopy('progress_center'),
+                    style: const TextStyle(fontWeight: FontWeight.w900),
+                  ),
+                  subtitle: Text(productCopy('progress_sub')),
+                  trailing: const Icon(Icons.chevron_right_rounded),
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const ProgressInsightsScreen(),
+                    ),
+                  ),
+                ),
+                const Divider(height: 1),
+                ListTile(
                   leading: const Icon(Icons.calendar_month_rounded),
                   title: Text(
                     context.text.get('learning_plan'),
@@ -253,6 +274,22 @@ class ProfileScreen extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                       builder: (_) => const CertificatesScreen(),
+                    ),
+                  ),
+                ),
+                const Divider(height: 1),
+                ListTile(
+                  leading: const Icon(Icons.shield_outlined),
+                  title: Text(
+                    productCopy('security'),
+                    style: const TextStyle(fontWeight: FontWeight.w900),
+                  ),
+                  subtitle: Text(productCopy('security_sub')),
+                  trailing: const Icon(Icons.chevron_right_rounded),
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const SecurityCenterScreen(),
                     ),
                   ),
                 ),
@@ -398,7 +435,7 @@ class ProfileScreen extends StatelessWidget {
           const SizedBox(height: 15),
           Center(
             child: Text(
-              'LingoNexa 1.6.0 · Global Learning Hub',
+              'LingoNexa 3.0.0 · Human-Crafted Learning OS',
               style: TextStyle(
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
                 fontSize: 11,

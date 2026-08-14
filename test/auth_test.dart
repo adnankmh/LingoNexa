@@ -11,12 +11,15 @@ void main() {
       final auth = AuthService(StorageService());
       await auth.initialize();
 
-      final admin = await auth.signIn('adnanasd63@gmail.com', 'Adnan123');
+      final admin = await auth.signIn(
+        'admin@lingonexa.local',
+        'LingoNexa!2026',
+      );
       expect(admin.success, isTrue);
       expect(admin.user!.isAdmin, isTrue);
 
-      final demo1 = await auth.signIn('demo1', 'Demo123');
-      final demo2 = await auth.signIn('demo2', 'Demo123');
+      final demo1 = await auth.signIn('demo1', 'Demo-Learner!2026');
+      final demo2 = await auth.signIn('demo2', 'Demo-Learner!2026');
       expect(demo1.user!.role, UserRole.learner);
       expect(demo2.user!.role, UserRole.learner);
     },
@@ -33,10 +36,27 @@ void main() {
         displayName: 'Test Learner',
         username: 'testlearner',
         email: 'test@example.com',
-        password: 'Test123',
+        password: 'TestPassword9',
       );
       expect(created.success, isTrue);
       expect(created.user!.role, UserRole.learner);
     },
   );
+
+  test('local sessions expire and repeated attempts are throttled', () async {
+    SharedPreferences.setMockInitialValues({});
+    final auth = AuthService(StorageService());
+    await auth.initialize();
+    await auth.signIn('demo1', 'Demo-Learner!2026');
+    expect(
+      await auth.restoreSession(sessionLifetime: Duration.zero),
+      isNull,
+    );
+
+    AuthResult result = const AuthResult();
+    for (var index = 0; index < 6; index++) {
+      result = await auth.signIn('unknown@example.com', 'WrongPassword9');
+    }
+    expect(result.error, contains('Too many attempts'));
+  });
 }

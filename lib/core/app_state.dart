@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 
 import '../services/storage_service.dart';
 import '../services/auth_service.dart';
+import '../data/adaptive_learning_engine.dart';
 
 class AppState extends ChangeNotifier {
   AppState(this._storage) : _auth = AuthService(_storage);
@@ -31,6 +32,12 @@ class AppState extends ChangeNotifier {
   bool examsEnabled = true;
   bool storiesEnabled = true;
   bool registrationEnabled = true;
+  bool privacyFirstMode = true;
+  bool anonymousAnalytics = false;
+  bool privateCrashReports = false;
+  bool onDevicePersonalization = true;
+  bool saveVoiceRecordings = false;
+  int sessionTimeoutMinutes = 30;
   double speechRate = .42;
   int lessonXp = 30;
   int weeklyXp = 0;
@@ -44,6 +51,15 @@ class AppState extends ChangeNotifier {
   final Set<String> completedLessonIds = {};
   final Set<String> reviewLessonIds = {};
   final Set<String> completedExamIds = {};
+  final Map<String, ReviewRecord> reviewRecords = {};
+  final Map<String, int> skillMastery = {
+    'reading': 42,
+    'listening': 36,
+    'speaking': 31,
+    'writing': 34,
+    'grammar': 40,
+    'vocabulary': 45,
+  };
   final Map<String, String> _preferredVoices = {};
 
   Future<void> initialize() async {
@@ -59,13 +75,26 @@ class AppState extends ChangeNotifier {
     storiesEnabled = await _storage.readBool('feature_stories') ?? true;
     registrationEnabled =
         await _storage.readBool('feature_registration') ?? true;
+    privacyFirstMode = await _storage.readBool('privacy_first') ?? true;
+    anonymousAnalytics =
+        await _storage.readBool('anonymous_analytics') ?? false;
+    privateCrashReports =
+        await _storage.readBool('private_crash_reports') ?? false;
+    onDevicePersonalization =
+        await _storage.readBool('device_personalization') ?? true;
+    saveVoiceRecordings =
+        await _storage.readBool('save_voice_recordings') ?? false;
+    sessionTimeoutMinutes =
+        await _storage.readInt('session_timeout_minutes') ?? 30;
     speechRate = await _storage.readDouble('speech_rate') ?? .42;
     lessonXp = await _storage.readInt('lesson_xp') ?? 30;
     aiProvider =
         await _storage.readString('ai_provider') ?? 'Local practice engine';
     aiEndpoint = await _storage.readString('ai_endpoint') ?? '';
     await _auth.initialize();
-    currentUser = await _auth.restoreSession();
+    currentUser = await _auth.restoreSession(
+      sessionLifetime: Duration(minutes: sessionTimeoutMinutes),
+    );
     if (currentUser != null) await _loadUserProgress();
     initialized = true;
     notifyListeners();
@@ -107,6 +136,27 @@ class AppState extends ChangeNotifier {
         await _storage.readStrings(_userKey('completed_exams')) ?? const [],
       );
     weeklyXp = await _storage.readInt(_userKey('weekly_xp')) ?? 0;
+    reviewRecords
+      ..clear()
+      ..addAll(
+        AdaptiveLearningEngine.decode(
+          await _storage.readString(_userKey('adaptive_reviews')),
+        ),
+      );
+    final savedMastery = await _storage.readString(_userKey('skill_mastery'));
+    if (savedMastery != null) {
+      try {
+        final decoded = jsonDecode(savedMastery);
+        if (decoded is Map) {
+          for (final key in skillMastery.keys.toList()) {
+            final value = decoded[key];
+            if (value is num) skillMastery[key] = value.round().clamp(0, 100);
+          }
+        }
+      } catch (_) {
+        // Keep the safe starter profile if local progress was interrupted.
+      }
+    }
     final savedVoices = await _storage.readString(_userKey('voice_choices'));
     _preferredVoices.clear();
     if (savedVoices != null && savedVoices.isNotEmpty) {
@@ -183,6 +233,7 @@ class AppState extends ChangeNotifier {
     reviewLessonIds.clear();
     downloadedPackCodes.clear();
     completedExamIds.clear();
+    reviewRecords.clear();
     _preferredVoices.clear();
     weeklyXp = 0;
     notifyListeners();
@@ -252,6 +303,11 @@ class AppState extends ChangeNotifier {
     xp += reward;
     weeklyXp += reward;
     dailyMinutes += 5;
+    reviewRecords.putIfAbsent(
+      lessonId,
+      () => AdaptiveLearningEngine.firstReview(lessonId),
+    );
+    _raiseMasteryFor(lessonId, amount: 3);
     await _storage.writeStrings(
       _userKey('completed'),
       completedLessonIds.toList(),
@@ -260,7 +316,79 @@ class AppState extends ChangeNotifier {
     await _storage.writeInt(_userKey('xp'), xp);
     await _storage.writeInt(_userKey('weekly_xp'), weeklyXp);
     await _storage.writeInt(_userKey('daily_minutes'), dailyMinutes);
+    await _persistAdaptiveProgress();
     notifyListeners();
+  }
+
+  List<ReviewRecord> dueReviews({DateTime? now}) {
+    final timestamp = now ?? DateTime.now();
+    final due = reviewRecords.values
+        .where((record) => record.isDueAt(timestamp))
+        .toList()
+      ..sort((a, b) => a.nextReview.compareTo(b.nextReview));
+    return due;
+  }
+
+  int get masteryScore {
+    if (skillMastery.isEmpty) return 0;
+    return (skillMastery.values.reduce((a, b) => a + b) / skillMastery.length)
+        .round();
+  }
+
+  String get strongestSkill =>
+      skillMastery.entries.reduce((a, b) => a.value >= b.value ? a : b).key;
+
+  String get focusSkill =>
+      skillMastery.entries.reduce((a, b) => a.value <= b.value ? a : b).key;
+
+  Future<void> recordReview(String lessonId, int quality) async {
+    final current = reviewRecords[lessonId] ??
+        AdaptiveLearningEngine.firstReview(
+          lessonId,
+          now: DateTime.now().subtract(const Duration(days: 1)),
+        );
+    reviewRecords[lessonId] = AdaptiveLearningEngine.grade(current, quality);
+    if (quality >= 3) _raiseMasteryFor(lessonId, amount: quality - 1);
+    await _persistAdaptiveProgress();
+    notifyListeners();
+  }
+
+  Future<void> recordSkillPractice(String skill, int score) async {
+    if (!skillMastery.containsKey(skill)) return;
+    final gain = score >= 85
+        ? 3
+        : score >= 65
+            ? 2
+            : 1;
+    skillMastery[skill] = ((skillMastery[skill] ?? 0) + gain).clamp(0, 100);
+    dailyMinutes += 3;
+    await _storage.writeInt(_userKey('daily_minutes'), dailyMinutes);
+    await _persistAdaptiveProgress();
+    notifyListeners();
+  }
+
+  void _raiseMasteryFor(String lessonId, {required int amount}) {
+    const skills = [
+      'vocabulary',
+      'listening',
+      'speaking',
+      'reading',
+      'grammar',
+      'writing',
+    ];
+    final skill = skills[lessonId.hashCode.abs() % skills.length];
+    skillMastery[skill] = ((skillMastery[skill] ?? 0) + amount).clamp(0, 100);
+  }
+
+  Future<void> _persistAdaptiveProgress() async {
+    await _storage.writeString(
+      _userKey('adaptive_reviews'),
+      AdaptiveLearningEngine.encode(reviewRecords),
+    );
+    await _storage.writeString(
+      _userKey('skill_mastery'),
+      jsonEncode(skillMastery),
+    );
   }
 
   Future<void> completeLevelExam(String level, int score) async {
@@ -371,6 +499,72 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> updatePrivacy({
+    bool? privacyFirst,
+    bool? analytics,
+    bool? crashReports,
+    bool? personalization,
+    bool? storeVoice,
+    int? timeoutMinutes,
+  }) async {
+    privacyFirstMode = privacyFirst ?? privacyFirstMode;
+    anonymousAnalytics = analytics ?? anonymousAnalytics;
+    privateCrashReports = crashReports ?? privateCrashReports;
+    onDevicePersonalization = personalization ?? onDevicePersonalization;
+    saveVoiceRecordings = storeVoice ?? saveVoiceRecordings;
+    sessionTimeoutMinutes =
+        (timeoutMinutes ?? sessionTimeoutMinutes).clamp(5, 720);
+    if (privacyFirstMode) {
+      anonymousAnalytics = false;
+      saveVoiceRecordings = false;
+    }
+    await _storage.writeBool('privacy_first', privacyFirstMode);
+    await _storage.writeBool('anonymous_analytics', anonymousAnalytics);
+    await _storage.writeBool('private_crash_reports', privateCrashReports);
+    await _storage.writeBool(
+      'device_personalization',
+      onDevicePersonalization,
+    );
+    await _storage.writeBool('save_voice_recordings', saveVoiceRecordings);
+    await _storage.writeInt('session_timeout_minutes', sessionTimeoutMinutes);
+    notifyListeners();
+  }
+
+  Future<void> clearLearningHistory() async {
+    for (final key in [
+      'completed',
+      'review',
+      'completed_exams',
+      'adaptive_reviews',
+      'skill_mastery',
+      'weekly_xp',
+      'xp',
+      'daily_minutes',
+      'voice_choices',
+    ]) {
+      await _storage.remove(_userKey(key));
+    }
+    completedLessonIds.clear();
+    reviewLessonIds.clear();
+    completedExamIds.clear();
+    reviewRecords.clear();
+    _preferredVoices.clear();
+    skillMastery
+      ..clear()
+      ..addAll({
+        'reading': 42,
+        'listening': 36,
+        'speaking': 31,
+        'writing': 34,
+        'grammar': 40,
+        'vocabulary': 45,
+      });
+    xp = 0;
+    weeklyXp = 0;
+    dailyMinutes = 0;
+    notifyListeners();
+  }
+
   String exportConfiguration() => const JsonEncoder.withIndent('  ').convert({
         'brandName': brandName,
         'user': currentUser?.toJson(),
@@ -383,6 +577,12 @@ class AppState extends ChangeNotifier {
         'learningReason': learningReason,
         'downloadedPacks': downloadedPackCodes.toList(),
         'completedExams': completedExamIds.toList(),
+        'adaptiveReview': {
+          'dueNow': dueReviews().length,
+          'scheduledItems': reviewRecords.length,
+          'mastery': masteryScore,
+          'skills': skillMastery,
+        },
         'features': {
           'aiTutor': aiTutorEnabled,
           'community': communityEnabled,
@@ -392,6 +592,11 @@ class AppState extends ChangeNotifier {
           'registration': registrationEnabled,
           'offline': offlineMode,
           'sprintMode': sprintMode,
+          'privacyFirst': privacyFirstMode,
+          'anonymousAnalytics': anonymousAnalytics,
+          'privateCrashReports': privateCrashReports,
+          'onDevicePersonalization': onDevicePersonalization,
+          'saveVoiceRecordings': saveVoiceRecordings,
         },
         'conversation': {
           'provider': aiProvider,

@@ -275,7 +275,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         SizedBox(height: 6),
                         SelectableText(
-                          'demo1 / Demo123\ndemo2 / Demo123',
+                          'demo1 / Demo-Learner!2026\ndemo2 / Demo-Learner!2026',
                           style: TextStyle(height: 1.6),
                         ),
                         SizedBox(height: 5),

@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'dart:math';
+import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
 
@@ -55,18 +57,33 @@ class AuthResult {
 }
 
 class _StoredAccount {
-  const _StoredAccount({required this.user, required this.passwordHash});
+  const _StoredAccount({
+    required this.user,
+    required this.passwordHash,
+    required this.passwordSalt,
+    required this.iterations,
+    this.legacyHash = false,
+  });
   final AppUser user;
   final String passwordHash;
+  final String passwordSalt;
+  final int iterations;
+  final bool legacyHash;
 
   Map<String, Object?> toJson() => {
         ...user.toJson(),
         'passwordHash': passwordHash,
+        'passwordSalt': passwordSalt,
+        'iterations': iterations,
+        'algorithm': 'PBKDF2-HMAC-SHA256',
       };
 
   static _StoredAccount fromJson(Map<String, Object?> json) => _StoredAccount(
         user: AppUser.fromJson(json),
         passwordHash: json['passwordHash']! as String,
+        passwordSalt: json['passwordSalt'] as String? ?? '',
+        iterations: json['iterations'] as int? ?? 0,
+        legacyHash: json['passwordSalt'] == null,
       );
 }
 
@@ -79,8 +96,12 @@ class AuthService {
   final StorageService _storage;
   static const _accountsKey = 'auth_accounts_v1';
   static const _sessionKey = 'auth_session_v1';
-  static const _salt = 'lingonexa-local-demo-v1';
+  static const _sessionStartedKey = 'auth_session_started_v2';
+  static const _iterations = 12000;
+  static const _maximumSessionLifetime = Duration(hours: 12);
   List<_StoredAccount> _accounts = [];
+  final Map<String, int> _failedAttempts = {};
+  final Map<String, DateTime> _blockedUntil = {};
   int get accountCount => _accounts.length;
 
   Future<void> initialize() async {
@@ -105,9 +126,16 @@ class AuthService {
     }
   }
 
-  Future<AppUser?> restoreSession() async {
+  Future<AppUser?> restoreSession({Duration? sessionLifetime}) async {
     final id = await _storage.readString(_sessionKey);
     if (id == null) return null;
+    final startedValue = await _storage.readString(_sessionStartedKey);
+    final started = DateTime.tryParse(startedValue ?? '');
+    final lifetime = sessionLifetime ?? _maximumSessionLifetime;
+    if (started == null || DateTime.now().difference(started) > lifetime) {
+      await signOut();
+      return null;
+    }
     for (final account in _accounts) {
       if (account.user.id == id) return account.user;
     }
@@ -117,14 +145,37 @@ class AuthService {
 
   Future<AuthResult> signIn(String identifier, String password) async {
     final normalized = identifier.trim().toLowerCase();
+    final blocked = _blockedUntil[normalized];
+    if (blocked != null && blocked.isAfter(DateTime.now())) {
+      final seconds = blocked.difference(DateTime.now()).inSeconds + 1;
+      return AuthResult(
+        error: 'Too many attempts. Try again in $seconds seconds.',
+      );
+    }
     for (final account in _accounts) {
       final matchesIdentity =
           account.user.username.toLowerCase() == normalized ||
               account.user.email.toLowerCase() == normalized;
-      if (matchesIdentity && account.passwordHash == _hash(password)) {
-        await _storage.writeString(_sessionKey, account.user.id);
-        return AuthResult(user: account.user);
+      if (matchesIdentity) {
+        final candidate = account.legacyHash
+            ? _legacyHash(password)
+            : _deriveHash(password, account.passwordSalt, account.iterations);
+        if (_constantTimeEquals(account.passwordHash, candidate)) {
+          _failedAttempts.remove(normalized);
+          _blockedUntil.remove(normalized);
+          if (account.legacyHash)
+            await _upgradeLegacyAccount(account, password);
+          await _startSession(account.user.id);
+          return AuthResult(user: account.user);
+        }
       }
+    }
+    final failures = (_failedAttempts[normalized] ?? 0) + 1;
+    _failedAttempts[normalized] = failures;
+    if (failures >= 5) {
+      _blockedUntil[normalized] =
+          DateTime.now().add(const Duration(seconds: 30));
+      _failedAttempts[normalized] = 0;
     }
     return const AuthResult(error: 'Incorrect username, email, or password.');
   }
@@ -143,9 +194,10 @@ class AuthService {
     if (!cleanEmail.contains('@') || !cleanEmail.contains('.')) {
       return const AuthResult(error: 'Enter a valid email address.');
     }
-    if (password.length < 6) {
+    if (!_isStrongPassword(password)) {
       return const AuthResult(
-        error: 'Password must contain at least 6 characters.',
+        error:
+            'Use at least 10 characters with upper and lower case letters and a number.',
       );
     }
     if (_accounts.any(
@@ -164,18 +216,29 @@ class AuthService {
       displayName: displayName.trim(),
       role: UserRole.learner,
     );
-    _accounts.add(_StoredAccount(user: user, passwordHash: _hash(password)));
+    final salt = _randomSalt();
+    _accounts.add(
+      _StoredAccount(
+        user: user,
+        passwordHash: _deriveHash(password, salt, _iterations),
+        passwordSalt: salt,
+        iterations: _iterations,
+      ),
+    );
     await _persistAccounts();
-    await _storage.writeString(_sessionKey, user.id);
+    await _startSession(user.id);
     return AuthResult(user: user);
   }
 
   Future<AppUser> signInAsGuest() async {
-    await _storage.writeString(_sessionKey, guestUser.id);
+    await _startSession(guestUser.id);
     return guestUser;
   }
 
-  Future<void> signOut() => _storage.remove(_sessionKey);
+  Future<void> signOut() async {
+    await _storage.remove(_sessionKey);
+    await _storage.remove(_sessionStartedKey);
+  }
 
   static const guestUser = AppUser(
     id: 'guest',
@@ -188,14 +251,15 @@ class AuthService {
   static List<_StoredAccount> _seedAccounts() => [
         const _StoredAccount(
           user: AppUser(
-            id: 'admin_adnan',
-            username: 'Adnan',
-            email: 'adnanasd63@gmail.com',
-            displayName: 'Adnan',
+            id: 'admin_local_demo',
+            username: 'admin',
+            email: 'admin@lingonexa.local',
+            displayName: 'Local Administrator',
             role: UserRole.administrator,
           ),
-          passwordHash:
-              '5189848b80763ad69c8fca00f09e22fb5ebda3b1eb0cce3c4ab86f374a543ace',
+          passwordHash: 'YdruNxA-M9Z8wEFYWBsGyWNqKC-2Mf2xA0AHe2OD9dU',
+          passwordSalt: 'bGluZ29uZXhhLWFkbWluLXYz',
+          iterations: _iterations,
         ),
         const _StoredAccount(
           user: AppUser(
@@ -205,8 +269,9 @@ class AuthService {
             displayName: 'Demo Explorer',
             role: UserRole.learner,
           ),
-          passwordHash:
-              '97b2dfa7f25e76ea534d30ae9fe1d4b650bc1b7cd3f3092ab9db5a72f6a8ddf4',
+          passwordHash: 'jL4l_TKqjF8bTRRiJwYvw5totTh1kaMqd7r0yEbvDMQ',
+          passwordSalt: 'bGluZ29uZXhhLWRlbW8xLXYz',
+          iterations: _iterations,
         ),
         const _StoredAccount(
           user: AppUser(
@@ -216,13 +281,80 @@ class AuthService {
             displayName: 'World Learner',
             role: UserRole.learner,
           ),
-          passwordHash:
-              '97b2dfa7f25e76ea534d30ae9fe1d4b650bc1b7cd3f3092ab9db5a72f6a8ddf4',
+          passwordHash: 'sE-8xnrVAHbGOf50jCunQIKWK4WlbVG25e7fa8ntzCY',
+          passwordSalt: 'bGluZ29uZXhhLWRlbW8yLXYz',
+          iterations: _iterations,
         ),
       ];
 
-  static String _hash(String password) =>
-      sha256.convert(utf8.encode('$_salt::$password')).toString();
+  static bool _isStrongPassword(String password) =>
+      password.length >= 10 &&
+      RegExp('[a-z]').hasMatch(password) &&
+      RegExp('[A-Z]').hasMatch(password) &&
+      RegExp('[0-9]').hasMatch(password);
+
+  static String _randomSalt() {
+    final random = Random.secure();
+    final bytes = List<int>.generate(18, (_) => random.nextInt(256));
+    return base64UrlEncode(bytes).replaceAll('=', '');
+  }
+
+  static List<int> _decodeBase64Url(String value) {
+    final padding = '=' * ((4 - value.length % 4) % 4);
+    return base64Url.decode('$value$padding');
+  }
+
+  static String _deriveHash(String password, String salt, int iterations) {
+    final key = utf8.encode(password);
+    final saltBytes = _decodeBase64Url(salt);
+    final hmac = Hmac(sha256, key);
+    var block = hmac.convert([...saltBytes, 0, 0, 0, 1]).bytes;
+    final result = Uint8List.fromList(block);
+    for (var round = 1; round < iterations; round++) {
+      block = hmac.convert(block).bytes;
+      for (var index = 0; index < result.length; index++) {
+        result[index] ^= block[index];
+      }
+    }
+    return base64UrlEncode(result).replaceAll('=', '');
+  }
+
+  static String _legacyHash(String password) => sha256
+      .convert(utf8.encode('lingonexa-local-demo-v1::$password'))
+      .toString();
+
+  static bool _constantTimeEquals(String expected, String actual) {
+    if (expected.length != actual.length) return false;
+    var difference = 0;
+    for (var index = 0; index < expected.length; index++) {
+      difference |= expected.codeUnitAt(index) ^ actual.codeUnitAt(index);
+    }
+    return difference == 0;
+  }
+
+  Future<void> _startSession(String userId) async {
+    await _storage.writeString(_sessionKey, userId);
+    await _storage.writeString(
+      _sessionStartedKey,
+      DateTime.now().toUtc().toIso8601String(),
+    );
+  }
+
+  Future<void> _upgradeLegacyAccount(
+    _StoredAccount account,
+    String password,
+  ) async {
+    final salt = _randomSalt();
+    final index = _accounts.indexOf(account);
+    if (index < 0) return;
+    _accounts[index] = _StoredAccount(
+      user: account.user,
+      passwordHash: _deriveHash(password, salt, _iterations),
+      passwordSalt: salt,
+      iterations: _iterations,
+    );
+    await _persistAccounts();
+  }
 
   Future<void> _persistAccounts() => _storage.writeString(
         _accountsKey,
