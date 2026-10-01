@@ -45,39 +45,20 @@ void main() {
     final now = DateTime(2026, 10, 1, 12);
     final records = [
       ReviewRecord(
-        lessonId: 'upcoming',
-        repetitions: 2,
-        intervalDays: 3,
-        ease: 2.5,
-        nextReview: now.add(const Duration(days: 1)),
-        lastQuality: 5,
-        lapses: 0,
+        lessonId: 'upcoming', repetitions: 2, intervalDays: 3, ease: 2.5,
+        nextReview: now.add(const Duration(days: 1)), lastQuality: 5, lapses: 0,
       ),
       ReviewRecord(
-        lessonId: 'due-stable',
-        repetitions: 4,
-        intervalDays: 14,
-        ease: 2.5,
-        nextReview: now.subtract(const Duration(days: 3)),
-        lastQuality: 5,
-        lapses: 0,
+        lessonId: 'due-stable', repetitions: 4, intervalDays: 14, ease: 2.5,
+        nextReview: now.subtract(const Duration(days: 3)), lastQuality: 5, lapses: 0,
       ),
       ReviewRecord(
-        lessonId: 'due-struggling',
-        repetitions: 0,
-        intervalDays: 1,
-        ease: 1.7,
-        nextReview: now.subtract(const Duration(days: 1)),
-        lastQuality: 1,
-        lapses: 3,
+        lessonId: 'due-struggling', repetitions: 0, intervalDays: 1, ease: 1.7,
+        nextReview: now.subtract(const Duration(days: 1)), lastQuality: 1, lapses: 3,
       ),
     ];
-
     final queue = AdaptiveLearningEngine.reviewQueue(records, now: now);
-    expect(
-      queue.map((record) => record.lessonId),
-      ['due-struggling', 'due-stable', 'upcoming'],
-    );
+    expect(queue.map((record) => record.lessonId), ['due-struggling', 'due-stable', 'upcoming']);
     expect(AdaptiveLearningEngine.dueCount(records, now: now), 2);
   });
 
@@ -87,25 +68,40 @@ void main() {
     final records = [
       for (final id in ['c', 'a', 'b'])
         ReviewRecord(
-          lessonId: id,
-          repetitions: 1,
-          intervalDays: 1,
-          ease: 2.5,
-          nextReview: sameDate,
-          lastQuality: 4,
-          lapses: 0,
+          lessonId: id, repetitions: 1, intervalDays: 1, ease: 2.5,
+          nextReview: sameDate, lastQuality: 4, lapses: 0,
         ),
     ];
-
-    final queue = AdaptiveLearningEngine.reviewQueue(
-      records,
-      now: now,
-      limit: 2,
-    );
+    final queue = AdaptiveLearningEngine.reviewQueue(records, now: now, limit: 2);
     expect(queue.map((record) => record.lessonId), ['a', 'b']);
+    expect(AdaptiveLearningEngine.reviewQueue(records, now: now, limit: 0), isEmpty);
+  });
+
+  test('session stats explain due, struggling and mastered cards', () {
+    final now = DateTime(2026, 10, 2, 9);
+    final records = [
+      ReviewRecord(
+        lessonId: 'struggling', repetitions: 0, intervalDays: 1, ease: 1.8,
+        nextReview: now.subtract(const Duration(hours: 2)), lastQuality: 1, lapses: 2,
+      ),
+      ReviewRecord(
+        lessonId: 'mastered', repetitions: 6, intervalDays: 60, ease: 2.7,
+        nextReview: now.subtract(const Duration(hours: 1)), lastQuality: 5, lapses: 0,
+      ),
+      ReviewRecord(
+        lessonId: 'upcoming', repetitions: 2, intervalDays: 3, ease: 2.4,
+        nextReview: now.add(const Duration(days: 1)), lastQuality: 4, lapses: 0,
+      ),
+    ];
+    final stats = AdaptiveLearningEngine.sessionStats(records, now: now);
+    expect(stats.total, 3);
+    expect(stats.due, 2);
+    expect(stats.struggling, 1);
+    expect(stats.mastered, 1);
+    expect(stats.hasWork, isTrue);
     expect(
-      AdaptiveLearningEngine.reviewQueue(records, now: now, limit: 0),
-      isEmpty,
+      AdaptiveLearningEngine.sessionStats(records, now: now, limit: 0).hasWork,
+      isFalse,
     );
   });
 }

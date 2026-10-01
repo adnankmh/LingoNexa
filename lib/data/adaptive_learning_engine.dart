@@ -42,6 +42,22 @@ class ReviewRecord {
       );
 }
 
+class ReviewSessionStats {
+  const ReviewSessionStats({
+    required this.total,
+    required this.due,
+    required this.struggling,
+    required this.mastered,
+  });
+
+  final int total;
+  final int due;
+  final int struggling;
+  final int mastered;
+
+  bool get hasWork => total > 0;
+}
+
 /// A compact SM-2-inspired scheduler. It is deterministic, offline friendly,
 /// and keeps the learning decision explainable to the learner.
 abstract final class AdaptiveLearningEngine {
@@ -101,11 +117,6 @@ abstract final class AdaptiveLearningEngine {
   }
 
   /// Returns a bounded review session ordered by learning urgency.
-  ///
-  /// Due cards come first. Within the due group, repeated lapses are prioritised
-  /// before the oldest due date. Upcoming cards then fill any remaining slots,
-  /// ordered by next review time. This keeps sessions useful even when the due
-  /// queue is small, while remaining deterministic and fully offline.
   static List<ReviewRecord> reviewQueue(
     Iterable<ReviewRecord> records, {
     DateTime? now,
@@ -132,6 +143,25 @@ abstract final class AdaptiveLearningEngine {
   static int dueCount(Iterable<ReviewRecord> records, {DateTime? now}) {
     final timestamp = now ?? DateTime.now();
     return records.where((record) => record.isDueAt(timestamp)).length;
+  }
+
+  static ReviewSessionStats sessionStats(
+    Iterable<ReviewRecord> records, {
+    DateTime? now,
+    int limit = 20,
+  }) {
+    final timestamp = now ?? DateTime.now();
+    final session = reviewQueue(records, now: timestamp, limit: limit);
+    return ReviewSessionStats(
+      total: session.length,
+      due: session.where((record) => record.isDueAt(timestamp)).length,
+      struggling: session
+          .where((record) => record.lapses >= 2 || record.ease < 2.0)
+          .length,
+      mastered: session
+          .where((record) => record.repetitions >= 5 && record.lapses == 0)
+          .length,
+    );
   }
 
   static String encode(Map<String, ReviewRecord> records) => jsonEncode({
