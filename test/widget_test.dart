@@ -6,6 +6,16 @@ import 'package:lingonexa/services/storage_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  Future<void> pumpApp(WidgetTester tester, AppState state) async {
+    await tester.pumpWidget(LingoNexaApp(state: state));
+    // LingoNexa intentionally has looping motion assets. Never use
+    // pumpAndSettle here because perpetual animations cannot settle.
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 800));
+  }
+
   testWidgets('main learning shell renders primary navigation', (tester) async {
     SharedPreferences.setMockInitialValues({});
     final state = AppState(StorageService());
@@ -14,12 +24,7 @@ void main() {
     state.locale = const Locale('en');
     state.onboardingCompleted = true;
 
-    await tester.pumpWidget(LingoNexaApp(state: state));
-    // The learning shell intentionally contains looping Lottie animations, so
-    // advance a bounded frame window instead of waiting for every animation to
-    // settle forever.
-    await tester.pump();
-    await tester.pump(const Duration(milliseconds: 800));
+    await pumpApp(tester, state);
 
     expect(find.text('Learn'), findsWidgets);
     expect(find.text('Practice'), findsWidgets);
@@ -37,8 +42,7 @@ void main() {
     await state.initialize();
     await state.signInAsGuest();
 
-    await tester.pumpWidget(LingoNexaApp(state: state));
-    await tester.pumpAndSettle();
+    await pumpApp(tester, state);
 
     expect(find.text('A world of language, built around you.'), findsOneWidget);
     expect(find.text('Create my path'), findsOneWidget);
@@ -49,8 +53,7 @@ void main() {
     SharedPreferences.setMockInitialValues({});
     final state = AppState(StorageService());
     await state.initialize();
-    await tester.pumpWidget(LingoNexaApp(state: state));
-    await tester.pumpAndSettle();
+    await pumpApp(tester, state);
     expect(find.text('Welcome back'), findsOneWidget);
     expect(find.text('Create account'), findsWidgets);
     expect(find.textContaining('demo1'), findsOneWidget);
