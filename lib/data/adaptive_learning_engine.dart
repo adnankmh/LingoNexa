@@ -100,6 +100,40 @@ abstract final class AdaptiveLearningEngine {
     );
   }
 
+  /// Returns a bounded review session ordered by learning urgency.
+  ///
+  /// Due cards come first. Within the due group, repeated lapses are prioritised
+  /// before the oldest due date. Upcoming cards then fill any remaining slots,
+  /// ordered by next review time. This keeps sessions useful even when the due
+  /// queue is small, while remaining deterministic and fully offline.
+  static List<ReviewRecord> reviewQueue(
+    Iterable<ReviewRecord> records, {
+    DateTime? now,
+    int limit = 20,
+  }) {
+    if (limit <= 0) return const [];
+    final timestamp = now ?? DateTime.now();
+    final queue = records.toList(growable: false)
+      ..sort((a, b) {
+        final aDue = a.isDueAt(timestamp);
+        final bDue = b.isDueAt(timestamp);
+        if (aDue != bDue) return aDue ? -1 : 1;
+        if (aDue) {
+          final lapseOrder = b.lapses.compareTo(a.lapses);
+          if (lapseOrder != 0) return lapseOrder;
+        }
+        final dateOrder = a.nextReview.compareTo(b.nextReview);
+        if (dateOrder != 0) return dateOrder;
+        return a.lessonId.compareTo(b.lessonId);
+      });
+    return queue.take(limit).toList(growable: false);
+  }
+
+  static int dueCount(Iterable<ReviewRecord> records, {DateTime? now}) {
+    final timestamp = now ?? DateTime.now();
+    return records.where((record) => record.isDueAt(timestamp)).length;
+  }
+
   static String encode(Map<String, ReviewRecord> records) => jsonEncode({
         for (final entry in records.entries) entry.key: entry.value.toJson(),
       });
