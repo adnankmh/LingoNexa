@@ -20,7 +20,7 @@ class ProgressController extends Controller
 
     public function show(Request $request): JsonResponse
     {
-        $data = $request->user()->progress?->data ?? UserProgress::defaults();
+        $data = $request->user()->progress()->first()?->data ?? UserProgress::defaults();
         return response()->json(['progress' => array_replace(UserProgress::defaults(), $data)]);
     }
 
@@ -55,12 +55,17 @@ class ProgressController extends Controller
         ]);
 
         $incoming = Arr::only($validated['progress'], self::ALLOWED);
-        $current = $request->user()->progress?->data ?? UserProgress::defaults();
+        // Query the relation instead of reading the possibly cached relation property.
+        // Multiple sync requests can reuse the same authenticated User instance during
+        // a test/request lifecycle; a stale null relation would otherwise reset fields
+        // that are intentionally omitted from a partial update.
+        $current = $request->user()->progress()->first()?->data ?? UserProgress::defaults();
         $clean = array_replace(UserProgress::defaults(), $current, $incoming);
         $record = UserProgress::updateOrCreate(
             ['user_id' => $request->user()->id],
             ['data' => $clean],
         );
+        $request->user()->setRelation('progress', $record);
 
         return response()->json([
             'message' => 'Progress synchronized.',
