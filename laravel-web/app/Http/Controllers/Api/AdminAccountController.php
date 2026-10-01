@@ -19,7 +19,15 @@ class AdminAccountController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'min:2', 'max:100'],
             'email' => ['required', 'email:rfc', 'max:254', Rule::unique('users', 'email')->ignore($user->id)],
-            'current_password' => ['required', 'string', 'current_password'],
+            'current_password' => [
+                'required',
+                'string',
+                function (string $attribute, mixed $value, \Closure $fail) use ($user): void {
+                    if (! Hash::check((string) $value, $user->password)) {
+                        $fail('The current password is incorrect.');
+                    }
+                },
+            ],
             'password' => ['nullable', 'confirmed', Password::min(12)->letters()->mixedCase()->numbers()->symbols()->uncompromised()],
         ]);
 
