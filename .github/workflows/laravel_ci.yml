@@ -1,0 +1,72 @@
+name: Laravel CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'laravel-web/**'
+      - '.github/workflows/laravel_ci.yml'
+  pull_request:
+    paths:
+      - 'laravel-web/**'
+      - '.github/workflows/laravel_ci.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: laravel-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: laravel-web
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, sqlite3, pdo_sqlite
+          coverage: none
+
+      - name: Prepare Laravel runtime directories
+        run: |
+          mkdir -p bootstrap/cache storage/framework/{cache/data,sessions,views} storage/logs
+          chmod -R u+rwX bootstrap/cache storage
+
+      - name: Validate Composer manifest
+        run: composer validate --strict --no-check-lock
+
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Run Laravel feature tests
+        env:
+          APP_ENV: testing
+          DB_CONNECTION: sqlite
+          DB_DATABASE: ':memory:'
+        run: php artisan test --colors=always
+
+      - name: Check formatting of changed PHP files
+        if: github.event_name == 'pull_request'
+        shell: bash
+        run: |
+          mapfile -t files < <(git diff --name-only --diff-filter=ACMR "${{ github.event.pull_request.base.sha }}" "${{ github.event.pull_request.head.sha }}" -- '*.php' | sed 's#^laravel-web/##' | while read -r file; do [ -f "$file" ] && printf '%s\n' "$file"; done)
+          if [ "${#files[@]}" -eq 0 ]; then
+            echo "No changed PHP files to check."
+            exit 0
+          fi
+          vendor/bin/pint --test "${files[@]}"
+
+      - name: Check PHP formatting on main
+        if: github.event_name == 'push'
+        run: vendor/bin/pint --test
