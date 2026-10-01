@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
@@ -21,6 +22,7 @@ class ProgressController extends Controller
     public function show(Request $request): JsonResponse
     {
         $data = $request->user()->progress()->first()?->data ?? UserProgress::defaults();
+
         return response()->json(['progress' => array_replace(UserProgress::defaults(), $data)]);
     }
 
@@ -28,11 +30,11 @@ class ProgressController extends Controller
     {
         $validated = $request->validate([
             'progress' => ['required', 'array'],
-            'progress.interfaceLocale' => ['sometimes', Rule::in(['ar','en','es','fr','de','tr','pt','it','ru','zh','ja','ko'])],
-            'progress.themeId' => ['sometimes', Rule::in(['snow','royal','emerald','ocean','sunset','rose','midnight','cocoa','aurora','lavender','desert','graphite'])],
+            'progress.interfaceLocale' => ['sometimes', Rule::in(['ar', 'en', 'es', 'fr', 'de', 'tr', 'pt', 'it', 'ru', 'zh', 'ja', 'ko'])],
+            'progress.themeId' => ['sometimes', Rule::in(['snow', 'royal', 'emerald', 'ocean', 'sunset', 'rose', 'midnight', 'cocoa', 'aurora', 'lavender', 'desert', 'graphite'])],
             'progress.onboardingCompleted' => ['sometimes', 'boolean'],
             'progress.targetLanguageCode' => ['sometimes', 'string', 'regex:/^[a-z]{2,3}$/'],
-            'progress.currentLevel' => ['sometimes', Rule::in(['A1','A2','B1','B2','C1','C2'])],
+            'progress.currentLevel' => ['sometimes', Rule::in(['A1', 'A2', 'B1', 'B2', 'C1', 'C2'])],
             'progress.xp' => ['sometimes', 'integer', 'min:0', 'max:1000000000'],
             'progress.streak' => ['sometimes', 'integer', 'min:0', 'max:100000'],
             'progress.dailyMinutes' => ['sometimes', 'integer', 'min:0', 'max:1440'],
