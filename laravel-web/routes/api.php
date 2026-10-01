@@ -1,4 +1,5 @@
 <?php
+use App\Http\Controllers\Api\AdminAccountController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ProgressController;
 use Illuminate\Support\Facades\Route;
@@ -12,5 +13,6 @@ Route::prefix('v1')->group(function (): void {
         Route::post('/auth/logout', [AuthController::class, 'logout']);
         Route::get('/progress', [ProgressController::class, 'show']);
         Route::put('/progress', [ProgressController::class, 'update'])->middleware('throttle:120,1');
+        Route::put('/admin/account', [AdminAccountController::class, 'update'])->middleware('throttle:5,1');
     });
 });

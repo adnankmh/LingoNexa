@@ -40,6 +40,9 @@ class ApiService {
     if (configuredBaseUrl.trim().isEmpty && saved != null) {
       _baseUrl = saved.trim();
     }
+    // Offline-only installs never need to touch the secure-storage plugin.
+    // This also keeps local unit/widget tests deterministic on host runners.
+    if (!enabled) return;
     _token = await _secure.read(key: _tokenKey);
     // One-time migration from the older SharedPreferences token slot.
     if (_token == null || _token!.isEmpty) {
@@ -113,7 +116,9 @@ class ApiService {
         // Local token cleanup must still happen if the network is unavailable.
       }
     }
-    await clearToken();
+    if (enabled) {
+      await clearToken();
+    }
   }
 
   Future<Map<String, Object?>> loadProgress() async {
@@ -137,7 +142,11 @@ class ApiService {
 
   Future<void> _storeToken(Object? token) async {
     final value = token?.toString() ?? '';
-    if (value.isEmpty) throw const ApiException('The server did not return an authentication token.');
+    if (value.isEmpty) {
+      throw const ApiException(
+        'The server did not return an authentication token.',
+      );
+    }
     _token = value;
     await _secure.write(key: _tokenKey, value: value);
   }
@@ -155,7 +164,9 @@ class ApiService {
     Map<String, Object?>? body,
     bool authenticated = true,
   }) async {
-    if (!enabled) throw const ApiException('LingoNexa server URL is not configured.');
+    if (!enabled) {
+      throw const ApiException('LingoNexa server URL is not configured.');
+    }
     final uri = Uri.parse('${_baseUrl.replaceFirst(RegExp(r'/+$'), '')}$path');
     final headers = <String, String>{
       'Accept': 'application/json',
@@ -168,7 +179,9 @@ class ApiService {
     late http.Response response;
     try {
       response = switch (method) {
-        'GET' => await _client.get(uri, headers: headers).timeout(const Duration(seconds: 15)),
+        'GET' => await _client
+            .get(uri, headers: headers)
+            .timeout(const Duration(seconds: 15)),
         'POST' => await _client
             .post(uri, headers: headers, body: jsonEncode(body ?? const {}))
             .timeout(const Duration(seconds: 15)),

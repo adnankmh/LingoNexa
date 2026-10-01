@@ -4,6 +4,8 @@ import 'package:lingonexa/services/storage_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   test(
     'administrator and both demo accounts authenticate with their assigned roles',
     () async {
