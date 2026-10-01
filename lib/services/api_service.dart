@@ -15,16 +15,12 @@ class ApiException implements Exception {
 }
 
 class ApiService {
-  ApiService(
-    this._storage, {
-    http.Client? client,
-    FlutterSecureStorage? secureStorage,
-  })  : _client = client ?? http.Client(),
-        _secure = secureStorage ?? const FlutterSecureStorage();
+  ApiService(this._storage, {http.Client? client})
+      : _client = client ?? http.Client();
 
   final StorageService _storage;
   final http.Client _client;
-  final FlutterSecureStorage _secure;
+  final FlutterSecureStorage _secure = const FlutterSecureStorage();
 
   static const String configuredBaseUrl = String.fromEnvironment(
     'LINGONEXA_API_URL',
@@ -44,7 +40,11 @@ class ApiService {
     if (configuredBaseUrl.trim().isEmpty && saved != null) {
       _baseUrl = saved.trim();
     }
+    // Offline-only installs never need to touch the secure-storage plugin.
+    // This also keeps local unit/widget tests deterministic on host runners.
+    if (!enabled) return;
     _token = await _secure.read(key: _tokenKey);
+    // One-time migration from the older SharedPreferences token slot.
     if (_token == null || _token!.isEmpty) {
       final legacy = await _storage.readString(_tokenKey);
       if (legacy != null && legacy.isNotEmpty) {
@@ -56,7 +56,7 @@ class ApiService {
   }
 
   Future<void> setBaseUrl(String value) async {
-    _baseUrl = value.trim().replaceFirst(RegExp(r'/+\$'), '');
+    _baseUrl = value.trim().replaceFirst(RegExp(r'/+$'), '');
     if (_baseUrl.isEmpty) {
       await _storage.remove(_baseUrlKey);
     } else {
@@ -109,25 +109,29 @@ class ApiService {
   }
 
   Future<void> logout() async {
-    if (enabled && _token != null && _token!.isNotEmpty) {
+    if (enabled && _token != null) {
       try {
         await _request('POST', '/api/v1/auth/logout');
-      } on ApiException {
-        // Local logout must still complete if the server is unreachable.
+      } catch (_) {
+        // Local token cleanup must still happen if the network is unavailable.
       }
     }
-    await clearToken();
+    if (enabled) {
+      await clearToken();
+    }
   }
 
   Future<Map<String, Object?>> loadProgress() async {
-    if (!enabled || _token == null || _token!.isEmpty) return {};
+    if (!enabled || _token == null) return const {};
     final data = await _request('GET', '/api/v1/progress');
-    return _mapPayload(data['progress']);
+    final progress = data['progress'];
+    if (progress is Map) return Map<String, Object?>.from(progress);
+    return const {};
   }
 
   Future<void> saveProgress(Map<String, Object?> progress) async {
-    if (!enabled || _token == null || _token!.isEmpty) return;
-    await _request('PUT', '/api/v1/progress', body: progress);
+    if (!enabled || _token == null) return;
+    await _request('PUT', '/api/v1/progress', body: {'progress': progress});
   }
 
   Future<void> clearToken() async {
@@ -138,10 +142,20 @@ class ApiService {
 
   Future<void> _storeToken(Object? token) async {
     final value = token?.toString() ?? '';
-    if (value.isEmpty) throw const ApiException('Authentication token missing.');
+    if (value.isEmpty) {
+      throw const ApiException(
+        'The server did not return an authentication token.',
+      );
+    }
     _token = value;
     await _secure.write(key: _tokenKey, value: value);
-    await _storage.remove(_tokenKey);
+  }
+
+  Map<String, Object?> _mapPayload(Object? payload) {
+    if (payload is! Map) {
+      throw const ApiException('Invalid user data returned by the server.');
+    }
+    return Map<String, Object?>.from(payload);
   }
 
   Future<Map<String, Object?>> _request(
@@ -150,62 +164,66 @@ class ApiService {
     Map<String, Object?>? body,
     bool authenticated = true,
   }) async {
-    final uri = Uri.parse('\$_baseUrl\$path');
+    if (!enabled) {
+      throw const ApiException('LingoNexa server URL is not configured.');
+    }
+    final uri = Uri.parse('${_baseUrl.replaceFirst(RegExp(r'/+$'), '')}$path');
     final headers = <String, String>{
       'Accept': 'application/json',
       'Content-Type': 'application/json',
     };
     if (authenticated && _token != null && _token!.isNotEmpty) {
-      headers['Authorization'] = 'Bearer \$_token';
-    }
-    late http.Response response;
-    try {
-      switch (method) {
-        case 'GET':
-          response = await _client.get(uri, headers: headers);
-          break;
-        case 'POST':
-          response = await _client.post(
-            uri,
-            headers: headers,
-            body: body == null ? null : jsonEncode(body),
-          );
-          break;
-        case 'PUT':
-          response = await _client.put(
-            uri,
-            headers: headers,
-            body: body == null ? null : jsonEncode(body),
-          );
-          break;
-        default:
-          throw ApiException('Unsupported HTTP method: \$method');
-      }
-    } on http.ClientException {
-      throw const ApiException('Unable to reach the LingoNexa server.');
+      headers['Authorization'] = 'Bearer $_token';
     }
 
-    Map<String, Object?> payload = {};
-    if (response.body.isNotEmpty) {
+    late http.Response response;
+    try {
+      response = switch (method) {
+        'GET' => await _client
+            .get(uri, headers: headers)
+            .timeout(const Duration(seconds: 15)),
+        'POST' => await _client
+            .post(uri, headers: headers, body: jsonEncode(body ?? const {}))
+            .timeout(const Duration(seconds: 15)),
+        'PUT' => await _client
+            .put(uri, headers: headers, body: jsonEncode(body ?? const {}))
+            .timeout(const Duration(seconds: 15)),
+        _ => throw ApiException('Unsupported HTTP method: $method'),
+      };
+    } catch (error) {
+      if (error is ApiException) rethrow;
+      throw ApiException('Could not connect to the LingoNexa server: $error');
+    }
+
+    Object? decoded;
+    if (response.body.trim().isNotEmpty) {
       try {
-        payload = Map<String, Object?>.from(jsonDecode(response.body) as Map);
-      } on FormatException {
+        decoded = jsonDecode(response.body);
+      } catch (_) {
         throw ApiException(
-          'The server returned an invalid response.',
+          'The server returned an unreadable response.',
           statusCode: response.statusCode,
         );
       }
     }
+    final data = decoded is Map
+        ? Map<String, Object?>.from(decoded)
+        : <String, Object?>{};
     if (response.statusCode < 200 || response.statusCode >= 300) {
-      final message = payload['message']?.toString() ??
-          'Request failed with status \${response.statusCode}.';
+      final message = data['message']?.toString() ??
+          _firstValidationMessage(data['errors']) ??
+          'Server request failed (${response.statusCode}).';
       throw ApiException(message, statusCode: response.statusCode);
     }
-    return payload;
+    return data;
   }
 
-  Map<String, Object?> _mapPayload(Object? value) {
-    if (value is Map) return Map<String, Object?>.from(value);
-    return {};
+  String? _firstValidationMessage(Object? errors) {
+    if (errors is! Map) return null;
+    for (final value in errors.values) {
+      if (value is List && value.isNotEmpty) return value.first.toString();
+      if (value != null) return value.toString();
+    }
+    return null;
   }
 }
