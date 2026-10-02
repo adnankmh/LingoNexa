@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../core/app_state.dart';
 import '../core/i18n.dart';
+import '../data/adaptive_learning_engine.dart';
 import '../data/course_repository.dart';
 import '../data/practice_copy_repository.dart';
 import '../data/product_copy_repository.dart';
@@ -22,18 +23,26 @@ class PracticeScreen extends StatelessWidget {
       state.targetLanguageCode,
       meaningLanguageCode: state.locale.languageCode,
     ).expand((unit) => unit.lessons).toList();
-    final due = allLessons
-        .where(
-          (lesson) => state.dueReviews().any(
-                (record) => record.lessonId == lesson.id,
-              ),
-        )
+    final lessonsById = {for (final lesson in allLessons) lesson.id: lesson};
+    final reviewQueue = AdaptiveLearningEngine.reviewQueue(
+      state.reviewRecords.values.where(
+        (record) => lessonsById.containsKey(record.lessonId),
+      ),
+    );
+    final reviewStats = AdaptiveLearningEngine.sessionStats(
+      state.reviewRecords.values.where(
+        (record) => lessonsById.containsKey(record.lessonId),
+      ),
+    );
+    final adaptiveLessons = reviewQueue
+        .map((record) => lessonsById[record.lessonId])
+        .whereType<dynamic>()
         .toList();
     final scheduled = allLessons
         .where((lesson) => state.reviewLessonIds.contains(lesson.id))
         .toList();
-    final sample = due.isNotEmpty
-        ? due.first
+    final sample = adaptiveLessons.isNotEmpty
+        ? adaptiveLessons.first
         : scheduled.isNotEmpty
             ? scheduled.first
             : allLessons.first;
@@ -77,7 +86,7 @@ class PracticeScreen extends StatelessWidget {
                       Text(
                         copy('ready').replaceAll(
                           '{count}',
-                          '${due.isEmpty ? 1 : due.length}',
+                          '${reviewStats.due}',
                         ),
                         style: const TextStyle(
                           color: Colors.white70,
@@ -117,7 +126,7 @@ class PracticeScreen extends StatelessWidget {
                   title: context.text.get('review'),
                   subtitle: copy('due').replaceAll(
                     '{count}',
-                    '${due.isEmpty ? 1 : due.length}',
+                    '${reviewStats.due}',
                   ),
                   color: const Color(0xFF6C63FF),
                   onTap: () => Navigator.push(
