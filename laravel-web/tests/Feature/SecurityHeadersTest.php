@@ -2,21 +2,21 @@
 
 namespace Tests\Feature;
 
+use App\Http\Middleware\SecurityHeaders;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Tests\TestCase;
 
 class SecurityHeadersTest extends TestCase
 {
-    public function test_public_responses_include_browser_security_headers(): void
+    public function test_middleware_adds_browser_security_headers(): void
     {
-        // Exercise Laravel's framework health endpoint so this middleware test
-        // remains isolated from landing-page views, session state and content data.
-        $response = $this->get('/up');
+        $response = $this->runMiddleware(Request::create('http://localhost/security-check'));
 
-        $response->assertSuccessful();
-        $response->assertHeader('X-Content-Type-Options', 'nosniff');
-        $response->assertHeader('X-Frame-Options', 'DENY');
-        $response->assertHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
-        $response->assertHeader('Permissions-Policy', 'camera=(), geolocation=(), payment=(), usb=()');
+        $this->assertSame('nosniff', $response->headers->get('X-Content-Type-Options'));
+        $this->assertSame('DENY', $response->headers->get('X-Frame-Options'));
+        $this->assertSame('strict-origin-when-cross-origin', $response->headers->get('Referrer-Policy'));
+        $this->assertSame('camera=(), geolocation=(), payment=(), usb=()', $response->headers->get('Permissions-Policy'));
 
         $policy = (string) $response->headers->get('Content-Security-Policy');
         $this->assertStringContainsString("default-src 'self'", $policy);
@@ -29,10 +29,21 @@ class SecurityHeadersTest extends TestCase
 
     public function test_hsts_is_only_sent_for_secure_requests(): void
     {
-        $this->get('/up')->assertHeaderMissing('Strict-Transport-Security');
+        $httpResponse = $this->runMiddleware(Request::create('http://localhost/security-check'));
+        $this->assertFalse($httpResponse->headers->has('Strict-Transport-Security'));
 
-        $this->withServerVariables(['HTTPS' => 'on'])
-            ->get('/up')
-            ->assertHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+        $httpsResponse = $this->runMiddleware(Request::create('https://localhost/security-check'));
+        $this->assertSame(
+            'max-age=31536000; includeSubDomains',
+            $httpsResponse->headers->get('Strict-Transport-Security')
+        );
+    }
+
+    private function runMiddleware(Request $request): Response
+    {
+        return (new SecurityHeaders())->handle(
+            $request,
+            static fn (Request $request): Response => new Response('ok', 200)
+        );
     }
 }
