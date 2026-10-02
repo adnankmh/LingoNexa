@@ -8,8 +8,11 @@ class SecurityHeadersTest extends TestCase
 {
     public function test_public_responses_include_browser_security_headers(): void
     {
-        $response = $this->get('/');
+        // Exercise Laravel's framework health endpoint so this middleware test
+        // remains isolated from landing-page views, session state and content data.
+        $response = $this->get('/up');
 
+        $response->assertSuccessful();
         $response->assertHeader('X-Content-Type-Options', 'nosniff');
         $response->assertHeader('X-Frame-Options', 'DENY');
         $response->assertHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
@@ -26,10 +29,10 @@ class SecurityHeadersTest extends TestCase
 
     public function test_hsts_is_only_sent_for_secure_requests(): void
     {
-        $this->get('/')->assertHeaderMissing('Strict-Transport-Security');
+        $this->get('/up')->assertHeaderMissing('Strict-Transport-Security');
 
         $this->withServerVariables(['HTTPS' => 'on'])
-            ->get('/')
+            ->get('/up')
             ->assertHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
     }
 }
