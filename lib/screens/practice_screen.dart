@@ -24,17 +24,20 @@ class PracticeScreen extends StatelessWidget {
       meaningLanguageCode: state.locale.languageCode,
     ).expand((unit) => unit.lessons).toList();
     final lessonsById = {for (final lesson in allLessons) lesson.id: lesson};
+    final reviewRecords = state.reviewRecords.values.where(
+      (record) => lessonsById.containsKey(record.lessonId),
+    );
+    final now = DateTime.now();
     final reviewQueue = AdaptiveLearningEngine.reviewQueue(
-      state.reviewRecords.values.where(
-        (record) => lessonsById.containsKey(record.lessonId),
-      ),
+      reviewRecords,
+      now: now,
     );
     final reviewStats = AdaptiveLearningEngine.sessionStats(
-      state.reviewRecords.values.where(
-        (record) => lessonsById.containsKey(record.lessonId),
-      ),
+      reviewRecords,
+      now: now,
     );
     final adaptiveLessons = reviewQueue
+        .where((record) => record.isDueAt(now))
         .map((record) => lessonsById[record.lessonId])
         .whereType<dynamic>()
         .toList();
