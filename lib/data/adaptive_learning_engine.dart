@@ -116,7 +116,8 @@ abstract final class AdaptiveLearningEngine {
     );
   }
 
-  /// Returns a bounded review session ordered by learning urgency.
+  /// Returns a bounded review session ordered by learning urgency. Upcoming
+  /// cards may be included after due cards so callers can preview/fill a plan.
   static List<ReviewRecord> reviewQueue(
     Iterable<ReviewRecord> records, {
     DateTime? now,
@@ -125,19 +126,41 @@ abstract final class AdaptiveLearningEngine {
     if (limit <= 0) return const [];
     final timestamp = now ?? DateTime.now();
     final queue = records.toList(growable: false)
-      ..sort((a, b) {
-        final aDue = a.isDueAt(timestamp);
-        final bDue = b.isDueAt(timestamp);
-        if (aDue != bDue) return aDue ? -1 : 1;
-        if (aDue) {
-          final lapseOrder = b.lapses.compareTo(a.lapses);
-          if (lapseOrder != 0) return lapseOrder;
-        }
-        final dateOrder = a.nextReview.compareTo(b.nextReview);
-        if (dateOrder != 0) return dateOrder;
-        return a.lessonId.compareTo(b.lessonId);
-      });
+      ..sort((a, b) => _compareUrgency(a, b, timestamp));
     return queue.take(limit).toList(growable: false);
+  }
+
+  /// Returns only reviews that are due now, ordered with struggling cards first.
+  /// Use this for practice flows that must never surface a future card early.
+  static List<ReviewRecord> dueReviewQueue(
+    Iterable<ReviewRecord> records, {
+    DateTime? now,
+    int limit = 20,
+  }) {
+    if (limit <= 0) return const [];
+    final timestamp = now ?? DateTime.now();
+    final queue = records
+        .where((record) => record.isDueAt(timestamp))
+        .toList(growable: false)
+      ..sort((a, b) => _compareUrgency(a, b, timestamp));
+    return queue.take(limit).toList(growable: false);
+  }
+
+  static int _compareUrgency(
+    ReviewRecord a,
+    ReviewRecord b,
+    DateTime timestamp,
+  ) {
+    final aDue = a.isDueAt(timestamp);
+    final bDue = b.isDueAt(timestamp);
+    if (aDue != bDue) return aDue ? -1 : 1;
+    if (aDue) {
+      final lapseOrder = b.lapses.compareTo(a.lapses);
+      if (lapseOrder != 0) return lapseOrder;
+    }
+    final dateOrder = a.nextReview.compareTo(b.nextReview);
+    if (dateOrder != 0) return dateOrder;
+    return a.lessonId.compareTo(b.lessonId);
   }
 
   static int dueCount(Iterable<ReviewRecord> records, {DateTime? now}) {
