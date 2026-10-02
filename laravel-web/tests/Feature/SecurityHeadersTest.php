@@ -41,7 +41,7 @@ class SecurityHeadersTest extends TestCase
 
     private function runMiddleware(Request $request): Response
     {
-        return (new SecurityHeaders())->handle(
+        return (new SecurityHeaders)->handle(
             $request,
             static fn (Request $request): Response => new Response('ok', 200)
         );
