@@ -43,7 +43,7 @@ class SecurityHeadersTest extends TestCase
     {
         return (new SecurityHeaders)->handle(
             $request,
-            static fn (Request $request): Response => new Response('ok', 200)
+            static fn (Request $request): Response => new Response('ok', 200),
         );
     }
 }
