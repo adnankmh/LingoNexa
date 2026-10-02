@@ -10,15 +10,35 @@ class StorageService {
   Future<List<String>?> readStrings(String key) async =>
       (await _prefs).getStringList(key);
 
-  Future<void> writeString(String key, String value) async =>
-      (await _prefs).setString(key, value);
-  Future<void> writeInt(String key, int value) async =>
-      (await _prefs).setInt(key, value);
-  Future<void> writeBool(String key, bool value) async =>
-      (await _prefs).setBool(key, value);
-  Future<void> writeDouble(String key, double value) async =>
-      (await _prefs).setDouble(key, value);
-  Future<void> writeStrings(String key, List<String> value) async =>
-      (await _prefs).setStringList(key, value);
-  Future<void> remove(String key) async => (await _prefs).remove(key);
+  Future<void> writeString(String key, String value) async {
+    final saved = await (await _prefs).setString(key, value);
+    if (!saved) throw StateError('Failed to persist $key');
+  }
+
+  Future<void> writeInt(String key, int value) async {
+    final saved = await (await _prefs).setInt(key, value);
+    if (!saved) throw StateError('Failed to persist $key');
+  }
+
+  Future<void> writeBool(String key, bool value) async {
+    final saved = await (await _prefs).setBool(key, value);
+    if (!saved) throw StateError('Failed to persist $key');
+  }
+
+  Future<void> writeDouble(String key, double value) async {
+    final saved = await (await _prefs).setDouble(key, value);
+    if (!saved) throw StateError('Failed to persist $key');
+  }
+
+  Future<void> writeStrings(String key, List<String> value) async {
+    final saved = await (await _prefs).setStringList(key, value);
+    if (!saved) throw StateError('Failed to persist $key');
+  }
+
+  Future<void> remove(String key) async {
+    final prefs = await _prefs;
+    if (!prefs.containsKey(key)) return;
+    final removed = await prefs.remove(key);
+    if (!removed) throw StateError('Failed to remove $key');
+  }
 }
