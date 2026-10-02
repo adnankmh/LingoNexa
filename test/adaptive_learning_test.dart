@@ -62,6 +62,28 @@ void main() {
     expect(AdaptiveLearningEngine.dueCount(records, now: now), 2);
   });
 
+  test('due review queue never surfaces future cards early', () {
+    final now = DateTime(2026, 10, 2, 9);
+    final records = [
+      ReviewRecord(
+        lessonId: 'future', repetitions: 3, intervalDays: 7, ease: 2.6,
+        nextReview: now.add(const Duration(minutes: 1)), lastQuality: 5, lapses: 0,
+      ),
+      ReviewRecord(
+        lessonId: 'due-stable', repetitions: 4, intervalDays: 14, ease: 2.5,
+        nextReview: now, lastQuality: 5, lapses: 0,
+      ),
+      ReviewRecord(
+        lessonId: 'due-struggling', repetitions: 0, intervalDays: 1, ease: 1.7,
+        nextReview: now.subtract(const Duration(hours: 1)), lastQuality: 1, lapses: 3,
+      ),
+    ];
+    final queue = AdaptiveLearningEngine.dueReviewQueue(records, now: now);
+    expect(queue.map((record) => record.lessonId), ['due-struggling', 'due-stable']);
+    expect(AdaptiveLearningEngine.dueReviewQueue(records, now: now, limit: 1).length, 1);
+    expect(AdaptiveLearningEngine.dueReviewQueue(records, now: now, limit: 0), isEmpty);
+  });
+
   test('review queue respects session limit and deterministic tie breaking', () {
     final now = DateTime(2026, 10, 1, 12);
     final sameDate = now.subtract(const Duration(hours: 1));
