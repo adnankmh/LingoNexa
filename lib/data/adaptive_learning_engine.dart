@@ -31,15 +31,35 @@ class ReviewRecord {
         'lapses': lapses,
       };
 
-  static ReviewRecord fromJson(Map<String, Object?> json) => ReviewRecord(
-        lessonId: json['lessonId']! as String,
-        repetitions: json['repetitions']! as int,
-        intervalDays: json['intervalDays']! as int,
-        ease: (json['ease']! as num).toDouble(),
-        nextReview: DateTime.parse(json['nextReview']! as String).toLocal(),
-        lastQuality: json['lastQuality']! as int,
-        lapses: json['lapses']! as int,
-      );
+  static ReviewRecord fromJson(Map<String, Object?> json) {
+    final lessonId = json['lessonId'];
+    final repetitions = json['repetitions'];
+    final intervalDays = json['intervalDays'];
+    final ease = json['ease'];
+    final nextReview = json['nextReview'];
+    final lastQuality = json['lastQuality'];
+    final lapses = json['lapses'];
+
+    if (lessonId is! String || lessonId.trim().isEmpty ||
+        repetitions is! int || repetitions < 0 ||
+        intervalDays is! int || intervalDays < 1 || intervalDays > 180 ||
+        ease is! num || !ease.isFinite || ease < 1.3 || ease > 3.0 ||
+        nextReview is! String ||
+        lastQuality is! int || lastQuality < 0 || lastQuality > 5 ||
+        lapses is! int || lapses < 0) {
+      throw const FormatException('Invalid adaptive review record');
+    }
+
+    return ReviewRecord(
+      lessonId: lessonId,
+      repetitions: repetitions,
+      intervalDays: intervalDays,
+      ease: ease.toDouble(),
+      nextReview: DateTime.parse(nextReview).toLocal(),
+      lastQuality: lastQuality,
+      lapses: lapses,
+    );
+  }
 }
 
 class ReviewSessionStats {
@@ -200,9 +220,11 @@ abstract final class AdaptiveLearningEngine {
       for (final entry in decoded.entries) {
         if (entry.key is! String || entry.value is! Map) continue;
         try {
-          records[entry.key as String] = ReviewRecord.fromJson(
+          final record = ReviewRecord.fromJson(
             Map<String, Object?>.from(entry.value as Map),
           );
+          if (record.lessonId != entry.key) continue;
+          records[entry.key as String] = record;
         } catch (_) {
           // A single corrupt record must not discard otherwise valid progress.
         }
