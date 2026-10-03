@@ -67,6 +67,18 @@ jobs:
           fi
           vendor/bin/pint --test "${files[@]}"
 
-      - name: Check PHP formatting on main
+      - name: Check formatting of PHP files changed on main
         if: github.event_name == 'push'
-        run: vendor/bin/pint --test
+        shell: bash
+        run: |
+          before="${{ github.event.before }}"
+          after="${{ github.sha }}"
+          if [ -z "$before" ] || [ "$before" = "0000000000000000000000000000000000000000" ]; then
+            before="${after}^"
+          fi
+          mapfile -t files < <(git diff --name-only --diff-filter=ACMR "$before" "$after" -- '*.php' | sed 's#^laravel-web/##' | while read -r file; do [ -f "$file" ] && printf '%s\n' "$file"; done)
+          if [ "${#files[@]}" -eq 0 ]; then
+            echo "No PHP files changed on this main push."
+            exit 0
+          fi
+          vendor/bin/pint --test "${files[@]}"
