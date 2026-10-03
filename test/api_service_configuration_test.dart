@@ -70,6 +70,20 @@ void main() {
     expect(service.enabled, isFalse);
   });
 
+  test('setBaseUrl rejects credentials, query strings, and fragments', () async {
+    final service = ApiService(StorageService());
+    const unsafeOrAmbiguousUrls = [
+      'https://user:secret@example.test',
+      'https://example.test?tenant=one',
+      'https://example.test#api',
+    ];
+
+    for (final url in unsafeOrAmbiguousUrls) {
+      await expectLater(service.setBaseUrl(url), throwsA(isA<ApiException>()));
+      expect(service.enabled, isFalse);
+    }
+  });
+
   test('initialize removes an unsafe persisted API URL', () async {
     SharedPreferences.setMockInitialValues({
       'remote_api_base_url_v1': 'javascript:alert(1)',
