@@ -29,15 +29,15 @@ void main() {
     expect(service.enabled, isFalse);
   });
 
-  test('initialize restores a persisted API base URL', () async {
-    SharedPreferences.setMockInitialValues({
-      'remote_api_base_url_v1': 'https://example.test/api/',
-    });
+  test('setBaseUrl persists the normalized API base URL', () async {
     final service = ApiService(StorageService());
 
-    await service.initialize();
+    await service.setBaseUrl('  https://example.test/api///  ');
 
-    expect(service.baseUrl, 'https://example.test/api/');
-    expect(service.enabled, isTrue);
+    final preferences = await SharedPreferences.getInstance();
+    expect(
+      preferences.getString('remote_api_base_url_v1'),
+      'https://example.test/api',
+    );
   });
 }
