@@ -63,5 +63,57 @@ void main() {
       expect(decoded['lesson-good']!.repetitions, 3);
       expect(decoded['lesson-good']!.intervalDays, 7);
     });
+
+    test('rejects impossible scheduling values without losing valid siblings', () {
+      const payload = '''{
+        "lesson-good": {
+          "lessonId": "lesson-good",
+          "repetitions": 2,
+          "intervalDays": 3,
+          "ease": 2.3,
+          "nextReview": "2026-10-06T09:30:00.000Z",
+          "lastQuality": 5,
+          "lapses": 0
+        },
+        "negative-repetitions": {
+          "lessonId": "negative-repetitions",
+          "repetitions": -1,
+          "intervalDays": 3,
+          "ease": 2.3,
+          "nextReview": "2026-10-06T09:30:00.000Z",
+          "lastQuality": 5,
+          "lapses": 0
+        },
+        "invalid-quality": {
+          "lessonId": "invalid-quality",
+          "repetitions": 2,
+          "intervalDays": 3,
+          "ease": 2.3,
+          "nextReview": "2026-10-06T09:30:00.000Z",
+          "lastQuality": 9,
+          "lapses": 0
+        }
+      }''';
+
+      final decoded = AdaptiveLearningEngine.decode(payload);
+
+      expect(decoded.keys, ['lesson-good']);
+    });
+
+    test('rejects records whose storage key disagrees with lesson id', () {
+      const payload = '''{
+        "lesson-a": {
+          "lessonId": "lesson-b",
+          "repetitions": 2,
+          "intervalDays": 3,
+          "ease": 2.3,
+          "nextReview": "2026-10-06T09:30:00.000Z",
+          "lastQuality": 5,
+          "lapses": 0
+        }
+      }''';
+
+      expect(AdaptiveLearningEngine.decode(payload), isEmpty);
+    });
   });
 }
