@@ -15,6 +15,8 @@ class SecurityHeadersTest extends TestCase
 
         $this->assertSame('nosniff', $response->headers->get('X-Content-Type-Options'));
         $this->assertSame('DENY', $response->headers->get('X-Frame-Options'));
+        $this->assertSame('none', $response->headers->get('X-Permitted-Cross-Domain-Policies'));
+        $this->assertSame('same-origin', $response->headers->get('Cross-Origin-Opener-Policy'));
         $this->assertSame('strict-origin-when-cross-origin', $response->headers->get('Referrer-Policy'));
         $this->assertSame('camera=(), geolocation=(), payment=(), usb=()', $response->headers->get('Permissions-Policy'));
 
