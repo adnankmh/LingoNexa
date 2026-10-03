@@ -8,6 +8,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 class ProgressController extends Controller
 {
@@ -28,6 +29,16 @@ class ProgressController extends Controller
 
     public function update(Request $request): JsonResponse
     {
+        $progress = $request->input('progress');
+        if (is_array($progress)) {
+            $unknown = array_values(array_diff(array_keys($progress), self::ALLOWED));
+            if ($unknown !== []) {
+                throw ValidationException::withMessages([
+                    'progress' => ['Unknown progress fields: '.implode(', ', $unknown).'.'],
+                ]);
+            }
+        }
+
         $validated = $request->validate([
             'progress' => ['required', 'array'],
             'progress.interfaceLocale' => ['sometimes', Rule::in(['ar', 'en', 'es', 'fr', 'de', 'tr', 'pt', 'it', 'ru', 'zh', 'ja', 'ko'])],
