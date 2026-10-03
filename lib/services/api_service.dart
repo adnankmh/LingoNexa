@@ -99,7 +99,10 @@ class ApiService {
     if (uri == null ||
         !uri.hasScheme ||
         !uri.hasAuthority ||
-        (uri.scheme != 'http' && uri.scheme != 'https')) {
+        (uri.scheme != 'http' && uri.scheme != 'https') ||
+        uri.userInfo.isNotEmpty ||
+        uri.hasQuery ||
+        uri.hasFragment) {
       return null;
     }
     return normalized;
