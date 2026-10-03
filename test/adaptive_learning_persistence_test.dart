@@ -42,5 +42,26 @@ void main() {
         isEmpty,
       );
     });
+
+    test('keeps valid progress when a sibling record is corrupt', () {
+      const payload = '''{
+        "lesson-good": {
+          "lessonId": "lesson-good",
+          "repetitions": 3,
+          "intervalDays": 7,
+          "ease": 2.4,
+          "nextReview": "2026-10-04T09:30:00.000Z",
+          "lastQuality": 4,
+          "lapses": 1
+        },
+        "lesson-bad": {"lessonId": 42}
+      }''';
+
+      final decoded = AdaptiveLearningEngine.decode(payload);
+
+      expect(decoded.keys, ['lesson-good']);
+      expect(decoded['lesson-good']!.repetitions, 3);
+      expect(decoded['lesson-good']!.intervalDays, 7);
+    });
   });
 }

@@ -196,13 +196,18 @@ abstract final class AdaptiveLearningEngine {
     try {
       final decoded = jsonDecode(value);
       if (decoded is! Map) return {};
-      return {
-        for (final entry in decoded.entries)
-          if (entry.key is String && entry.value is Map)
-            entry.key as String: ReviewRecord.fromJson(
-              Map<String, Object?>.from(entry.value as Map),
-            ),
-      };
+      final records = <String, ReviewRecord>{};
+      for (final entry in decoded.entries) {
+        if (entry.key is! String || entry.value is! Map) continue;
+        try {
+          records[entry.key as String] = ReviewRecord.fromJson(
+            Map<String, Object?>.from(entry.value as Map),
+          );
+        } catch (_) {
+          // A single corrupt record must not discard otherwise valid progress.
+        }
+      }
+      return records;
     } catch (_) {
       return {};
     }
