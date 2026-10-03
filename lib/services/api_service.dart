@@ -36,9 +36,28 @@ class ApiService {
   String get baseUrl => _baseUrl;
 
   Future<void> initialize() async {
-    final saved = await _storage.readString(_baseUrlKey);
-    if (configuredBaseUrl.trim().isEmpty && saved != null) {
-      _baseUrl = saved.trim();
+    final configured = _normalizeBaseUrl(configuredBaseUrl);
+    if (configured != null) {
+      _baseUrl = configured;
+    } else if (configuredBaseUrl.trim().isNotEmpty) {
+      // A malformed compile-time endpoint must never enable remote requests.
+      _baseUrl = '';
+    }
+
+    if (_baseUrl.isEmpty) {
+      final saved = await _storage.readString(_baseUrlKey);
+      if (saved != null && saved.trim().isNotEmpty) {
+        final normalizedSaved = _normalizeBaseUrl(saved);
+        if (normalizedSaved == null) {
+          // Clean up stale/legacy values that predate URL validation.
+          await _storage.remove(_baseUrlKey);
+        } else {
+          _baseUrl = normalizedSaved;
+          if (normalizedSaved != saved) {
+            await _storage.writeString(_baseUrlKey, normalizedSaved);
+          }
+        }
+      }
     }
     // Offline-only installs never need to touch the secure-storage plugin.
     // This also keeps local unit/widget tests deterministic on host runners.
@@ -56,18 +75,14 @@ class ApiService {
   }
 
   Future<void> setBaseUrl(String value) async {
-    final normalized = value.trim().replaceFirst(RegExp(r'/+$'), '');
-    if (normalized.isEmpty) {
+    if (value.trim().isEmpty) {
       _baseUrl = '';
       await _storage.remove(_baseUrlKey);
       return;
     }
 
-    final uri = Uri.tryParse(normalized);
-    if (uri == null ||
-        !uri.hasScheme ||
-        !uri.hasAuthority ||
-        (uri.scheme != 'http' && uri.scheme != 'https')) {
+    final normalized = _normalizeBaseUrl(value);
+    if (normalized == null) {
       throw const ApiException(
         'LingoNexa server URL must be a valid HTTP or HTTPS URL.',
       );
@@ -75,6 +90,19 @@ class ApiService {
 
     _baseUrl = normalized;
     await _storage.writeString(_baseUrlKey, _baseUrl);
+  }
+
+  String? _normalizeBaseUrl(String value) {
+    final normalized = value.trim().replaceFirst(RegExp(r'/+$'), '');
+    if (normalized.isEmpty) return null;
+    final uri = Uri.tryParse(normalized);
+    if (uri == null ||
+        !uri.hasScheme ||
+        !uri.hasAuthority ||
+        (uri.scheme != 'http' && uri.scheme != 'https')) {
+      return null;
+    }
+    return normalized;
   }
 
   Future<Map<String, Object?>?> restoreRemoteSession() async {

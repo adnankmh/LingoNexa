@@ -69,4 +69,18 @@ void main() {
 
     expect(service.enabled, isFalse);
   });
+
+  test('initialize removes an unsafe persisted API URL', () async {
+    SharedPreferences.setMockInitialValues({
+      'remote_api_base_url_v1': 'javascript:alert(1)',
+    });
+    final service = ApiService(StorageService());
+
+    await service.initialize();
+
+    expect(service.enabled, isFalse);
+    expect(service.baseUrl, isEmpty);
+    final preferences = await SharedPreferences.getInstance();
+    expect(preferences.containsKey('remote_api_base_url_v1'), isFalse);
+  });
 }
