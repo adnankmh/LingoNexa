@@ -40,4 +40,33 @@ void main() {
       'https://example.test/api',
     );
   });
+
+  test('setBaseUrl rejects non-HTTP server URLs without changing state', () async {
+    final service = ApiService(StorageService());
+    await service.setBaseUrl('https://example.test/api');
+
+    await expectLater(
+      service.setBaseUrl('javascript:alert(1)'),
+      throwsA(isA<ApiException>()),
+    );
+
+    expect(service.baseUrl, 'https://example.test/api');
+    expect(service.enabled, isTrue);
+    final preferences = await SharedPreferences.getInstance();
+    expect(
+      preferences.getString('remote_api_base_url_v1'),
+      'https://example.test/api',
+    );
+  });
+
+  test('setBaseUrl rejects malformed server URLs', () async {
+    final service = ApiService(StorageService());
+
+    await expectLater(
+      service.setBaseUrl('not-a-server-address'),
+      throwsA(isA<ApiException>()),
+    );
+
+    expect(service.enabled, isFalse);
+  });
 }
