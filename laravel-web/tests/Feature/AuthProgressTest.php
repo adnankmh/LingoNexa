@@ -41,6 +41,7 @@ class AuthProgressTest extends TestCase
             'password_confirmation' => '123456',
         ])->assertUnprocessable();
     }
+
     public function test_progress_validation_rejects_invalid_types_and_partial_updates_preserve_existing_data(): void
     {
         $register = $this->postJson('/api/v1/auth/register', [
@@ -64,4 +65,26 @@ class AuthProgressTest extends TestCase
         ])->assertUnprocessable();
     }
 
+    public function test_progress_sync_rejects_unknown_fields_without_mutating_existing_progress(): void
+    {
+        $register = $this->postJson('/api/v1/auth/register', [
+            'name' => 'Strict Sync User', 'username' => 'strict_sync_user',
+            'email' => 'strict-sync@example.test', 'password' => 'StrongPass2026',
+            'password_confirmation' => 'StrongPass2026',
+        ])->assertCreated();
+        $headers = ['Authorization' => 'Bearer '.$register->json('token')];
+
+        $this->withHeaders($headers)->putJson('/api/v1/progress', [
+            'progress' => ['xp' => 900, 'currentLevel' => 'B1'],
+        ])->assertOk();
+
+        $this->withHeaders($headers)->putJson('/api/v1/progress', [
+            'progress' => ['xp' => 1200, 'isAdmin' => true],
+        ])->assertUnprocessable()->assertJsonValidationErrors(['progress']);
+
+        $this->withHeaders($headers)->getJson('/api/v1/progress')
+            ->assertOk()
+            ->assertJsonPath('progress.xp', 900)
+            ->assertJsonPath('progress.currentLevel', 'B1');
+    }
 }
