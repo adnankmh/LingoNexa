@@ -56,12 +56,25 @@ class ApiService {
   }
 
   Future<void> setBaseUrl(String value) async {
-    _baseUrl = value.trim().replaceFirst(RegExp(r'/+$'), '');
-    if (_baseUrl.isEmpty) {
+    final normalized = value.trim().replaceFirst(RegExp(r'/+$'), '');
+    if (normalized.isEmpty) {
+      _baseUrl = '';
       await _storage.remove(_baseUrlKey);
-    } else {
-      await _storage.writeString(_baseUrlKey, _baseUrl);
+      return;
     }
+
+    final uri = Uri.tryParse(normalized);
+    if (uri == null ||
+        !uri.hasScheme ||
+        !uri.hasAuthority ||
+        (uri.scheme != 'http' && uri.scheme != 'https')) {
+      throw const ApiException(
+        'LingoNexa server URL must be a valid HTTP or HTTPS URL.',
+      );
+    }
+
+    _baseUrl = normalized;
+    await _storage.writeString(_baseUrlKey, _baseUrl);
   }
 
   Future<Map<String, Object?>?> restoreRemoteSession() async {
