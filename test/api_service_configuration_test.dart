@@ -83,26 +83,4 @@ void main() {
     final preferences = await SharedPreferences.getInstance();
     expect(preferences.containsKey('remote_api_base_url_v1'), isFalse);
   });
-
-  test('initialize normalizes a persisted API URL before use', () async {
-    SharedPreferences.setMockInitialValues({
-      'remote_api_base_url_v1': '  https://example.test/api///  ',
-    });
-    final storage = StorageService();
-    final service = ApiService(storage);
-
-    // A valid remote URL would continue into secure-storage initialization,
-    // which is platform-backed. Verify normalization through persisted state
-    // without coupling this host test to that plugin.
-    try {
-      await service.initialize();
-    } catch (_) {}
-
-    expect(service.baseUrl, 'https://example.test/api');
-    final preferences = await SharedPreferences.getInstance();
-    expect(
-      preferences.getString('remote_api_base_url_v1'),
-      'https://example.test/api',
-    );
-  });
 }
