@@ -1,4 +1,5 @@
 <?php
+
 namespace Tests\Feature;
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -16,7 +17,7 @@ class AuthProgressTest extends TestCase
             'email' => 'learner@example.test',
             'password' => 'StrongPass2026',
             'password_confirmation' => 'StrongPass2026',
-        ])->assertCreated()->assertJsonStructure(['token','user']);
+        ])->assertCreated()->assertJsonStructure(['token', 'user']);
 
         $token = $register->json('token');
         $headers = ['Authorization' => 'Bearer '.$token];
@@ -58,7 +59,7 @@ class AuthProgressTest extends TestCase
         $this->withHeaders($headers)->putJson('/api/v1/progress', [
             'progress' => ['dailyGoalMinutes' => 25],
         ])->assertOk()->assertJsonPath('progress.xp', 700)
-          ->assertJsonPath('progress.interfaceLocale', 'ar');
+            ->assertJsonPath('progress.interfaceLocale', 'ar');
 
         $this->withHeaders($headers)->putJson('/api/v1/progress', [
             'progress' => ['xp' => -5, 'themeId' => 'unknown-theme'],
