@@ -135,4 +135,28 @@ class AuthProgressTest extends TestCase
             ->assertJsonPath('progress.targetLanguageCode', 'tr')
             ->assertJsonPath('progress.countryCode', 'PS');
     }
+
+    public function test_progress_sync_rejects_malformed_adaptive_review_json(): void
+    {
+        $register = $this->postJson('/api/v1/auth/register', [
+            'name' => 'Adaptive Sync User', 'username' => 'adaptive_sync_user',
+            'email' => 'adaptive-sync@example.test', 'password' => 'StrongPass2026',
+            'password_confirmation' => 'StrongPass2026',
+        ])->assertCreated();
+        $headers = ['Authorization' => 'Bearer '.$register->json('token')];
+
+        $this->withHeaders($headers)->putJson('/api/v1/progress', [
+            'progress' => ['adaptiveReviews' => '{not-json}'],
+        ])->assertUnprocessable()->assertJsonValidationErrors([
+            'progress.adaptiveReviews',
+        ]);
+
+        $validReviews = json_encode([
+            'lesson-a' => ['intervalDays' => 3, 'ease' => 2.4],
+        ], JSON_THROW_ON_ERROR);
+
+        $this->withHeaders($headers)->putJson('/api/v1/progress', [
+            'progress' => ['adaptiveReviews' => $validReviews],
+        ])->assertOk()->assertJsonPath('progress.adaptiveReviews', $validReviews);
+    }
 }
