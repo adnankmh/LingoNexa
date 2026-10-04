@@ -124,9 +124,13 @@ class AuthService {
               ),
             )
             .toList();
-      } on FormatException {
+      } on Object {
+        // Local demo data may outlive schema changes or be partially corrupted.
+        // Recover to the known-safe seed accounts instead of failing startup.
         _accounts = _seedAccounts();
         await _persistAccounts();
+        await _storage.remove(_sessionKey);
+        await _storage.remove(_sessionStartedKey);
       }
     }
   }
@@ -358,48 +362,41 @@ class AuthService {
   static String _deriveHash(String password, String salt, int iterations) {
     final key = utf8.encode(password);
     final saltBytes = _decodeBase64Url(salt);
-    final hmac = Hmac(sha256, key);
-    var block = hmac.convert([...saltBytes, 0, 0, 0, 1]).bytes;
-    final result = Uint8List.fromList(block);
+    const blockIndex = [0, 0, 0, 1];
+    var u = Hmac(sha256, key).convert([...saltBytes, ...blockIndex]).bytes;
+    final output = Uint8List.fromList(u);
     for (var round = 1; round < iterations; round++) {
-      block = hmac.convert(block).bytes;
-      for (var index = 0; index < result.length; index++) {
-        result[index] ^= block[index];
+      u = Hmac(sha256, key).convert(u).bytes;
+      for (var index = 0; index < output.length; index++) {
+        output[index] ^= u[index];
       }
     }
-    return base64UrlEncode(result).replaceAll('=', '');
+    return base64UrlEncode(output).replaceAll('=', '');
   }
 
-  static String _legacyHash(String password) => sha256
-      .convert(utf8.encode('lingonexa-local-demo-v1::$password'))
-      .toString();
+  static String _legacyHash(String password) =>
+      sha256.convert(utf8.encode(password)).toString();
 
   static bool _constantTimeEquals(String expected, String actual) {
-    if (expected.length != actual.length) return false;
-    var difference = 0;
-    for (var index = 0; index < expected.length; index++) {
-      difference |= expected.codeUnitAt(index) ^ actual.codeUnitAt(index);
+    final expectedBytes = utf8.encode(expected);
+    final actualBytes = utf8.encode(actual);
+    var difference = expectedBytes.length ^ actualBytes.length;
+    final length = min(expectedBytes.length, actualBytes.length);
+    for (var index = 0; index < length; index++) {
+      difference |= expectedBytes[index] ^ actualBytes[index];
     }
     return difference == 0;
   }
 
-  Future<void> _startSession(String userId) async {
-    await _storage.writeString(_sessionKey, userId);
-    await _storage.writeString(
-      _sessionStartedKey,
-      DateTime.now().toUtc().toIso8601String(),
-    );
-  }
-
   Future<void> _upgradeLegacyAccount(
-    _StoredAccount account,
+    _StoredAccount legacy,
     String password,
   ) async {
-    final salt = _randomSalt();
-    final index = _accounts.indexOf(account);
+    final index = _accounts.indexOf(legacy);
     if (index < 0) return;
+    final salt = _randomSalt();
     _accounts[index] = _StoredAccount(
-      user: account.user,
+      user: legacy.user,
       passwordHash: _deriveHash(password, salt, _iterations),
       passwordSalt: salt,
       iterations: _iterations,
@@ -411,4 +408,12 @@ class AuthService {
         _accountsKey,
         jsonEncode(_accounts.map((item) => item.toJson()).toList()),
       );
+
+  Future<void> _startSession(String userId) async {
+    await _storage.writeString(_sessionKey, userId);
+    await _storage.writeString(
+      _sessionStartedKey,
+      DateTime.now().toUtc().toIso8601String(),
+    );
+  }
 }
