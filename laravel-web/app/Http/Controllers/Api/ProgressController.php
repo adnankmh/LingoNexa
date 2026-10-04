@@ -62,7 +62,7 @@ class ProgressController extends Controller
             'progress.completedExamIds' => ['sometimes', 'array', 'max:1000'],
             'progress.completedExamIds.*' => ['string', 'max:120', 'distinct:strict'],
             'progress.weeklyXp' => ['sometimes', 'integer', 'min:0', 'max:100000000'],
-            'progress.skillMastery' => ['sometimes', 'array', 'max:12'],
+            'progress.skillMastery' => ['sometimes', 'array:reading,listening,speaking,writing,grammar,vocabulary', 'max:6'],
             'progress.skillMastery.*' => ['integer', 'min:0', 'max:100'],
             'progress.adaptiveReviews' => [
                 'sometimes', 'string', 'json', 'max:1000000',
