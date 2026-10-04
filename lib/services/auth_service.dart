@@ -124,9 +124,13 @@ class AuthService {
               ),
             )
             .toList();
-      } on FormatException {
+      } on Object {
+        // Local demo data may outlive schema changes or be partially corrupted.
+        // Recover to known-safe seed accounts and invalidate any stale session.
         _accounts = _seedAccounts();
         await _persistAccounts();
+        await _storage.remove(_sessionKey);
+        await _storage.remove(_sessionStartedKey);
       }
     }
   }
