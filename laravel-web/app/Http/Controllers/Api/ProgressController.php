@@ -20,6 +20,15 @@ class ProgressController extends Controller
         'skillMastery', 'adaptiveReviews',
     ];
 
+    private const TARGET_LANGUAGE_CODES = [
+        'en', 'ar', 'es', 'fr', 'de', 'it', 'pt', 'ru', 'tr', 'zh', 'ja', 'ko',
+        'hi', 'ur', 'fa', 'he', 'nl', 'sv', 'no', 'da', 'fi', 'pl', 'cs', 'sk',
+        'hu', 'ro', 'bg', 'uk', 'el', 'id', 'ms', 'th', 'vi', 'fil', 'sw', 'am',
+        'ha', 'yo', 'ig', 'zu', 'af', 'ca', 'eu', 'gl', 'cy', 'ga', 'is', 'sq',
+        'hr', 'sr', 'sl', 'mk', 'et', 'lv', 'lt', 'ka', 'hy', 'az', 'kk', 'uz',
+        'mn', 'ne', 'bn', 'ta', 'te', 'ml', 'kn',
+    ];
+
     public function show(Request $request): JsonResponse
     {
         $data = $request->user()->progress()->first()?->data ?? UserProgress::defaults();
@@ -44,7 +53,7 @@ class ProgressController extends Controller
             'progress.interfaceLocale' => ['sometimes', Rule::in(['ar', 'en', 'es', 'fr', 'de', 'tr', 'pt', 'it', 'ru', 'zh', 'ja', 'ko'])],
             'progress.themeId' => ['sometimes', Rule::in(['snow', 'royal', 'emerald', 'ocean', 'sunset', 'rose', 'midnight', 'cocoa', 'aurora', 'lavender', 'desert', 'graphite'])],
             'progress.onboardingCompleted' => ['sometimes', 'boolean'],
-            'progress.targetLanguageCode' => ['sometimes', 'string', 'regex:/^[a-z]{2,3}$/'],
+            'progress.targetLanguageCode' => ['sometimes', Rule::in(self::TARGET_LANGUAGE_CODES)],
             'progress.currentLevel' => ['sometimes', Rule::in(['A1', 'A2', 'B1', 'B2', 'C1', 'C2'])],
             'progress.xp' => ['sometimes', 'integer', 'min:0', 'max:1000000000'],
             'progress.streak' => ['sometimes', 'integer', 'min:0', 'max:100000'],
