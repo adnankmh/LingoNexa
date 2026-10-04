@@ -136,7 +136,7 @@ class AuthProgressTest extends TestCase
             ->assertJsonPath('progress.countryCode', 'PS');
     }
 
-    public function test_progress_sync_rejects_malformed_adaptive_review_json(): void
+    public function test_progress_sync_rejects_malformed_or_non_object_adaptive_review_json(): void
     {
         $register = $this->postJson('/api/v1/auth/register', [
             'name' => 'Adaptive Sync User', 'username' => 'adaptive_sync_user',
@@ -145,11 +145,13 @@ class AuthProgressTest extends TestCase
         ])->assertCreated();
         $headers = ['Authorization' => 'Bearer '.$register->json('token')];
 
-        $this->withHeaders($headers)->putJson('/api/v1/progress', [
-            'progress' => ['adaptiveReviews' => '{not-json}'],
-        ])->assertUnprocessable()->assertJsonValidationErrors([
-            'progress.adaptiveReviews',
-        ]);
+        foreach (['{not-json}', '[]', 'null', '"review"', '42'] as $invalidReviews) {
+            $this->withHeaders($headers)->putJson('/api/v1/progress', [
+                'progress' => ['adaptiveReviews' => $invalidReviews],
+            ])->assertUnprocessable()->assertJsonValidationErrors([
+                'progress.adaptiveReviews',
+            ]);
+        }
 
         $validReviews = json_encode([
             'lesson-a' => ['intervalDays' => 3, 'ease' => 2.4],

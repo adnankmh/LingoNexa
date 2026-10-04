@@ -64,7 +64,14 @@ class ProgressController extends Controller
             'progress.weeklyXp' => ['sometimes', 'integer', 'min:0', 'max:100000000'],
             'progress.skillMastery' => ['sometimes', 'array', 'max:12'],
             'progress.skillMastery.*' => ['integer', 'min:0', 'max:100'],
-            'progress.adaptiveReviews' => ['sometimes', 'string', 'json', 'max:1000000'],
+            'progress.adaptiveReviews' => [
+                'sometimes', 'string', 'json', 'max:1000000',
+                static function (string $attribute, mixed $value, \Closure $fail): void {
+                    if (! is_string($value) || ! is_object(json_decode($value))) {
+                        $fail('The '.$attribute.' field must contain a JSON object.');
+                    }
+                },
+            ],
         ]);
 
         $incoming = Arr::only($validated['progress'], self::ALLOWED);
