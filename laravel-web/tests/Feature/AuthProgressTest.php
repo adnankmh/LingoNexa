@@ -136,6 +136,26 @@ class AuthProgressTest extends TestCase
             ->assertJsonPath('progress.countryCode', 'PS');
     }
 
+    public function test_progress_sync_rejects_unknown_skill_mastery_keys(): void
+    {
+        $register = $this->postJson('/api/v1/auth/register', [
+            'name' => 'Mastery Sync User', 'username' => 'mastery_sync_user',
+            'email' => 'mastery-sync@example.test', 'password' => 'StrongPass2026',
+            'password_confirmation' => 'StrongPass2026',
+        ])->assertCreated();
+        $headers = ['Authorization' => 'Bearer '.$register->json('token')];
+
+        $this->withHeaders($headers)->putJson('/api/v1/progress', [
+            'progress' => ['skillMastery' => ['reading' => 80, 'inventedSkill' => 90]],
+        ])->assertUnprocessable()->assertJsonValidationErrors(['progress.skillMastery']);
+
+        $this->withHeaders($headers)->putJson('/api/v1/progress', [
+            'progress' => ['skillMastery' => ['reading' => 80, 'listening' => 70]],
+        ])->assertOk()
+            ->assertJsonPath('progress.skillMastery.reading', 80)
+            ->assertJsonPath('progress.skillMastery.listening', 70);
+    }
+
     public function test_progress_sync_rejects_malformed_or_non_object_adaptive_review_json(): void
     {
         $register = $this->postJson('/api/v1/auth/register', [
