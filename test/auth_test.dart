@@ -61,4 +61,27 @@ void main() {
     }
     expect(result.error, contains('Too many attempts'));
   });
+
+  test(
+    'incompatible stored accounts recover without restoring a stale session',
+    () async {
+      SharedPreferences.setMockInitialValues({
+        'auth_accounts_v1': '{"unexpected":"object"}',
+        'auth_session_v1': 'demo_1',
+        'auth_session_started_v2': DateTime.now().toUtc().toIso8601String(),
+      });
+
+      final storage = StorageService();
+      final auth = AuthService(storage);
+      await auth.initialize();
+
+      expect(auth.accountCount, 3);
+      expect(await auth.restoreSession(), isNull);
+      expect(await storage.readString('auth_session_v1'), isNull);
+      expect(await storage.readString('auth_session_started_v2'), isNull);
+
+      final demo = await auth.signIn('demo1', 'Demo-Learner!2026');
+      expect(demo.success, isTrue);
+    },
+  );
 }
