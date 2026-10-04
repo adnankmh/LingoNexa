@@ -64,7 +64,7 @@ class ProgressController extends Controller
             'progress.weeklyXp' => ['sometimes', 'integer', 'min:0', 'max:100000000'],
             'progress.skillMastery' => ['sometimes', 'array', 'max:12'],
             'progress.skillMastery.*' => ['integer', 'min:0', 'max:100'],
-            'progress.adaptiveReviews' => ['sometimes', 'string', 'max:1000000'],
+            'progress.adaptiveReviews' => ['sometimes', 'string', 'json', 'max:1000000'],
         ]);
 
         $incoming = Arr::only($validated['progress'], self::ALLOWED);
