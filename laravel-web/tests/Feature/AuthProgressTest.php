@@ -136,6 +136,26 @@ class AuthProgressTest extends TestCase
             ->assertJsonPath('progress.countryCode', 'PS');
     }
 
+    public function test_progress_sync_accepts_only_supported_learning_reasons(): void
+    {
+        $register = $this->postJson('/api/v1/auth/register', [
+            'name' => 'Reason Sync User', 'username' => 'reason_sync_user',
+            'email' => 'reason-sync@example.test', 'password' => 'StrongPass2026',
+            'password_confirmation' => 'StrongPass2026',
+        ])->assertCreated();
+        $headers = ['Authorization' => 'Bearer '.$register->json('token')];
+
+        $this->withHeaders($headers)->putJson('/api/v1/progress', [
+            'progress' => ['learningReason' => 'Injected reason'],
+        ])->assertUnprocessable()->assertJsonValidationErrors(['progress.learningReason']);
+
+        foreach (['Travel', 'Work', 'Study', 'Family', 'Culture', 'Brain training'] as $reason) {
+            $this->withHeaders($headers)->putJson('/api/v1/progress', [
+                'progress' => ['learningReason' => $reason],
+            ])->assertOk()->assertJsonPath('progress.learningReason', $reason);
+        }
+    }
+
     public function test_progress_sync_rejects_unknown_skill_mastery_keys(): void
     {
         $register = $this->postJson('/api/v1/auth/register', [

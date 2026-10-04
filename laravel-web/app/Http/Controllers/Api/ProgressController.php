@@ -50,7 +50,7 @@ class ProgressController extends Controller
             'progress.streak' => ['sometimes', 'integer', 'min:0', 'max:100000'],
             'progress.dailyMinutes' => ['sometimes', 'integer', 'min:0', 'max:1440'],
             'progress.dailyGoalMinutes' => ['sometimes', 'integer', 'min:5', 'max:180'],
-            'progress.learningReason' => ['sometimes', 'string', 'max:80'],
+            'progress.learningReason' => ['sometimes', Rule::in(['Travel', 'Work', 'Study', 'Family', 'Culture', 'Brain training'])],
             'progress.countryCode' => ['sometimes', 'string', 'regex:/^[A-Z]{2}$/'],
             'progress.sprintMode' => ['sometimes', 'boolean'],
             'progress.downloadedPackCodes' => ['sometimes', 'array', 'max:250'],
