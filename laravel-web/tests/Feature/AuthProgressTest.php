@@ -88,4 +88,28 @@ class AuthProgressTest extends TestCase
             ->assertJsonPath('progress.xp', 900)
             ->assertJsonPath('progress.currentLevel', 'B1');
     }
+
+    public function test_progress_sync_rejects_duplicate_identifiers(): void
+    {
+        $register = $this->postJson('/api/v1/auth/register', [
+            'name' => 'Distinct Sync User', 'username' => 'distinct_sync_user',
+            'email' => 'distinct-sync@example.test', 'password' => 'StrongPass2026',
+            'password_confirmation' => 'StrongPass2026',
+        ])->assertCreated();
+        $headers = ['Authorization' => 'Bearer '.$register->json('token')];
+
+        $this->withHeaders($headers)->putJson('/api/v1/progress', [
+            'progress' => [
+                'completedLessonIds' => ['lesson-a', 'lesson-a'],
+                'reviewLessonIds' => ['lesson-b', 'lesson-b'],
+                'completedExamIds' => ['exam-a', 'exam-a'],
+                'downloadedPackCodes' => ['en-a1', 'en-a1'],
+            ],
+        ])->assertUnprocessable()->assertJsonValidationErrors([
+            'progress.completedLessonIds.1',
+            'progress.reviewLessonIds.1',
+            'progress.completedExamIds.1',
+            'progress.downloadedPackCodes.1',
+        ]);
+    }
 }
