@@ -51,7 +51,7 @@ class ProgressController extends Controller
             'progress.dailyMinutes' => ['sometimes', 'integer', 'min:0', 'max:1440'],
             'progress.dailyGoalMinutes' => ['sometimes', 'integer', 'min:5', 'max:180'],
             'progress.learningReason' => ['sometimes', 'string', 'max:80'],
-            'progress.countryCode' => ['sometimes', 'string', 'size:2'],
+            'progress.countryCode' => ['sometimes', 'string', 'regex:/^[A-Z]{2}$/'],
             'progress.sprintMode' => ['sometimes', 'boolean'],
             'progress.downloadedPackCodes' => ['sometimes', 'array', 'max:250'],
             'progress.downloadedPackCodes.*' => ['string', 'max:12', 'distinct:strict'],

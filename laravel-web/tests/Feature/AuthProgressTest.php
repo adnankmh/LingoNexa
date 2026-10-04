@@ -112,4 +112,27 @@ class AuthProgressTest extends TestCase
             'progress.downloadedPackCodes.1',
         ]);
     }
+
+    public function test_progress_sync_requires_canonical_language_and_country_code_casing(): void
+    {
+        $register = $this->postJson('/api/v1/auth/register', [
+            'name' => 'Locale Sync User', 'username' => 'locale_sync_user',
+            'email' => 'locale-sync@example.test', 'password' => 'StrongPass2026',
+            'password_confirmation' => 'StrongPass2026',
+        ])->assertCreated();
+        $headers = ['Authorization' => 'Bearer '.$register->json('token')];
+
+        $this->withHeaders($headers)->putJson('/api/v1/progress', [
+            'progress' => ['targetLanguageCode' => 'TR', 'countryCode' => 'ps'],
+        ])->assertUnprocessable()->assertJsonValidationErrors([
+            'progress.targetLanguageCode',
+            'progress.countryCode',
+        ]);
+
+        $this->withHeaders($headers)->putJson('/api/v1/progress', [
+            'progress' => ['targetLanguageCode' => 'tr', 'countryCode' => 'PS'],
+        ])->assertOk()
+            ->assertJsonPath('progress.targetLanguageCode', 'tr')
+            ->assertJsonPath('progress.countryCode', 'PS');
+    }
 }
