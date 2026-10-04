@@ -12,55 +12,41 @@ class AuthProgressTest extends TestCase
     public function test_mobile_account_can_register_and_sync_progress(): void
     {
         $register = $this->postJson('/api/v1/auth/register', [
-            'name' => 'Lingo Learner',
-            'username' => 'lingo_learner',
-            'email' => 'learner@example.test',
-            'password' => 'StrongPass2026',
+            'name' => 'Lingo Learner', 'username' => 'lingo_learner',
+            'email' => 'learner@example.test', 'password' => 'StrongPass2026',
             'password_confirmation' => 'StrongPass2026',
         ])->assertCreated()->assertJsonStructure(['token', 'user']);
-
-        $token = $register->json('token');
-        $headers = ['Authorization' => 'Bearer '.$token];
-        $this->withHeaders($headers)->putJson('/api/v1/progress', [
-            'progress' => [
-                'targetLanguageCode' => 'tr', 'currentLevel' => 'A2',
-                'xp' => 420, 'streak' => 6, 'dailyMinutes' => 18,
-                'dailyGoalMinutes' => 20, 'countryCode' => 'PS',
-                'completedLessonIds' => ['tr_A1_0_0'],
-            ],
-        ])->assertOk()->assertJsonPath('progress.xp', 420);
-
-        $this->withHeaders($headers)->getJson('/api/v1/progress')
-            ->assertOk()->assertJsonPath('progress.targetLanguageCode', 'tr');
+        $headers = ['Authorization' => 'Bearer '.$register->json('token')];
+        $this->withHeaders($headers)->putJson('/api/v1/progress', ['progress' => [
+            'targetLanguageCode' => 'tr', 'currentLevel' => 'A2', 'xp' => 420,
+            'streak' => 6, 'dailyMinutes' => 18, 'dailyGoalMinutes' => 20,
+            'countryCode' => 'PS', 'completedLessonIds' => ['tr_A1_0_0'],
+        ]])->assertOk()->assertJsonPath('progress.xp', 420);
+        $this->withHeaders($headers)->getJson('/api/v1/progress')->assertOk()
+            ->assertJsonPath('progress.targetLanguageCode', 'tr');
     }
 
     public function test_registration_requires_a_strong_password(): void
     {
         $this->postJson('/api/v1/auth/register', [
-            'name' => 'Weak User', 'username' => 'weak_user',
-            'email' => 'weak@example.test', 'password' => '123456',
-            'password_confirmation' => '123456',
+            'name' => 'Weak User', 'username' => 'weak_user', 'email' => 'weak@example.test',
+            'password' => '123456', 'password_confirmation' => '123456',
         ])->assertUnprocessable();
     }
 
     public function test_progress_validation_rejects_invalid_types_and_partial_updates_preserve_existing_data(): void
     {
         $register = $this->postJson('/api/v1/auth/register', [
-            'name' => 'Sync User', 'username' => 'sync_user',
-            'email' => 'sync@example.test', 'password' => 'StrongPass2026',
-            'password_confirmation' => 'StrongPass2026',
+            'name' => 'Sync User', 'username' => 'sync_user', 'email' => 'sync@example.test',
+            'password' => 'StrongPass2026', 'password_confirmation' => 'StrongPass2026',
         ])->assertCreated();
         $headers = ['Authorization' => 'Bearer '.$register->json('token')];
-
         $this->withHeaders($headers)->putJson('/api/v1/progress', [
             'progress' => ['xp' => 700, 'themeId' => 'aurora', 'interfaceLocale' => 'ar'],
         ])->assertOk()->assertJsonPath('progress.themeId', 'aurora');
-
         $this->withHeaders($headers)->putJson('/api/v1/progress', [
             'progress' => ['dailyGoalMinutes' => 25],
-        ])->assertOk()->assertJsonPath('progress.xp', 700)
-            ->assertJsonPath('progress.interfaceLocale', 'ar');
-
+        ])->assertOk()->assertJsonPath('progress.xp', 700)->assertJsonPath('progress.interfaceLocale', 'ar');
         $this->withHeaders($headers)->putJson('/api/v1/progress', [
             'progress' => ['xp' => -5, 'themeId' => 'unknown-theme'],
         ])->assertUnprocessable();
@@ -74,19 +60,14 @@ class AuthProgressTest extends TestCase
             'password_confirmation' => 'StrongPass2026',
         ])->assertCreated();
         $headers = ['Authorization' => 'Bearer '.$register->json('token')];
-
         $this->withHeaders($headers)->putJson('/api/v1/progress', [
             'progress' => ['xp' => 900, 'currentLevel' => 'B1'],
         ])->assertOk();
-
         $this->withHeaders($headers)->putJson('/api/v1/progress', [
             'progress' => ['xp' => 1200, 'isAdmin' => true],
         ])->assertUnprocessable()->assertJsonValidationErrors(['progress']);
-
-        $this->withHeaders($headers)->getJson('/api/v1/progress')
-            ->assertOk()
-            ->assertJsonPath('progress.xp', 900)
-            ->assertJsonPath('progress.currentLevel', 'B1');
+        $this->withHeaders($headers)->getJson('/api/v1/progress')->assertOk()
+            ->assertJsonPath('progress.xp', 900)->assertJsonPath('progress.currentLevel', 'B1');
     }
 
     public function test_progress_sync_rejects_duplicate_identifiers(): void
@@ -97,19 +78,14 @@ class AuthProgressTest extends TestCase
             'password_confirmation' => 'StrongPass2026',
         ])->assertCreated();
         $headers = ['Authorization' => 'Bearer '.$register->json('token')];
-
-        $this->withHeaders($headers)->putJson('/api/v1/progress', [
-            'progress' => [
-                'completedLessonIds' => ['lesson-a', 'lesson-a'],
-                'reviewLessonIds' => ['lesson-b', 'lesson-b'],
-                'completedExamIds' => ['exam-a', 'exam-a'],
-                'downloadedPackCodes' => ['en-a1', 'en-a1'],
-            ],
-        ])->assertUnprocessable()->assertJsonValidationErrors([
-            'progress.completedLessonIds.1',
-            'progress.reviewLessonIds.1',
-            'progress.completedExamIds.1',
-            'progress.downloadedPackCodes.1',
+        $this->withHeaders($headers)->putJson('/api/v1/progress', ['progress' => [
+            'completedLessonIds' => ['lesson-a', 'lesson-a'],
+            'reviewLessonIds' => ['lesson-b', 'lesson-b'],
+            'completedExamIds' => ['exam-a', 'exam-a'],
+            'downloadedPackCodes' => ['en-a1', 'en-a1'],
+        ]])->assertUnprocessable()->assertJsonValidationErrors([
+            'progress.completedLessonIds.1', 'progress.reviewLessonIds.1',
+            'progress.completedExamIds.1', 'progress.downloadedPackCodes.1',
         ]);
     }
 
@@ -121,22 +97,18 @@ class AuthProgressTest extends TestCase
             'password_confirmation' => 'StrongPass2026',
         ])->assertCreated();
         $headers = ['Authorization' => 'Bearer '.$register->json('token')];
-
         $this->withHeaders($headers)->putJson('/api/v1/progress', [
             'progress' => ['targetLanguageCode' => 'TR', 'countryCode' => 'ps'],
         ])->assertUnprocessable()->assertJsonValidationErrors([
-            'progress.targetLanguageCode',
-            'progress.countryCode',
+            'progress.targetLanguageCode', 'progress.countryCode',
         ]);
-
         $this->withHeaders($headers)->putJson('/api/v1/progress', [
             'progress' => ['targetLanguageCode' => 'tr', 'countryCode' => 'PS'],
-        ])->assertOk()
-            ->assertJsonPath('progress.targetLanguageCode', 'tr')
+        ])->assertOk()->assertJsonPath('progress.targetLanguageCode', 'tr')
             ->assertJsonPath('progress.countryCode', 'PS');
     }
 
-    public function test_progress_sync_rejects_malformed_adaptive_review_json(): void
+    public function test_progress_sync_rejects_malformed_or_non_object_adaptive_review_json(): void
     {
         $register = $this->postJson('/api/v1/auth/register', [
             'name' => 'Adaptive Sync User', 'username' => 'adaptive_sync_user',
@@ -145,16 +117,15 @@ class AuthProgressTest extends TestCase
         ])->assertCreated();
         $headers = ['Authorization' => 'Bearer '.$register->json('token')];
 
-        $this->withHeaders($headers)->putJson('/api/v1/progress', [
-            'progress' => ['adaptiveReviews' => '{not-json}'],
-        ])->assertUnprocessable()->assertJsonValidationErrors([
-            'progress.adaptiveReviews',
-        ]);
+        foreach (['{not-json}', '[]', 'null', '"review"', '42'] as $invalidReviews) {
+            $this->withHeaders($headers)->putJson('/api/v1/progress', [
+                'progress' => ['adaptiveReviews' => $invalidReviews],
+            ])->assertUnprocessable()->assertJsonValidationErrors(['progress.adaptiveReviews']);
+        }
 
         $validReviews = json_encode([
             'lesson-a' => ['intervalDays' => 3, 'ease' => 2.4],
         ], JSON_THROW_ON_ERROR);
-
         $this->withHeaders($headers)->putJson('/api/v1/progress', [
             'progress' => ['adaptiveReviews' => $validReviews],
         ])->assertOk()->assertJsonPath('progress.adaptiveReviews', $validReviews);
