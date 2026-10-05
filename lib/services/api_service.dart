@@ -99,6 +99,7 @@ class ApiService {
     if (uri == null ||
         !uri.hasScheme ||
         !uri.hasAuthority ||
+        uri.host.isEmpty ||
         (uri.scheme != 'http' && uri.scheme != 'https') ||
         uri.userInfo.isNotEmpty ||
         uri.hasQuery ||
