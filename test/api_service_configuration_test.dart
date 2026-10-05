@@ -70,6 +70,19 @@ void main() {
     expect(service.enabled, isFalse);
   });
 
+  test('setBaseUrl rejects URLs without a concrete host', () async {
+    final service = ApiService(StorageService());
+    const hostlessUrls = [
+      'http://:8080',
+      'https:///api',
+    ];
+
+    for (final url in hostlessUrls) {
+      await expectLater(service.setBaseUrl(url), throwsA(isA<ApiException>()));
+      expect(service.enabled, isFalse);
+    }
+  });
+
   test('setBaseUrl rejects credentials, query strings, and fragments', () async {
     final service = ApiService(StorageService());
     const unsafeOrAmbiguousUrls = [
