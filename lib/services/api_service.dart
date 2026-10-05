@@ -40,7 +40,6 @@ class ApiService {
     if (configured != null) {
       _baseUrl = configured;
     } else if (configuredBaseUrl.trim().isNotEmpty) {
-      // A malformed compile-time endpoint must never enable remote requests.
       _baseUrl = '';
     }
 
@@ -49,7 +48,6 @@ class ApiService {
       if (saved != null && saved.trim().isNotEmpty) {
         final normalizedSaved = _normalizeBaseUrl(saved);
         if (normalizedSaved == null) {
-          // Clean up stale/legacy values that predate URL validation.
           await _storage.remove(_baseUrlKey);
         } else {
           _baseUrl = normalizedSaved;
@@ -59,11 +57,8 @@ class ApiService {
         }
       }
     }
-    // Offline-only installs never need to touch the secure-storage plugin.
-    // This also keeps local unit/widget tests deterministic on host runners.
     if (!enabled) return;
     _token = await _secure.read(key: _tokenKey);
-    // One-time migration from the older SharedPreferences token slot.
     if (_token == null || _token!.isEmpty) {
       final legacy = await _storage.readString(_tokenKey);
       if (legacy != null && legacy.isNotEmpty) {
@@ -106,6 +101,12 @@ class ApiService {
         uri.hasFragment) {
       return null;
     }
+    try {
+      final port = uri.port;
+      if (port < 1 || port > 65535) return null;
+    } on FormatException {
+      return null;
+    }
     return normalized;
   }
 
@@ -120,63 +121,47 @@ class ApiService {
     }
   }
 
-  Future<Map<String, Object?>> login(String identifier, String password) async {
-    final data = await _request(
-      'POST',
-      '/api/v1/auth/login',
-      body: {'identifier': identifier, 'password': password},
-      authenticated: false,
-    );
-    await _storeToken(data['token']);
-    return _mapPayload(data['user']);
-  }
-
-  Future<Map<String, Object?>> register({
-    required String displayName,
-    required String username,
+  Future<Map<String, Object?>> login({
     required String email,
     required String password,
   }) async {
     final data = await _request(
       'POST',
-      '/api/v1/auth/register',
+      '/api/v1/login',
+      body: {'email': email, 'password': password},
+      authenticated: false,
+    );
+    await _captureAuth(data);
+    return _mapPayload(data['user']) ?? <String, Object?>{};
+  }
+
+  Future<Map<String, Object?>> register({
+    required String name,
+    required String email,
+    required String password,
+  }) async {
+    final data = await _request(
+      'POST',
+      '/api/v1/register',
       body: {
-        'name': displayName,
-        'username': username,
+        'name': name,
         'email': email,
         'password': password,
         'password_confirmation': password,
       },
       authenticated: false,
     );
-    await _storeToken(data['token']);
-    return _mapPayload(data['user']);
+    await _captureAuth(data);
+    return _mapPayload(data['user']) ?? <String, Object?>{};
   }
 
   Future<void> logout() async {
-    if (enabled && _token != null) {
+    if (enabled && _token != null && _token!.isNotEmpty) {
       try {
-        await _request('POST', '/api/v1/auth/logout');
-      } catch (_) {
-        // Local token cleanup must still happen if the network is unavailable.
-      }
+        await _request('POST', '/api/v1/logout');
+      } catch (_) {}
     }
-    if (enabled) {
-      await clearToken();
-    }
-  }
-
-  Future<Map<String, Object?>> loadProgress() async {
-    if (!enabled || _token == null) return const {};
-    final data = await _request('GET', '/api/v1/progress');
-    final progress = data['progress'];
-    if (progress is Map) return Map<String, Object?>.from(progress);
-    return const {};
-  }
-
-  Future<void> saveProgress(Map<String, Object?> progress) async {
-    if (!enabled || _token == null) return;
-    await _request('PUT', '/api/v1/progress', body: {'progress': progress});
+    await clearToken();
   }
 
   Future<void> clearToken() async {
@@ -185,22 +170,37 @@ class ApiService {
     await _storage.remove(_tokenKey);
   }
 
-  Future<void> _storeToken(Object? token) async {
-    final value = token?.toString() ?? '';
-    if (value.isEmpty) {
-      throw const ApiException(
-        'The server did not return an authentication token.',
-      );
-    }
-    _token = value;
-    await _secure.write(key: _tokenKey, value: value);
+  Future<Map<String, Object?>> pushProgress(Map<String, Object?> progress) async {
+    return _request('PUT', '/api/v1/progress', body: progress);
   }
 
-  Map<String, Object?> _mapPayload(Object? payload) {
-    if (payload is! Map) {
-      throw const ApiException('Invalid user data returned by the server.');
+  Future<Map<String, Object?>> pullProgress() async {
+    return _request('GET', '/api/v1/progress');
+  }
+
+  Future<Map<String, Object?>> updateAdminAccount({
+    required String name,
+    required String email,
+    String? password,
+    String? currentPassword,
+  }) async {
+    final body = <String, Object?>{'name': name, 'email': email};
+    if (password != null && password.isNotEmpty) {
+      body['password'] = password;
+      body['password_confirmation'] = password;
+      body['current_password'] = currentPassword ?? '';
     }
-    return Map<String, Object?>.from(payload);
+    return _request('PUT', '/api/v1/admin/account', body: body);
+  }
+
+  Future<void> _captureAuth(Map<String, Object?> data) async {
+    final token = data['token']?.toString();
+    if (token == null || token.isEmpty) {
+      throw const ApiException('The server did not return an authentication token.');
+    }
+    _token = token;
+    await _secure.write(key: _tokenKey, value: token);
+    await _storage.remove(_tokenKey);
   }
 
   Future<Map<String, Object?>> _request(
@@ -210,9 +210,8 @@ class ApiService {
     bool authenticated = true,
   }) async {
     if (!enabled) {
-      throw const ApiException('LingoNexa server URL is not configured.');
+      throw const ApiException('Remote sync is not configured.');
     }
-    final uri = Uri.parse('${_baseUrl.replaceFirst(RegExp(r'/+$'), '')}$path');
     final headers = <String, String>{
       'Accept': 'application/json',
       'Content-Type': 'application/json',
@@ -220,55 +219,41 @@ class ApiService {
     if (authenticated && _token != null && _token!.isNotEmpty) {
       headers['Authorization'] = 'Bearer $_token';
     }
-
-    late http.Response response;
+    final uri = Uri.parse('$_baseUrl$path');
+    http.Response response;
     try {
-      response = switch (method) {
-        'GET' => await _client
-            .get(uri, headers: headers)
-            .timeout(const Duration(seconds: 15)),
-        'POST' => await _client
-            .post(uri, headers: headers, body: jsonEncode(body ?? const {}))
-            .timeout(const Duration(seconds: 15)),
-        'PUT' => await _client
-            .put(uri, headers: headers, body: jsonEncode(body ?? const {}))
-            .timeout(const Duration(seconds: 15)),
-        _ => throw ApiException('Unsupported HTTP method: $method'),
-      };
-    } catch (error) {
-      if (error is ApiException) rethrow;
-      throw ApiException('Could not connect to the LingoNexa server: $error');
+      switch (method) {
+        case 'POST':
+          response = await _client.post(uri, headers: headers, body: jsonEncode(body ?? {}));
+          break;
+        case 'PUT':
+          response = await _client.put(uri, headers: headers, body: jsonEncode(body ?? {}));
+          break;
+        default:
+          response = await _client.get(uri, headers: headers);
+      }
+    } catch (_) {
+      throw const ApiException('Could not reach the LingoNexa server.');
     }
 
-    Object? decoded;
+    Map<String, Object?> payload = <String, Object?>{};
     if (response.body.trim().isNotEmpty) {
       try {
-        decoded = jsonDecode(response.body);
-      } catch (_) {
-        throw ApiException(
-          'The server returned an unreadable response.',
-          statusCode: response.statusCode,
-        );
-      }
+        final decoded = jsonDecode(response.body);
+        if (decoded is Map) {
+          payload = decoded.map((key, value) => MapEntry(key.toString(), value));
+        }
+      } catch (_) {}
     }
-    final data = decoded is Map
-        ? Map<String, Object?>.from(decoded)
-        : <String, Object?>{};
     if (response.statusCode < 200 || response.statusCode >= 300) {
-      final message = data['message']?.toString() ??
-          _firstValidationMessage(data['errors']) ??
-          'Server request failed (${response.statusCode}).';
+      final message = payload['message']?.toString() ?? 'Server request failed.';
       throw ApiException(message, statusCode: response.statusCode);
     }
-    return data;
+    return payload;
   }
 
-  String? _firstValidationMessage(Object? errors) {
-    if (errors is! Map) return null;
-    for (final value in errors.values) {
-      if (value is List && value.isNotEmpty) return value.first.toString();
-      if (value != null) return value.toString();
-    }
-    return null;
+  Map<String, Object?>? _mapPayload(Object? value) {
+    if (value is! Map) return null;
+    return value.map((key, item) => MapEntry(key.toString(), item));
   }
 }
