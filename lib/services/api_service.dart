@@ -106,6 +106,12 @@ class ApiService {
         uri.hasFragment) {
       return null;
     }
+    try {
+      final port = uri.port;
+      if (port < 1 || port > 65535) return null;
+    } on FormatException {
+      return null;
+    }
     return normalized;
   }
 
