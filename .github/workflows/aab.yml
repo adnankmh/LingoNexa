@@ -14,6 +14,7 @@ env:
 jobs:
   build-aab:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     concurrency:
       group: aab-${{ github.ref }}
       cancel-in-progress: true
