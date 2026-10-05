@@ -120,6 +120,28 @@ void main() {
     }
   });
 
+  test('setBaseUrl rejects embedded control characters without changing state',
+      () async {
+    final service = ApiService(StorageService());
+    await service.setBaseUrl('https://example.test/api');
+    const unsafeUrls = [
+      'https://example.test/api\nadmin',
+      'https://example.test/api\tadmin',
+      'https://example.test/api\u007Fadmin',
+    ];
+
+    for (final url in unsafeUrls) {
+      await expectLater(service.setBaseUrl(url), throwsA(isA<ApiException>()));
+      expect(service.baseUrl, 'https://example.test/api');
+    }
+
+    final preferences = await SharedPreferences.getInstance();
+    expect(
+      preferences.getString('remote_api_base_url_v1'),
+      'https://example.test/api',
+    );
+  });
+
   test('initialize removes an unsafe persisted API URL', () async {
     SharedPreferences.setMockInitialValues({
       'remote_api_base_url_v1': 'javascript:alert(1)',

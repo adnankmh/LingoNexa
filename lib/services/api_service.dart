@@ -94,7 +94,9 @@ class ApiService {
 
   String? _normalizeBaseUrl(String value) {
     final normalized = value.trim().replaceFirst(RegExp(r'/+$'), '');
-    if (normalized.isEmpty) return null;
+    if (normalized.isEmpty || RegExp(r'[\x00-\x1F\x7F]').hasMatch(normalized)) {
+      return null;
+    }
     final uri = Uri.tryParse(normalized);
     if (uri == null ||
         !uri.hasScheme ||
