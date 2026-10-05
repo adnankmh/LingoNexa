@@ -83,6 +83,29 @@ void main() {
     }
   });
 
+  test('setBaseUrl rejects invalid TCP ports', () async {
+    final service = ApiService(StorageService());
+    const invalidPortUrls = [
+      'https://example.test:0',
+      'https://example.test:65536',
+      'https://example.test:not-a-port',
+    ];
+
+    for (final url in invalidPortUrls) {
+      await expectLater(service.setBaseUrl(url), throwsA(isA<ApiException>()));
+      expect(service.enabled, isFalse);
+    }
+  });
+
+  test('setBaseUrl accepts valid explicit TCP ports', () async {
+    final service = ApiService(StorageService());
+
+    await service.setBaseUrl('http://localhost:8000');
+
+    expect(service.baseUrl, 'http://localhost:8000');
+    expect(service.enabled, isTrue);
+  });
+
   test('setBaseUrl rejects credentials, query strings, and fragments', () async {
     final service = ApiService(StorageService());
     const unsafeOrAmbiguousUrls = [
