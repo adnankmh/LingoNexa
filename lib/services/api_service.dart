@@ -103,6 +103,10 @@ class ApiService {
         !uri.hasAuthority ||
         uri.host.isEmpty ||
         (uri.scheme != 'http' && uri.scheme != 'https') ||
+        (uri.scheme == 'http' &&
+            uri.host.toLowerCase() != 'localhost' &&
+            uri.host != '127.0.0.1' &&
+            uri.host != '::1') ||
         uri.userInfo.isNotEmpty ||
         uri.hasQuery ||
         uri.hasFragment) {
