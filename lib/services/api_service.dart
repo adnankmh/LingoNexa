@@ -84,7 +84,7 @@ class ApiService {
     final normalized = _normalizeBaseUrl(value);
     if (normalized == null) {
       throw const ApiException(
-        'LingoNexa server URL must be a valid HTTP or HTTPS URL.',
+        'Enter a valid server URL. Use HTTPS for remote servers; HTTP is allowed only for localhost, 127.0.0.1, or ::1.',
       );
     }
 
